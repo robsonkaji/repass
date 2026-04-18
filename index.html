@@ -1015,8 +1015,8 @@ function renderReservas(){
   });
   const historico=data.filter(r=>['retirada','cancelada','recusada'].includes(r.status));
 
-  // Stats rápidos
-  const total=allReservas.length;
+  // Stats rápidos — baseado em TODOS os dados sem filtro
+  const total=allReservas.filter(r=>['fila','aprovada'].includes(r.status)).length;
   const ativas=allReservas.filter(r=>['fila','aprovada'].includes(r.status)).length;
   const vencendo=allReservas.filter(r=>{if(r.status!=='aprovada'||!r.prazo_retirada)return false;const d=(new Date(r.prazo_retirada)-now)/(1000*60*60);return d<=48&&d>0;}).length;
   const vencidas=allReservas.filter(r=>{if(r.status!=='aprovada'||!r.prazo_retirada)return false;return new Date(r.prazo_retirada)<now;}).length;
