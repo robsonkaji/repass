@@ -498,20 +498,34 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <div class="amain">
       <div id="p-reservas" class="apanel act">
         <div class="atitle">Gestão de reservas</div>
-        <div class="asub">Aprovar, recusar e acompanhar todas as reservas</div>
-        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
-          <div class="sbox" style="max-width:280px;"><span class="sicon">🔍</span><input type="text" id="res-search" placeholder="Buscar por item ou usuário..." oninput="filterReservas()"/></div>
-          <select class="fsel" id="res-loc" onchange="filterReservas()"><option value="">Todos os locais</option><option value="São Paulo">São Paulo</option><option value="Joinville">Joinville</option></select>
+        <div class="asub">Visão completa de todas as reservas e filas</div>
+
+        <!-- Stats rápidos -->
+        <div id="res-stats" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;"></div>
+
+        <!-- Filtros -->
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+          <div class="sbox" style="max-width:260px;"><span class="sicon">🔍</span><input type="text" id="res-search" placeholder="Buscar item ou usuário..." oninput="filterReservas()"/></div>
+          <select class="fsel" id="res-loc" onchange="filterReservas()"><option value="">📍 Todos os locais</option><option value="São Paulo">São Paulo</option><option value="Joinville">Joinville</option></select>
+          <select class="fsel" id="res-status-filter" onchange="filterReservas()"><option value="">Todos os status</option><option value="fila">Na fila</option><option value="aprovada">Aprovada</option><option value="retirada">Retirada</option><option value="cancelada">Cancelada</option><option value="recusada">Recusada</option></select>
+          <select class="fsel" id="res-ord" onchange="filterReservas()"><option value="new">Mais recentes</option><option value="prazo">Por prazo</option><option value="user">Por usuário</option></select>
         </div>
-        <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;">
-          <button class="res-tab act" onclick="switchResTab('pendentes',this)" style="padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--teal-dark);border-bottom:2px solid var(--teal);margin-bottom:-2px;font-family:'DM Sans',sans-serif;">Pendentes <span id="tab-cnt-pendentes" style="background:var(--teal);color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">0</span></button>
-          <button class="res-tab" onclick="switchResTab('aprovadas',this)" style="padding:8px 18px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;">Aprovadas <span id="tab-cnt-aprovadas" style="background:var(--surface3);color:var(--ink-soft);border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">0</span></button>
-          <button class="res-tab" onclick="switchResTab('prazo',this)" style="padding:8px 18px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;">⚠️ Prazo <span id="tab-cnt-prazo" style="background:var(--surface3);color:var(--ink-soft);border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">0</span></button>
-          <button class="res-tab" onclick="switchResTab('historico',this)" style="padding:8px 18px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;">Histórico</button>
+
+        <!-- Abas -->
+        <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;overflow-x:auto;">
+          <button class="res-tab act" onclick="switchResTab('pendentes',this)" style="padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--teal-dark);border-bottom:2px solid var(--teal);margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Pendentes <span id="tab-cnt-pendentes" style="background:var(--teal);color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">0</span></button>
+          <button class="res-tab" onclick="switchResTab('aprovadas',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Aprovadas <span id="tab-cnt-aprovadas" style="background:var(--surface3);color:var(--ink-soft);border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">0</span></button>
+          <button class="res-tab" onclick="switchResTab('prazo',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">⚠️ Prazo <span id="tab-cnt-prazo" style="background:var(--surface3);color:var(--ink-soft);border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">0</span></button>
+          <button class="res-tab" onclick="switchResTab('fila-itens',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Fila por item</button>
+          <button class="res-tab" onclick="switchResTab('por-usuario',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Por usuário</button>
+          <button class="res-tab" onclick="switchResTab('historico',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Histórico</button>
         </div>
+
         <div id="res-pendentes"></div>
         <div id="res-aprovadas" style="display:none;"></div>
         <div id="res-prazo" style="display:none;"></div>
+        <div id="res-fila-itens" style="display:none;"></div>
+        <div id="res-por-usuario" style="display:none;"></div>
         <div id="res-historico" style="display:none;"></div>
       </div>
       <div id="p-banners" class="apanel"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div><div class="atitle">Banners</div><div class="asub">Avisos no catálogo</div></div><button class="btn btn-primary" onclick="openModal('m-banner')">+ Novo</button></div><div id="adm-ban"></div></div>
@@ -966,9 +980,9 @@ async function switchPanel(p,el){
 
 let allReservas=[];
 async function loadAdmRes(){
-  const tabs=['pendentes','aprovadas','prazo','historico'];
+  const tabs=['pendentes','aprovadas','prazo','fila-itens','por-usuario','historico'];
   tabs.forEach(t=>{const el=document.getElementById('res-'+t);if(el)el.innerHTML='<div class="empty"><div class="spinner" style="margin:0 auto;"></div></div>';});
-  const{data,error}=await sb.from('reservas').select('*,items(id,nome,tipo,preco,escritorio,condicao,fotos),users(nome,slack_name,escritorio)').order('created_at',{ascending:false});
+  const{data,error}=await sb.from('reservas').select('*,items(id,nome,tipo,preco,escritorio,condicao,fotos,categoria),users(nome,slack_name,escritorio)').order('created_at',{ascending:false});
   if(error){document.getElementById('res-pendentes').innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><div>Erro: '+error.message+'</div></div>';return;}
   allReservas=data||[];renderReservas();
 }
@@ -978,19 +992,143 @@ function filterReservas(){renderReservas();}
 function renderReservas(){
   const q=(document.getElementById('res-search')?.value||'').toLowerCase();
   const loc=document.getElementById('res-loc')?.value||'';
+  const statusF=document.getElementById('res-status-filter')?.value||'';
+  const ord=document.getElementById('res-ord')?.value||'new';
   const now=new Date();
+
   let data=allReservas.filter(r=>{
     if(q&&!r.items?.nome?.toLowerCase().includes(q)&&!r.users?.nome?.toLowerCase().includes(q))return false;
-    if(loc&&r.users?.escritorio!==loc)return false;
+    if(loc&&r.items?.escritorio!==loc)return false;
+    if(statusF&&r.status!==statusF)return false;
     return true;
   });
+
+  if(ord==='prazo')data.sort((a,b)=>new Date(a.prazo_retirada||'9999')-new Date(b.prazo_retirada||'9999'));
+  else if(ord==='user')data.sort((a,b)=>(a.users?.nome||'').localeCompare(b.users?.nome||''));
+
   const pendentes=data.filter(r=>r.status==='fila');
   const aprovadas=data.filter(r=>r.status==='aprovada');
-  const prazo=aprovadas.filter(r=>{if(!r.prazo_retirada)return false;const diff=(new Date(r.prazo_retirada)-now)/(1000*60*60);return diff<=24&&diff>0;});
+  const prazo=data.filter(r=>{
+    if(r.status!=='aprovada'||!r.prazo_retirada)return false;
+    const diff=(new Date(r.prazo_retirada)-now)/(1000*60*60);
+    return diff<=48;
+  });
   const historico=data.filter(r=>['retirada','cancelada','recusada'].includes(r.status));
+
+  // Stats rápidos
+  const total=allReservas.length;
+  const ativas=allReservas.filter(r=>['fila','aprovada'].includes(r.status)).length;
+  const vencendo=allReservas.filter(r=>{if(r.status!=='aprovada'||!r.prazo_retirada)return false;const d=(new Date(r.prazo_retirada)-now)/(1000*60*60);return d<=48&&d>0;}).length;
+  const vencidas=allReservas.filter(r=>{if(r.status!=='aprovada'||!r.prazo_retirada)return false;return new Date(r.prazo_retirada)<now;}).length;
+  const retiradas=allReservas.filter(r=>r.status==='retirada').length;
+  const statsEl=document.getElementById('res-stats');
+  if(statsEl)statsEl.innerHTML=`
+    <div class="astat"><div class="astat-n">${total}</div><div class="astat-l">Total</div></div>
+    <div class="astat"><div class="astat-n" style="color:var(--teal);">${ativas}</div><div class="astat-l">Ativas</div></div>
+    <div class="astat"><div class="astat-n" style="color:var(--amber);">${vencendo}</div><div class="astat-l">Vencendo em 48h</div></div>
+    <div class="astat"><div class="astat-n" style="color:var(--red);">${vencidas}</div><div class="astat-l">Prazo vencido</div></div>
+    <div class="astat"><div class="astat-n" style="color:var(--green);">${retiradas}</div><div class="astat-l">Retiradas</div></div>
+  `;
+
   const setCnt=(id,n,warn)=>{const el=document.getElementById('tab-cnt-'+id);if(el){el.textContent=n;el.style.background=warn&&n>0?'var(--red)':n>0?'var(--teal)':'var(--surface3)';el.style.color=n>0?'white':'var(--ink-soft)';}};
-  setCnt('pendentes',pendentes.length,false);setCnt('aprovadas',aprovadas.length,false);setCnt('prazo',prazo.length,true);
-  renderResTab('res-pendentes',pendentes,'pendente');renderResTab('res-aprovadas',aprovadas,'aprovada');renderResTab('res-prazo',prazo,'prazo');renderResTab('res-historico',historico,'historico');
+  setCnt('pendentes',pendentes.length,false);
+  setCnt('aprovadas',aprovadas.length,false);
+  setCnt('prazo',prazo.length,true);
+
+  renderResTab('res-pendentes',pendentes,'pendente');
+  renderResTab('res-aprovadas',aprovadas,'aprovada');
+  renderResTab('res-prazo',prazo,'prazo');
+  renderResTabFilaItens(data);
+  renderResTabPorUsuario(data);
+  renderResTab('res-historico',historico,'historico');
+}
+
+function renderResTabFilaItens(data){
+  const el=document.getElementById('res-fila-itens');if(!el)return;
+  // Agrupar por item
+  const porItem={};
+  data.filter(r=>['fila','aprovada'].includes(r.status)).forEach(r=>{
+    const id=r.item_id;
+    if(!porItem[id])porItem[id]={item:r.items,reservas:[]};
+    porItem[id].reservas.push(r);
+  });
+  const itens=Object.values(porItem);
+  if(!itens.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div>Nenhuma fila ativa.</div></div>';return;}
+  let html='';
+  itens.sort((a,b)=>b.reservas.length-a.reservas.length).forEach(({item,reservas})=>{
+    const thumb=item?.fotos?.length?`<img src="${item.fotos[0]}" style="width:100%;height:100%;object-fit:cover;"/>`:(catEmoji(item?.categoria)||'📦');
+    html+=`<div style="background:white;border:1px solid var(--border);border-radius:var(--rl);margin-bottom:12px;overflow:hidden;">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface2);border-bottom:1px solid var(--border);">
+        <div style="width:44px;height:44px;border-radius:var(--r);background:var(--surface3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${thumb}</div>
+        <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--ink);">${item?.nome||'—'}</div>
+        <div style="font-size:12px;color:var(--ink-soft);">📍 ${item?.escritorio||'—'} · ${reservas.length} pessoa(s) na fila</div></div>
+        <span style="background:var(--teal-light);color:var(--teal-dark);font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;">${reservas.length} na fila</span>
+      </div>`;
+    reservas.sort((a,b)=>a.posicao_fila-b.posicao_fila).forEach((r,i)=>{
+      const isAprov=r.status==='aprovada';
+      const prazoStr=r.prazo_retirada?new Date(r.prazo_retirada).toLocaleDateString('pt-BR'):'—';
+      const diffH=r.prazo_retirada?((new Date(r.prazo_retirada)-new Date())/(1000*60*60)).toFixed(0):null;
+      const isUrgent=diffH!==null&&parseFloat(diffH)<=48&&parseFloat(diffH)>0;
+      const isExp=diffH!==null&&parseFloat(diffH)<=0;
+      html+=`<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border-light);${isAprov?'background:var(--green-bg)':''};${isUrgent?'background:var(--amber-bg)':''};${isExp?'background:var(--red-bg)':''}">
+        <div style="width:24px;height:24px;border-radius:50%;background:${i===0?'var(--teal)':'var(--surface3)'};color:${i===0?'white':'var(--ink)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">${i+1}</div>
+        <div style="flex:1;font-size:13px;font-weight:500;color:var(--ink);">${r.users?.nome||'—'} <span style="font-size:11px;color:var(--ink-soft);">${r.users?.slack_name||''}</span></div>
+        <div style="font-size:11px;color:var(--ink-soft);">📅 ${new Date(r.created_at).toLocaleDateString('pt-BR')}</div>
+        ${isAprov?`<span style="font-size:11px;color:var(--green);font-weight:600;">✅ Aprovada · prazo ${prazoStr}</span>`:''}
+        ${isUrgent?`<span style="font-size:11px;color:var(--amber);font-weight:600;">⚠️ ${diffH}h restantes</span>`:''}
+        ${isExp?`<span style="font-size:11px;color:var(--red);font-weight:600;">❌ Prazo expirado</span>`:''}
+        <span class="badge badge-${r.status==='aprovada'?'aprovada':'fila'}" style="font-size:10px;">${r.status}</span>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  el.innerHTML=html;
+}
+
+function renderResTabPorUsuario(data){
+  const el=document.getElementById('res-por-usuario');if(!el)return;
+  const porUser={};
+  data.filter(r=>['fila','aprovada'].includes(r.status)).forEach(r=>{
+    const id=r.user_id;
+    if(!porUser[id])porUser[id]={user:r.users,reservas:[]};
+    porUser[id].reservas.push(r);
+  });
+  const users=Object.values(porUser);
+  if(!users.length){el.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div>Nenhuma reserva ativa.</div></div>';return;}
+  let html='';
+  users.sort((a,b)=>b.reservas.length-a.reservas.length).forEach(({user,reservas})=>{
+    const max=2;const pct=(reservas.length/max*100);
+    const cor=reservas.length>=max?'var(--red)':reservas.length===1?'var(--teal)':'var(--amber)';
+    html+=`<div style="background:white;border:1px solid var(--border);border-radius:var(--rl);margin-bottom:10px;overflow:hidden;">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--teal);color:white;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${(user?.nome||'?').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase()}</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:600;color:var(--ink);">${user?.nome||'—'}</div>
+          <div style="font-size:12px;color:var(--ink-soft);">${user?.slack_name||''} · 📍 ${user?.escritorio||'—'}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+            <div style="flex:1;height:5px;background:var(--surface3);border-radius:3px;"><div style="height:5px;background:${cor};border-radius:3px;width:${pct}%;"></div></div>
+            <span style="font-size:12px;font-weight:700;color:${cor};">${reservas.length}/${max}</span>
+          </div>
+        </div>
+        ${reservas.length>=max?'<span style="background:var(--red-bg);color:var(--red);font-size:11px;font-weight:700;padding:3px 8px;border-radius:10px;">Limite atingido</span>':''}
+      </div>
+      <div style="border-top:1px solid var(--border-light);">`;
+    reservas.forEach(r=>{
+      const prazoStr=r.prazo_retirada?new Date(r.prazo_retirada).toLocaleDateString('pt-BR'):'—';
+      const diffH=r.prazo_retirada?((new Date(r.prazo_retirada)-new Date())/(1000*60*60)).toFixed(0):null;
+      const isUrgent=diffH!==null&&parseFloat(diffH)<=48&&parseFloat(diffH)>0;
+      const isExp=diffH!==null&&parseFloat(diffH)<=0;
+      html+=`<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border-light);${isUrgent?'background:var(--amber-bg)':''};${isExp?'background:var(--red-bg)':''}">
+        <div style="flex:1;font-size:13px;color:var(--ink);">${r.items?.nome||'—'} <span style="font-size:11px;color:var(--ink-soft);">· ${r.items?.escritorio||''}</span></div>
+        <span class="badge badge-${r.status==='aprovada'?'aprovada':'fila'}" style="font-size:10px;">${r.status}</span>
+        ${r.status==='aprovada'?`<span style="font-size:11px;color:${isExp?'var(--red)':isUrgent?'var(--amber)':'var(--ink-soft)'};">⏱ ${prazoStr}</span>`:''}
+        ${isUrgent?`<span style="font-size:11px;font-weight:600;color:var(--amber);">⚠️ ${diffH}h</span>`:''}
+        ${isExp?`<span style="font-size:11px;font-weight:600;color:var(--red);">❌ Expirado</span>`:''}
+      </div>`;
+    });
+    html+='</div></div>';
+  });
+  el.innerHTML=html;
 }
 
 function renderResTab(elId,items,tipo){
@@ -1042,7 +1180,7 @@ async function confirmarRecusa(){
 async function switchResTab(tab,el){
   document.querySelectorAll('.res-tab').forEach(function(t){t.style.color='var(--ink-soft)';t.style.borderBottomColor='transparent';t.style.fontWeight='500';});
   el.style.color='var(--teal-dark)';el.style.borderBottomColor='var(--teal)';el.style.fontWeight='600';
-  ['pendentes','aprovadas','prazo','historico'].forEach(function(t){var d=document.getElementById('res-'+t);if(d)d.style.display=t===tab?'block':'none';});
+  ['pendentes','aprovadas','prazo','fila-itens','por-usuario','historico'].forEach(function(t){var d=document.getElementById('res-'+t);if(d)d.style.display=t===tab?'block':'none';});
 }
 
 async function marcarRetiradoRes(resId,itemId){
