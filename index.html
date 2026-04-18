@@ -948,16 +948,40 @@ function dismissBanner(id){
 // ─── CAPA ──────────────────────────────────────────────────
 async function loadCapa(){
   const{data}=await sb.from('capa_config').select('*').eq('id',1).single();
+  const hero=document.getElementById('hero');
+
+  // Aplica o SVG da capa como fundo fixo
+  const svgCapa=`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 400' preserveAspectRatio='xMidYMid slice'><rect width='1440' height='400' fill='%23e6f7f8'/><rect x='0' y='0' width='760' height='400' fill='%23d4f0f2' opacity='0.45'/><rect x='960' y='0' width='480' height='400' fill='%23c8f0e8' opacity='0.35'/><circle cx='1320' cy='70' r='190' fill='%231DA8B0' opacity='0.06'/><circle cx='1380' cy='340' r='130' fill='%231D9E75' opacity='0.07'/><circle cx='80' cy='360' r='140' fill='%231DA8B0' opacity='0.05'/><line x1='860' y1='40' x2='860' y2='360' stroke='%231DA8B0' stroke-width='1' opacity='0.18' stroke-dasharray='5,5'/><rect x='910' y='55' width='130' height='85' rx='7' fill='%230e6b70' opacity='0.18' stroke='%231DA8B0' stroke-width='1.5'/><rect x='918' y='63' width='114' height='69' rx='3' fill='%231DA8B0' opacity='0.12'/><rect x='926' y='73' width='45' height='5' rx='2' fill='%231DA8B0' opacity='0.5'/><rect x='926' y='83' width='70' height='4' rx='2' fill='%231DA8B0' opacity='0.35'/><rect x='926' y='92' width='55' height='4' rx='2' fill='%231DA8B0' opacity='0.28'/><rect x='926' y='101' width='65' height='4' rx='2' fill='%231DA8B0' opacity='0.2'/><rect x='967' y='140' width='16' height='22' rx='2' fill='%230e6b70' opacity='0.3'/><rect x='948' y='162' width='54' height='7' rx='3' fill='%230e6b70' opacity='0.25'/><rect x='1092' y='45' width='76' height='95' rx='9' fill='%231DA8B0' opacity='0.2' stroke='%231DA8B0' stroke-width='1.5'/><rect x='1102' y='55' width='56' height='75' rx='5' fill='%231DA8B0' opacity='0.1'/><rect x='1082' y='145' width='96' height='28' rx='6' fill='%231DA8B0' opacity='0.28' stroke='%231DA8B0' stroke-width='1.5'/><rect x='1120' y='173' width='20' height='42' rx='4' fill='%230e6b70' opacity='0.35'/><ellipse cx='1130' cy='223' rx='48' ry='11' fill='%230e6b70' opacity='0.18' stroke='%230e6b70' stroke-width='1'/><circle cx='1092' cy='223' r='6' fill='%230e6b70' opacity='0.38'/><circle cx='1168' cy='223' r='6' fill='%230e6b70' opacity='0.38'/><circle cx='1130' cy='231' r='6' fill='%230e6b70' opacity='0.38'/><rect x='1200' y='130' width='170' height='16' rx='5' fill='%231DA8B0' opacity='0.28' stroke='%231DA8B0' stroke-width='1.5'/><rect x='1208' y='146' width='12' height='85' rx='3' fill='%230e6b70' opacity='0.22'/><rect x='1350' y='146' width='12' height='85' rx='3' fill='%230e6b70' opacity='0.22'/><rect x='1208' y='200' width='154' height='10' rx='2' fill='%231DA8B0' opacity='0.18'/><rect x='920' y='260' width='120' height='70' rx='5' fill='%231DA8B0' opacity='0.18' stroke='%231DA8B0' stroke-width='1.5'/><rect x='928' y='268' width='104' height='54' rx='3' fill='%231DA8B0' opacity='0.12'/><rect x='936' y='276' width='55' height='4' rx='2' fill='%231DA8B0' opacity='0.5'/><rect x='936' y='284' width='75' height='3' rx='2' fill='%231DA8B0' opacity='0.35'/><rect x='936' y='291' width='65' height='3' rx='2' fill='%231DA8B0' opacity='0.28'/><rect x='920' y='330' width='120' height='28' rx='4' fill='%230e6b70' opacity='0.18' stroke='%230e6b70' stroke-width='1'/><rect x='962' y='336' width='36' height='16' rx='3' fill='%231DA8B0' opacity='0.2'/><rect x='1068' y='278' width='104' height='62' rx='7' fill='%231DA8B0' opacity='0.18' stroke='%231DA8B0' stroke-width='1.5'/><rect x='1084' y='260' width='72' height='24' rx='4' fill='%230e6b70' opacity='0.18' stroke='%230e6b70' stroke-width='1'/><rect x='1084' y='340' width='72' height='14' rx='2' fill='%230e6b70' opacity='0.14'/><circle cx='1152' cy='309' r='8' fill='%231D9E75' opacity='0.45'/><rect x='1084' y='290' width='52' height='16' rx='2' fill='%231DA8B0' opacity='0.22'/><rect x='1208' y='250' width='64' height='108' rx='9' fill='%231DA8B0' opacity='0.18' stroke='%231DA8B0' stroke-width='1.5'/><rect x='1216' y='260' width='48' height='66' rx='3' fill='%231DA8B0' opacity='0.13'/><circle cx='1240' cy='338' r='9' fill='%230e6b70' opacity='0.28'/><rect x='1222' y='268' width='36' height='4' rx='2' fill='%231DA8B0' opacity='0.45'/><rect x='1222' y='276' width='28' height='3' rx='2' fill='%231DA8B0' opacity='0.32'/></svg>`;
+
+  if(hero){
+    hero.style.backgroundImage=`url("data:image/svg+xml,${svgCapa}")`;
+    hero.style.backgroundSize='cover';
+    hero.style.backgroundPosition='center';
+    hero.style.backgroundRepeat='no-repeat';
+  }
+  hide('#hero-svg');
+
   if(!data)return;
-  if(data.label)set('#hero-label',data.label);
-  if(data.titulo)set('#hero-title',data.titulo);
-  if(data.subtitulo)set('#hero-sub',data.subtitulo);
+  if(data.label!==undefined){
+    const el=document.getElementById('hero-label');
+    if(el){el.textContent=data.label;el.style.display=data.label?'':'none';}
+  }
+  if(data.titulo!==undefined){
+    const el=document.getElementById('hero-title');
+    if(el){el.textContent=data.titulo;el.style.display=data.titulo?'':'none';}
+  }
+  if(data.subtitulo!==undefined){
+    const el=document.getElementById('hero-sub');
+    if(el){el.textContent=data.subtitulo;el.style.display=data.subtitulo?'':'none';}
+  }
   if(data.imagem_url){
-    const h=document.getElementById('hero');
-    h.style.backgroundImage=`url(${data.imagem_url})`;h.style.backgroundSize='cover';h.style.backgroundPosition='center';
+    if(hero){hero.style.backgroundImage=`url(${data.imagem_url})`;hero.style.backgroundSize='cover';hero.style.backgroundPosition='center';}
     const ov=document.getElementById('hero-ov');if(ov)ov.style.background=`rgba(0,0,0,${(data.overlay_opacity||0)/100})`;
-    if(!data.mostrar_svg)hide('#hero-svg');
-    if(data.texto_cor==='light'){document.getElementById('hero-label').style.color='#7ee8ed';document.getElementById('hero-title').style.color='white';document.getElementById('hero-sub').style.color='rgba(255,255,255,.8)';}
+    if(data.texto_cor==='light'){
+      const hl=document.getElementById('hero-label');if(hl)hl.style.color='#7ee8ed';
+      const ht=document.getElementById('hero-title');if(ht)ht.style.color='white';
+      const hs=document.getElementById('hero-sub');if(hs)hs.style.color='rgba(255,255,255,.8)';
+    }
   }
 }
 
