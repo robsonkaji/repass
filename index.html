@@ -878,7 +878,7 @@ async function loadPerfil(){
   myRes=res||[];const max=2,at=myRes.length;document.getElementById('p-lbar').style.width=(at/max*100)+'%';set('#p-lim',at+'/'+max);
   const resEl=document.getElementById('perfil-reservas');resEl.innerHTML='';
   if(!myRes.length){resEl.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div>Nenhuma reserva ativa.</div></div>';}
-  else myRes.forEach(r=>{const it=r.items;const div=document.createElement('div');div.className='ritem';const th=it?.fotos?.length?`<img src="${it.fotos[0]}" style="width:100%;height:100%;object-fit:cover;" alt="${it?.nome}"/>`:catEmoji(it?.categoria);div.innerHTML=`<div class="rthumb">${th}</div><div class="rinfo"><div class="rname">${it?.nome||'Item'}</div><div class="rmeta">${r.status==='aprovada'?'✅ Aprovada':'⏳ Aguardando'} · ${it?.escritorio||''}</div><div class="pbar-bg"><div class="pbar" style="width:70%;"></div></div></div><span class="badge badge-${it?.tipo==='doacao'?'doacao':'venda'}">${it?.tipo==='doacao'?'Doação':'Venda'}</span>`;resEl.appendChild(div);});
+  else myRes.forEach(r=>{const it=r.items;const div=document.createElement('div');div.className='ritem';const th=it?.fotos?.length?`<img src="${it.fotos[0]}" style="width:100%;height:100%;object-fit:cover;" alt="${it?.nome}"/>`:catEmoji(it?.categoria);div.innerHTML=`<div class="rthumb">${th}</div><div class="rinfo"><div class="rname">${it?.nome||'Item'}</div><div class="rmeta">${r.status==='aprovada'?'✅ Aprovada':'⏳ Aguardando'} · ${it?.escritorio||''}</div><div class="pbar-bg"><div class="pbar" style="width:70%;"></div></div></div><div style="display:flex;gap:8px;align-items:center;"><span class="badge badge-${it?.tipo==='doacao'?'doacao':'venda'}">${it?.tipo==='doacao'?'Doação':'Venda'}</span><button class="btn btn-sm btn-red" onclick="cancelarReserva('${r.id}')">Desistir</button></div>`;resEl.appendChild(div);});
   const{data:favs}=await sb.from('favoritos').select('*,items(*)').eq('user_id',CU.id);
   const fEl=document.getElementById('p-favs');fEl.innerHTML='';
   if(!favs?.length)fEl.innerHTML='<div class="empty"><div class="empty-icon">♡</div><div>Nenhum favorito.</div></div>';
@@ -1112,6 +1112,14 @@ function set(s,v){const el=document.querySelector(s);if(el){if(typeof v==='strin
 function show(s){const el=document.querySelector(s);if(el)el.style.display='';}
 function hide(s){const el=document.querySelector(s);if(el)el.style.display='none';}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'){const ls=document.getElementById('screen-login');if(ls&&ls.classList.contains('active')&&document.getElementById('vw-login').style.display!=='none')doLogin();}});
+
+async function cancelarReserva(reservaId){
+  if(!confirm('Tem certeza que deseja desistir desta reserva? Esta ação não pode ser desfeita.'))return;
+  const btn=event.target;btn.disabled=true;const btnText=btn.textContent;btn.textContent='Cancelando...';
+  const{error}=await sb.from('reservas').update({status:'cancelada',cancelada_em:new Date().toISOString()}).eq('id',reservaId);
+  if(error){showToast('Erro: '+error.message);btn.disabled=false;btn.textContent=btnText;return;}
+  await logAction('Reserva cancelada',{reserva_id:reservaId});showToast('Reserva cancelada com sucesso!');loadPerfil();
+}
 </script>
 </body>
 </html>
