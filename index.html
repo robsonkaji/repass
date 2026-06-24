@@ -1194,7 +1194,8 @@ async function loadAdmItens(){
     var fixPin=i.fixado?'<span class="badge badge-fixado" style="font-size:10px;margin-left:4px;">📌</span>':'';
     var acoes='';
     if(i.status==='ativo'||i.status==='reservado'){acoes='<button class="btn btn-sm btn-green" onclick="marcarRetirado(\''+i.id+'\')">Retirado</button><button class="btn btn-sm btn-outline" onclick="editItemById(\''+i.id+'\')">Editar</button><button class="btn btn-sm btn-outline" onclick="duplicarItemById(\''+i.id+'\')">📋</button><button class="btn btn-sm btn-red" onclick="arquivarItem(\''+i.id+'\')">Arquivar</button>';}
-    else{acoes='<button class="btn btn-sm btn-outline" onclick="desfazerStatus(\''+i.id+'\')">↩ Desfazer</button>';}
+    else if(i.status==='retirado'){acoes='<button class="btn btn-sm" style="padding:6px 12px;border:1.5px solid var(--amber);background:var(--amber-light);cursor:pointer;border-radius:8px;color:var(--amber-dark);font-weight:600;" onclick="desfazerRetirada(\''+i.id+'\')" title="Desfazer retirada">↩ Desfazer</button>';}
+    else{acoes='<button class="btn btn-sm btn-outline" onclick="desfazerStatus(\''+i.id+'\')">↩ Reativar</button>';}
     acoes+='<button class="btn btn-sm" style="padding:6px 8px;border:1.5px solid var(--border);background:white;cursor:pointer;border-radius:8px;color:var(--red);" onclick="abrirExcluir(\''+i.id+'\')" title="Excluir">🗑️</button>';
     rows+='<tr><td><b>'+i.nome+'</b>'+fixPin+'</td><td>'+tipoBadge+'</td><td>'+condBadge(i.condicao)+'</td><td>'+i.escritorio+'</td><td>'+statusBadge+'</td><td><div class="tact">'+acoes+'</div></td></tr>';
   });
@@ -1204,6 +1205,22 @@ async function loadAdmItens(){
 async function marcarRetirado(id){await sb.from('items').update({status:'retirado'}).eq('id',id);await sb.from('reservas').update({status:'retirada',retirada_em:new Date().toISOString()}).eq('item_id',id).eq('status','aprovada');await logAction('Item retirado',{item_id:id});showToast('Marcado como retirado!');loadAdmItens();}
 async function arquivarItem(id){await sb.from('items').update({status:'arquivado'}).eq('id',id);await logAction('Item arquivado',{item_id:id});showToast('Arquivado.');loadAdmItens();}
 async function desfazerStatus(id){if(!confirm('Reativar este item?'))return;await sb.from('items').update({status:'ativo'}).eq('id',id);await logAction('Item reativado',{item_id:id});showToast('Reativado!');loadAdmItens();loadItems();}
+
+async function desfazerRetirada(id){
+  if(!confirm('Desfazer retirada deste item? Ele voltará para disponível.'))return;
+  
+  // Atualizar item para disponível
+  await sb.from('items').update({status:'ativo'}).eq('id',id);
+  
+  // Atualizar reserva ativa para cancelada
+  await sb.from('reservas').update({status:'cancelada',cancelada_em:new Date().toISOString()}).eq('item_id',id).eq('status','retirada');
+  
+  await logAction('Retirada desfeita',{item_id:id});
+  showToast('Retirada desfeita! Item voltou para disponível.');
+  loadAdmItens();
+  loadItems();
+}
+
 function abrirExcluir(id){const item=allItems.find(function(i){return i.id===id;});document.getElementById('exc-id').value=id;document.getElementById('exc-nome').textContent=item?item.nome:'este item';openModal('m-excluir');}
 async function confirmarExcluir(){const id=document.getElementById('exc-id').value;await sb.from('reservas').delete().eq('item_id',id);await sb.from('favoritos').delete().eq('item_id',id);const{error}=await sb.from('items').delete().eq('id',id);if(error)return showToast('Erro: '+error.message);await logAction('Item excluído',{item_id:id});closeModal('m-excluir');showToast('Excluído.');loadAdmItens();loadItems();}
 
