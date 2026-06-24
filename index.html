@@ -398,6 +398,7 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
       <div class="avatar" id="nav-av" onclick="showScreen('perfil')"></div>
     </div>
   </nav>
+  <div id="banner-aprovacao" style="display:none;"></div>
   <div class="banners" id="banners-stack"></div>
   <div id="hero">
     <div id="hero-ov" style="position:absolute;inset:0;background:transparent;"></div>
@@ -504,6 +505,7 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
     <div class="logo" onclick="showScreen('catalogo')"><div class="logo-mark"><svg width="14" height="14" viewBox="0 0 36 36" fill="none"><path d="M6,10 A14,14 0 0,1 30,10" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round"/><path d="M23,2 L30,10 L20,11" fill="white"/><path d="M30,26 A14,14 0 0,1 6,26" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" opacity="0.75"/><path d="M13,34 L6,26 L16,25" fill="white" opacity="0.75"/></svg></div><div class="logo-text">Repass</div></div>
     <div class="nav-r"><button class="nbtn" onclick="showScreen('catalogo')">← Catálogo</button><button class="nbtn pri" id="p-admin" onclick="showScreen('admin')" style="display:none;">Admin</button></div>
   </nav>
+  <div id="banner-aprovacao-perfil" style="display:none;"></div>
   <div style="flex:1;padding:28px;max-width:700px;margin:0 auto;width:100%;">
     <div class="ptitle" style="margin-bottom:20px;">Meu perfil</div>
     <div id="p-termos" class="as" style="display:none;margin-bottom:16px;">✅ <b>Termos aceitos</b> em <span id="p-termos-data"></span></div>
@@ -754,8 +756,30 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
   </div>
 </div>
 
+<div id="m-confirmar-retirada" class="modal-ov">
+  <div class="modal">
+    <div class="mhdr"><div class="mtitle">Confirmar Retirada</div><button class="mclose" onclick="closeModal('m-confirmar-retirada')">×</button></div>
+    <div class="mbody">
+      <p style="font-size:14px;color:var(--ink-mid);line-height:1.6;">Você está confirmando a retirada do item: <b id="conf-item-nome"></b></p>
+      <div class="alert ai mt12">Após confirmar, você terá 24 horas para retirar no local informado.</div>
+      <div style="margin-top:16px;padding:14px;background:var(--surface2);border-radius:var(--r);font-size:13px;">
+        <div style="color:var(--ink-soft);margin-bottom:8px;"><b>Local de retirada:</b></div>
+        <div style="font-weight:700;color:var(--ink);margin-bottom:12px;" id="conf-local">—</div>
+        <div style="color:var(--ink-soft);margin-bottom:8px;"><b>Prazo:</b></div>
+        <div style="font-weight:700;color:var(--ink);margin-bottom:12px;" id="conf-prazo">—</div>
+        <div style="color:var(--ink-soft);margin-bottom:8px;"><b>Pagamento:</b></div>
+        <div style="font-weight:600;color:var(--amber-dark);" id="conf-pagamento">Para itens de venda, entre em contato com o departamento financeiro.</div>
+      </div>
+      <div class="alert aw mt12">⚠️ Apenas você poderá retirar este item. Certifique-se de cumprir o prazo.</div>
+    </div>
+    <div class="mfoot"><button class="btn btn-outline" onclick="closeModal('m-confirmar-retirada')">Cancelar</button><button class="btn btn-primary" id="btn-conf-ret" onclick="confirmarRetiradaFinal()">Confirmar Retirada</button></div>
+  </div>
+</div>
+
 <script>
 function abrirTermos(){openModal('m-termos');}
+
+let resAprovadaAtual=null;
 
 const SURL='https://waisdhoqyqflzetkxcts.supabase.co';
 const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhaXNkaG9xeXFmbHpldGt4Y3RzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MDg2NzUsImV4cCI6MjA5MjA4NDY3NX0.tTJ7CvSMmRtxJZw_BeIp0aXK8Af2ArI4AM9sgb869ro';
@@ -838,6 +862,7 @@ async function loadItems(){
   const{data:f}=await sb.from('favoritos').select('item_id').eq('user_id',CU?.id||'x');myFavs=(f||[]).map(x=>x.item_id);
   const{data:r}=await sb.from('reservas').select('*').eq('user_id',CU?.id||'x').in('status',['fila','aprovada']);myRes=r||[];
   updateStats(allItems);renderItems(allItems);
+  await mostrarBannerAprovacao('aprovacao');
 }
 
 function updateStats(items){const at=items.filter(i=>i.status==='ativo');set('#s-total',at.length);set('#s-doa',at.filter(i=>i.tipo==='doacao').length);set('#s-vnd',at.filter(i=>i.tipo==='venda').length);}
@@ -942,6 +967,7 @@ async function loadPerfil(){
   const hEl=document.getElementById('p-hist');hEl.innerHTML='';
   if(!hist?.length)hEl.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div>Nenhum item retirado ainda.</div></div>';
   else hist.forEach(r=>{const it=r.items;const div=document.createElement('div');div.className='ritem';div.innerHTML=`<div class="rthumb">${catEmoji(it?.categoria)}</div><div class="rinfo"><div class="rname">${it?.nome||'Item'}</div><div class="rmeta">${r.status==='retirada'?'✅ Retirado':'❌ '+r.status} · ${new Date(r.updated_at).toLocaleDateString('pt-BR')}</div></div><span class="badge badge-${r.status==='retirada'?'retirado':'bloqueado'}">${r.status}</span>`;hEl.appendChild(div);});
+  await mostrarBannerAprovacao('aprovacao-perfil');
 }
 
 async function switchPanel(p,el){document.querySelectorAll('.apanel').forEach(x=>x.classList.remove('act'));document.querySelectorAll('.aside-item').forEach(x=>x.classList.remove('act'));document.getElementById('p-'+p).classList.add('act');if(el)el.classList.add('act');const loaders={reservas:loadAdmRes,banners:loadAdmBan,usuarios:loadAdmUsr,compliance:loadAdmComp,itens:loadAdmItens,relatorio:loadAdmRel,logs:loadAdmLogs};if(loaders[p])await loaders[p]();}
@@ -1179,6 +1205,38 @@ async function cancelarReserva(reservaId){
   if(error){showToast('Erro: '+error.message);btn.disabled=false;btn.textContent=btnText;return;}
   await logAction('Reserva cancelada',{reserva_id:reservaId});showToast('Reserva cancelada com sucesso!');loadPerfil();
 }
+
+async function mostrarBannerAprovacao(screenId){
+  if(!CU)return;
+  const{data:reservas}=await sb.from('reservas').select('*,items(*)').eq('user_id',CU.id).eq('status','aprovada');
+  if(!reservas||reservas.length===0){document.getElementById('banner-'+screenId).style.display='none';return;}
+  const res=reservas[0];const item=res.items;const bannerId='banner-'+screenId;const el=document.getElementById(bannerId);
+  const prazoRetirada=new Date(res.prazo_retirada);const prazoFormatado=prazoRetirada.toLocaleDateString('pt-BR');
+  el.innerHTML=`<div style="background:var(--green-bg);border-left:4px solid var(--green);padding:16px;margin:16px 28px 0;border-radius:var(--r);"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;"><div style="flex:1;"><div style="font-size:14px;font-weight:700;color:var(--green-dark);margin-bottom:8px;">✅ Reserva Aprovada!</div><div style="font-size:13px;color:var(--ink-mid);line-height:1.6;"><b>${item.nome}</b><br/>📍 Local: ${item.escritorio}<br/>⏱️ Retire até: ${prazoFormatado}<br/><br/><span style="color:var(--amber-dark);font-weight:600;">💳 Pagamento:</span> Para itens de venda, entre em contato com o departamento financeiro para definir a melhor forma de pagamento.<br/><br/><span style="font-size:12px;color:var(--ink-soft);">⚠️ Apenas você poderá retirar este item.</span></div></div><button class="btn btn-sm btn-primary" onclick="abrirConfirmacaoRetirada(${res.id},'${item.id}','${item.nome}','${item.escritorio}','${prazoFormatado}','${item.tipo}')">Confirmar Retirada</button></div></div>`;
+  el.style.display='block';
+}
+
+function abrirConfirmacaoRetirada(resId,itemId,itemNome,local,prazo,tipo){
+  resAprovadaAtual={resId,itemId};
+  set('#conf-item-nome',itemNome);
+  set('#conf-local',local);
+  set('#conf-prazo','Até '+prazo);
+  document.getElementById('conf-pagamento').textContent=tipo==='venda'?'💳 Venda - Entre em contato com financeiro':'✅ Doação - Sem pagamento necessário';
+  openModal('m-confirmar-retirada');
+}
+
+async function confirmarRetiradaFinal(){
+  if(!resAprovadaAtual)return showToast('Erro: informações inválidas');
+  const btn=document.getElementById('btn-conf-ret');btn.disabled=true;btn.textContent='Confirmando...';
+  const{error}=await sb.from('reservas').update({status:'retirada',retirada_em:new Date().toISOString()}).eq('id',resAprovadaAtual.resId);
+  if(error){showToast('Erro: '+error.message);btn.disabled=false;btn.textContent='Confirmar Retirada';return;}
+  await logAction('Retirada confirmada',{reserva_id:resAprovadaAtual.resId});
+  showToast('Retirada confirmada! Você tem 24h para retirar.');
+  closeModal('m-confirmar-retirada');
+  btn.disabled=false;btn.textContent='Confirmar Retirada';
+  loadPerfil();loadItems();
+}
+
 </script>
 </body>
 </html>
