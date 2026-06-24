@@ -300,6 +300,44 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
   .aside-item.act{border-right:none;border-bottom:3px solid var(--teal);}
   .stats{grid-template-columns:repeat(3,1fr);}
 }
+
+/* ===== USUÁRIOS - MELHORIAS ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:28px;}
+.stat-card{background:white;border:1.5px solid var(--border-light);border-radius:var(--rl);padding:18px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);transition:all .2s;}
+.stat-card:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.stat-label{font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;}
+.stat-value{font-size:32px;font-weight:700;color:var(--ink);}
+.stat-icon{font-size:24px;}
+.usr-filters{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;padding:16px;background:var(--surface2);border-radius:var(--r);}
+.usr-filters select,.usr-filters input{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:"DM Sans",sans-serif;outline:none;transition:border-color .15s;}
+.usr-filters select:focus,.usr-filters input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(29,168,176,.12);}
+.usr-bulk-actions{background:var(--amber-bg);padding:14px 16px;border-radius:var(--r);margin-bottom:16px;display:none;flex-wrap:wrap;gap:12px;align-items:center;}
+.usr-bulk-actions.show{display:flex;}
+.utable{width:100%;border-collapse:collapse;}
+.utable thead{background:var(--surface2);}
+.utable th{padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;border-bottom:1.5px solid var(--border);}
+.utable td{padding:14px;border-bottom:1px solid var(--border-light);font-size:13px;}
+.utable tbody tr{transition:background .15s;}
+.utable tbody tr:hover{background:var(--surface2);}
+.user-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.user-actions button{padding:6px 11px;font-size:11px;}
+.modal-usr-content{width:90%;max-width:600px;}
+.user-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.user-info-item{background:var(--surface2);padding:14px;border-radius:var(--r);}
+.user-info-label{font-size:10px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.user-info-value{font-size:14px;font-weight:600;color:var(--ink);}
+.user-logs{background:var(--surface2);border-radius:var(--r);padding:16px;max-height:300px;overflow-y:auto;}
+.user-log-item{padding:12px;border-bottom:1px solid var(--border-light);font-size:12px;}
+.user-log-item:last-child{border-bottom:none;}
+.user-log-acao{font-weight:600;color:var(--ink);}
+.user-log-data{font-size:11px;color:var(--ink-soft);}
+@media(max-width:768px){
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .usr-filters{flex-direction:column;}
+  .usr-filters input,.usr-filters select{width:100%;}
+  .user-actions{flex-direction:column;}
+  .user-actions button{width:100%;}
+}
 </style>
 </head>
 <body>
@@ -876,6 +914,84 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
     </div>
   </div>
 </div>
+
+<!-- MODAL: Editar Usuário -->
+<div id="m-editar-usr" class="modal-ov">
+  <div class="modal-box modal-usr-content">
+    <div class="mhdr">
+      <div class="mtitle">✏️ Editar Usuário</div>
+      <button class="mclose" onclick="closeModal('m-editar-usr')">×</button>
+    </div>
+    <div class="mbody">
+      <div class="user-info-grid">
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Nome</div>
+            <div class="user-info-value" id="usr-info-nome">—</div>
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Role</div>
+            <div class="user-info-value">
+              <select id="usr-edit-role" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+                <option value="user">👤 User</option>
+                <option value="admin">⚙️ Admin</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Email</div>
+            <div class="user-info-value" id="usr-info-email">—</div>
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Slack</div>
+            <input type="text" id="usr-edit-slack" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Escritório</div>
+            <input type="text" id="usr-edit-escritorio" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Status</div>
+            <div class="user-info-value" id="usr-info-status">—</div>
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Cadastro</div>
+            <div class="user-info-value" id="usr-info-cadastro">—</div>
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Aprovado em</div>
+            <div class="user-info-value" id="usr-info-aprovado">—</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:20px;">
+        <div style="font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">Histórico de Atividades</div>
+        <div class="user-logs" id="usr-logs-container">
+          <div style="text-align:center;color:var(--ink-soft);font-size:12px;padding:20px;">Carregando...</div>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button onclick="closeModal('m-editar-usr')" class="btn btn-outline">Cancelar</button>
+      <button onclick="salvarEdicaoUsuario()" class="btn btn-primary">💾 Salvar Alterações</button>
+    </div>
+  </div>
+</div>
+
 
 <script>
 function abrirTermos(){openModal('m-termos');}
@@ -1565,16 +1681,119 @@ async function salvarItem(){
   await logAction(editId?'Item editado':'Item cadastrado',{nome});closeModal('m-item');showToast(editId?'Atualizado!':'Item cadastrado!');fotosFiles=[];document.getElementById('mi-foto-capa').value='0';loadAdmItens();loadItems();
 }
 
+let usersFilterData=[];let usuarioEditandoId=null;
 async function loadAdmUsr(){
-  const{data}=await sb.from('users').select('*').order('created_at',{ascending:false});const el=document.getElementById('adm-usr');if(!data)return;
-  var pend=data.filter(function(u){return u.status==='pendente';});var ativos=data.filter(function(u){return u.status!=='pendente';});var html='';
-  if(pend.length){html+='<div style="font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Aguardando aprovação ('+pend.length+')</div><table class="atable" style="margin-bottom:20px;"><thead><tr><th>Nome</th><th>Slack</th><th>E-mail</th><th>Local</th><th>Termos</th><th>Ações</th></tr></thead><tbody>';pend.forEach(function(u){html+='<tr><td>'+u.nome+'</td><td>'+u.slack_name+'</td><td style="font-size:12px;">'+u.email+'</td><td>'+u.escritorio+'</td><td><span class="ctag '+(u.termos_aceitos?'ctag-ok':'ctag-pend')+'">'+(u.termos_aceitos?'✓ Aceitos':'⏳')+'</span></td><td><div class="tact"><button class="btn btn-sm btn-green" onclick="aprovUsr(\''+u.id+'\')">Aprovar</button><button class="btn btn-sm btn-red" onclick="blkUsr(\''+u.id+'\',\'bloqueado\')">Recusar</button></div></td></tr>';});html+='</tbody></table>';}
-  html+='<div style="font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Todos os usuários ('+ativos.length+')</div><table class="atable"><thead><tr><th>Nome</th><th>Slack</th><th>Local</th><th>Role</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
-  ativos.forEach(function(u){var stBadge='<span class="badge badge-'+(u.status==='ativo'?'ativo':u.status==='bloqueado'?'bloqueado':'pendente')+'">'+u.status+'</span>';var roleBadge='<span class="badge badge-'+(u.role==='admin'?'admin':'retirado')+'">'+u.role+'</span>';var acao=u.status==='bloqueado'?'<button class="btn btn-sm btn-green" onclick="blkUsr(\''+u.id+'\',\'ativo\')">Desbloquear</button>':'<button class="btn btn-sm btn-red" onclick="blkUsr(\''+u.id+'\',\'bloqueado\')">Bloquear</button>';html+='<tr><td>'+u.nome+'</td><td>'+u.slack_name+'</td><td>'+u.escritorio+'</td><td>'+roleBadge+'</td><td>'+stBadge+'</td><td>'+acao+'</td></tr>';});
-  html+='</tbody></table>';el.innerHTML=html;
+  const{data}=await sb.from('users').select('*').order('created_at',{ascending:false});
+  if(!data)return;
+  usersFilterData=data;
+  renderizarPainelUsuarios(data);
 }
-async function aprovUsr(id){await sb.from('users').update({status:'ativo'}).eq('id',id);await logAction('Usuário aprovado',{user_id:id});showToast('Aprovado!');loadAdmUsr();}
-async function blkUsr(id,st){await sb.from('users').update({status:st}).eq('id',id);await logAction('Status: '+st,{user_id:id});showToast('Status atualizado!');loadAdmUsr();}
+function renderizarPainelUsuarios(data){
+  const container=document.getElementById('adm-usr');
+  const total=data.length;
+  const ativos=data.filter(u=>u.status==='ativo').length;
+  const pendentes=data.filter(u=>u.status==='pendente').length;
+  const bloqueados=data.filter(u=>u.status==='bloqueado').length;
+  let html=`<div class="stats-grid"><div class="stat-card"><div class="stat-icon">👥</div><div class="stat-label">Total de Usuários</div><div class="stat-value">${total}</div></div><div class="stat-card"><div class="stat-icon">✓</div><div class="stat-label">Ativos</div><div class="stat-value" style="color:var(--green)">${ativos}</div></div><div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-label">Pendentes</div><div class="stat-value" style="color:var(--amber)">${pendentes}</div></div><div class="stat-card"><div class="stat-icon">🚫</div><div class="stat-label">Bloqueados</div><div class="stat-value" style="color:var(--red)">${bloqueados}</div></div></div>`;
+  html+=`<div class="usr-filters"><input type="text" id="usr-search" placeholder="Buscar por nome, email ou slack..." onkeyup="filtrarUsuarios()" style="flex:1;min-width:200px;"><select id="usr-filter-status" onchange="filtrarUsuarios()"><option value="">Status: Todos</option><option value="ativo">Status: Ativo</option><option value="pendente">Status: Pendente</option><option value="bloqueado">Status: Bloqueado</option></select><select id="usr-filter-role" onchange="filtrarUsuarios()"><option value="">Role: Todos</option><option value="admin">Role: Admin</option><option value="user">Role: User</option></select><button class="btn btn-sm btn-primary" onclick="exportarUsuariosCSV()" style="white-space:nowrap;">📥 Exportar CSV</button></div>`;
+  html+=`<div class="usr-bulk-actions" id="usr-bulk-actions"><span id="usr-bulk-count">0 selecionados</span><button class="btn btn-sm btn-green" onclick="executarAcaoBulk('aprovar')">✓ Aprovar</button><button class="btn btn-sm btn-red" onclick="executarAcaoBulk('bloquear')">🚫 Bloquear</button><button class="btn btn-sm btn-outline" onclick="limparSelecao()">Limpar</button></div>`;
+  html+=`<table class="utable"><thead><tr><th style="width:40px;"><input type="checkbox" id="usr-select-all" onchange="selecionarTodos()"></th><th>Nome</th><th>Email</th><th>Slack</th><th>Escritório</th><th>Role</th><th>Status</th><th>Cadastro</th><th>Ações</th></tr></thead><tbody id="usr-tbody">`;
+  data.forEach(u=>{
+    const dataCadastro=new Date(u.created_at).toLocaleDateString('pt-BR');
+    const statusBadge=`<span class="badge badge-${u.status}">${u.status}</span>`;
+    const roleBadge=u.role==='admin'?'<span class="badge badge-admin">⚙️ Admin</span>':'<span style="color:var(--ink-soft);font-size:12px;">User</span>';
+    const acoes=`<div class="user-actions"><button class="btn btn-sm btn-outline" onclick="abrirEdicaoUsuario('${u.id}')">✏️ Editar</button>${u.status==='pendente'?`<button class="btn btn-sm btn-green" onclick="aprovUsr('${u.id}')">✓ Aprovar</button>`:''}${u.status!=='bloqueado'?`<button class="btn btn-sm btn-red" onclick="blkUsr('${u.id}','bloqueado')">🚫 Bloquear</button>`:`<button class="btn btn-sm btn-green" onclick="blkUsr('${u.id}','ativo')">🔓 Desbloquear</button>`}</div>`;
+    html+=`<tr><td><input type="checkbox" class="usr-checkbox" value="${u.id}"></td><td><strong>${u.nome}</strong></td><td style="font-size:12px;">${u.email}</td><td>${u.slack_name}</td><td>${u.escritorio}</td><td>${roleBadge}</td><td>${statusBadge}</td><td style="font-size:12px;">${dataCadastro}</td><td>${acoes}</td></tr>`;
+  });
+  html+=`</tbody></table>`;
+  container.innerHTML=html;
+  document.querySelectorAll('.usr-checkbox').forEach(chk=>{chk.addEventListener('change',atualizarBulkActions);});
+}
+function filtrarUsuarios(){
+  const search=document.getElementById('usr-search').value.toLowerCase();
+  const status=document.getElementById('usr-filter-status').value;
+  const role=document.getElementById('usr-filter-role').value;
+  let filtered=usersFilterData.filter(u=>{
+    const matchSearch=u.nome.toLowerCase().includes(search)||u.email.toLowerCase().includes(search)||u.slack_name.toLowerCase().includes(search);
+    const matchStatus=!status||u.status===status;
+    const matchRole=!role||u.role===role;
+    return matchSearch&&matchStatus&&matchRole;
+  });
+  renderizarPainelUsuarios(filtered);
+}
+async function abrirEdicaoUsuario(userId){
+  usuarioEditandoId=userId;
+  const user=usersFilterData.find(u=>u.id===userId);
+  if(!user)return;
+  document.getElementById('usr-info-nome').textContent=user.nome;
+  document.getElementById('usr-info-email').textContent=user.email;
+  document.getElementById('usr-info-status').textContent=user.status;
+  document.getElementById('usr-edit-slack').value=user.slack_name||'';
+  document.getElementById('usr-edit-escritorio').value=user.escritorio||'';
+  document.getElementById('usr-edit-role').value=user.role;
+  const dataCadastro=new Date(user.created_at).toLocaleDateString('pt-BR');
+  document.getElementById('usr-info-cadastro').textContent=dataCadastro;
+  const approved=user.updated_at?new Date(user.updated_at).toLocaleDateString('pt-BR'):'—';
+  document.getElementById('usr-info-aprovado').textContent=user.status==='pendente'?'—':approved;
+  const{data:logs}=await sb.from('logs').select('*').eq('user_id',userId).order('created_at',{ascending:false}).limit(5);
+  let logsHtml='';
+  if(logs&&logs.length>0){logs.forEach(log=>{const data=new Date(log.created_at).toLocaleDateString('pt-BR');const hora=new Date(log.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});logsHtml+=`<div class="user-log-item"><div class="user-log-acao">${log.acao}</div><div class="user-log-data">${data} às ${hora}</div></div>`;});}else{logsHtml='<div style="text-align:center;color:var(--ink-soft);font-size:12px;padding:20px;">Nenhuma atividade registrada</div>';}
+  document.getElementById('usr-logs-container').innerHTML=logsHtml;
+  openModal('m-editar-usr');
+}
+async function salvarEdicaoUsuario(){
+  if(!usuarioEditandoId)return;
+  const slack=document.getElementById('usr-edit-slack').value;
+  const escritorio=document.getElementById('usr-edit-escritorio').value;
+  const role=document.getElementById('usr-edit-role').value;
+  await sb.from('users').update({slack_name:slack,escritorio:escritorio,role:role}).eq('id',usuarioEditandoId);
+  await logAction('Usuário editado',{user_id:usuarioEditandoId,slack:slack,role:role});
+  showToast('✓ Usuário atualizado!');
+  closeModal('m-editar-usr');
+  loadAdmUsr();
+}
+function selecionarTodos(){
+  const allChecked=document.getElementById('usr-select-all').checked;
+  document.querySelectorAll('.usr-checkbox').forEach(chk=>chk.checked=allChecked);
+  atualizarBulkActions();
+}
+function atualizarBulkActions(){
+  const selecionados=document.querySelectorAll('.usr-checkbox:checked').length;
+  const container=document.getElementById('usr-bulk-actions');
+  document.getElementById('usr-bulk-count').textContent=selecionados+' selecionados';
+  container.classList.toggle('show',selecionados>0);
+}
+function limparSelecao(){
+  document.querySelectorAll('.usr-checkbox').forEach(chk=>chk.checked=false);
+  document.getElementById('usr-select-all').checked=false;
+  atualizarBulkActions();
+}
+async function executarAcaoBulk(acao){
+  const selecionados=Array.from(document.querySelectorAll('.usr-checkbox:checked')).map(el=>el.value);
+  if(selecionados.length===0){showToast('Selecione ao menos 1 usuário');return;}
+  for(let id of selecionados){if(acao==='aprovar'){await sb.from('users').update({status:'ativo'}).eq('id',id);await logAction('Usuário aprovado (bulk)',{user_id:id});}else if(acao==='bloquear'){await sb.from('users').update({status:'bloqueado'}).eq('id',id);await logAction('Usuário bloqueado (bulk)',{user_id:id});}}
+  showToast(`✓ ${selecionados.length} usuário(s) ${acao}(s)!`);
+  limparSelecao();
+  loadAdmUsr();
+}
+function exportarUsuariosCSV(){
+  const data=usersFilterData;
+  let csv='Nome,Email,Slack,Escritório,Role,Status,Data de Cadastro\n';
+  data.forEach(u=>{const dataCadastro=new Date(u.created_at).toLocaleDateString('pt-BR');csv+=`"${u.nome}","${u.email}","${u.slack_name}","${u.escritorio}","${u.role}","${u.status}","${dataCadastro}"\n`;});
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const link=document.createElement('a');
+  const url=URL.createObjectURL(blob);
+  link.setAttribute('href',url);
+  link.setAttribute('download','usuarios_repass_'+new Date().getTime()+'.csv');
+  link.style.visibility='hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('✓ CSV exportado!');
+}
+async function aprovUsr(id){await sb.from('users').update({status:'ativo'}).eq('id',id);await logAction('Usuário aprovado',{user_id:id});showToast('✓ Aprovado!');loadAdmUsr();}
+async function blkUsr(id,st){await sb.from('users').update({status:st}).eq('id',id);await logAction('Status: '+st,{user_id:id});showToast('✓ Status atualizado!');loadAdmUsr();}
+
 
 function bnPreview(){const t=val('#bn-tipo'),ti=val('#bn-titulo')||'Título',s=val('#bn-sub')||'Subtítulo';const icons={info:'📋',urgencia:'⚠️',destaque:'🌟'};document.getElementById('bn-prev').className='bprev banner-'+t;document.getElementById('bn-icon').textContent=icons[t];document.getElementById('bn-pt').textContent=ti;document.getElementById('bn-ps').textContent=s;}
 
