@@ -999,6 +999,70 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
 </div>
 
 
+<!-- MODAL: Novo Usuário -->
+<div id="m-novo-usr" class="modal-ov">
+  <div class="modal-box modal-usr-content">
+    <div class="mhdr">
+      <div class="mtitle">➕ Criar Novo Usuário</div>
+      <button class="mclose" onclick="closeModal('m-novo-usr')">×</button>
+    </div>
+    <div class="mbody">
+      <div class="user-info-grid">
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Nome *</div>
+            <input type="text" id="novo-usr-nome" placeholder="Ex: Silva, João" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Email *</div>
+            <input type="email" id="novo-usr-email" placeholder="Ex: joao@company.com" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Slack</div>
+            <input type="text" id="novo-usr-slack" placeholder="Ex: joao_silva" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Escritório *</div>
+            <input type="text" id="novo-usr-escritorio" placeholder="Ex: São Paulo" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Role</div>
+            <select id="novo-usr-role" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+              <option value="user">👤 User</option>
+              <option value="admin">⚙️ Admin</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Status</div>
+            <select id="novo-usr-status" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+              <option value="ativo">✓ Ativo</option>
+              <option value="pendente">⏳ Pendente</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="alert ai" style="margin-top:16px;">
+        <strong>ℹ️ Informação:</strong> Uma senha temporária será gerada e exibida após a criação. Você deverá comunicar ao usuário.
+      </div>
+    </div>
+    <div class="mfoot">
+      <button onclick="closeModal('m-novo-usr')" class="btn btn-outline">Cancelar</button>
+      <button onclick="criarNovoUsuario()" class="btn btn-primary">➕ Criar Usuário</button>
+    </div>
+  </div>
+</div>
+
 <script>
 function abrirTermos(){openModal('m-termos');}
 
@@ -1701,7 +1765,7 @@ function renderizarPainelUsuarios(data){
   const pendentes=data.filter(u=>u.status==='pendente').length;
   const bloqueados=data.filter(u=>u.status==='bloqueado').length;
   let html=`<div class="stats-grid"><div class="stat-card"><div class="stat-icon">👥</div><div class="stat-label">Total de Usuários</div><div class="stat-value">${total}</div></div><div class="stat-card"><div class="stat-icon">✓</div><div class="stat-label">Ativos</div><div class="stat-value" style="color:var(--green)">${ativos}</div></div><div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-label">Pendentes</div><div class="stat-value" style="color:var(--amber)">${pendentes}</div></div><div class="stat-card"><div class="stat-icon">🚫</div><div class="stat-label">Bloqueados</div><div class="stat-value" style="color:var(--red)">${bloqueados}</div></div></div>`;
-  html+=`<div class="usr-filters"><input type="text" id="usr-search" placeholder="Buscar por nome, email ou slack..." onkeyup="filtrarUsuarios()" style="flex:1;min-width:200px;"><select id="usr-filter-status" onchange="filtrarUsuarios()"><option value="">Status: Todos</option><option value="ativo">Status: Ativo</option><option value="pendente">Status: Pendente</option><option value="bloqueado">Status: Bloqueado</option></select><select id="usr-filter-role" onchange="filtrarUsuarios()"><option value="">Role: Todos</option><option value="admin">Role: Admin</option><option value="user">Role: User</option></select><button class="btn btn-sm btn-primary" onclick="exportarUsuariosCSV()" style="white-space:nowrap;">📥 Exportar CSV</button></div>`;
+  html+=`<div style="display:flex;gap:12px;margin-bottom:20px;justify-content:space-between;align-items:center;flex-wrap:wrap;"><div class="usr-filters" style="flex:1;margin-bottom:0;"><input type="text" id="usr-search" placeholder="Buscar por nome, email ou slack..." onkeyup="filtrarUsuarios()" style="flex:1;min-width:200px;"><select id="usr-filter-status" onchange="filtrarUsuarios()"><option value="">Status: Todos</option><option value="ativo">Status: Ativo</option><option value="pendente">Status: Pendente</option><option value="bloqueado">Status: Bloqueado</option></select><select id="usr-filter-role" onchange="filtrarUsuarios()"><option value="">Role: Todos</option><option value="admin">Role: Admin</option><option value="user">Role: User</option></select><button class="btn btn-sm btn-primary" onclick="exportarUsuariosCSV()" style="white-space:nowrap;">📥 Exportar CSV</button></div><button class="btn btn-primary" onclick="abrirModalNovoUsuario()" style="white-space:nowrap;">➕ Novo Usuário</button></div>`;
   html+=`<div class="usr-bulk-actions" id="usr-bulk-actions"><span id="usr-bulk-count">0 selecionados</span><button class="btn btn-sm btn-green" onclick="executarAcaoBulk('aprovar')">✓ Aprovar</button><button class="btn btn-sm btn-red" onclick="executarAcaoBulk('bloquear')">🚫 Bloquear</button><button class="btn btn-sm btn-outline" onclick="limparSelecao()">Limpar</button></div>`;
   html+=`<table class="utable"><thead><tr><th style="width:40px;"><input type="checkbox" id="usr-select-all" onchange="selecionarTodos()"></th><th>Nome</th><th>Email</th><th>Slack</th><th>Escritório</th><th>Role</th><th>Status</th><th>Cadastro</th><th>Ações</th></tr></thead><tbody id="usr-tbody">`;
   data.forEach(u=>{
@@ -1948,38 +2012,107 @@ async function removerUsuario(userId,userName){
     const user=usersFilterData.find(u=>u.id===userId);
     if(!user)throw new Error('Usuário não encontrado');
     
-    // 1. Deletar do banco de dados (principal)
+    // DELETAR DO BANCO DE DADOS (Principal)
     const{error}=await sb.from('users').delete().eq('id',userId);
     
     if(error){
-      console.error('Erro ao deletar do banco:',error);
-      throw new Error('Erro ao deletar: '+error.message);
+      console.error('Erro ao deletar:',error);
+      throw new Error('Erro: '+error.message);
     }
     
-    // 2. Tentar deletar do Supabase Auth (secondary)
-    try{
-      await fetch('https://waisdhoqyqflzetkxcts.supabase.co/auth/v1/admin/users/'+userId,{
-        method:'DELETE',
-        headers:{
-          'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhaXNkaG9xeXFmbHpldGt4Y3RzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MDg2NzUsImV4cCI6MjA5MjA4NDY3NX0.tTJ7CvSMmRtxJZw_BeIp0aXK8Af2ArI4AM9sgb869ro'
-        }
-      });
-    }catch(e){
-      console.warn('Aviso: Não conseguiu deletar do Auth, mas foi deletado do banco',e);
-    }
-    
-    // 3. Registrar em logs
+    // Registrar em logs
     try{
       await logAction('Usuário removido',{user_id:userId,nome:userName,email:user.email});
     }catch(e){
       console.warn('Aviso: Não conseguiu registrar em logs',e);
     }
     
-    showToast('🗑️ Usuário removido permanentemente!');
+    showToast('✅ Usuário removido com sucesso!');
     await new Promise(resolve=>setTimeout(resolve,1000));
     loadAdmUsr();
   }catch(e){
-    console.error('Erro completo:',e);
+    console.error('Erro:',e);
+    showToast('❌ Erro: '+e.message);
+  }
+}
+
+// Novo Usuário
+function abrirModalNovoUsuario(){
+  document.getElementById('novo-usr-nome').value='';
+  document.getElementById('novo-usr-email').value='';
+  document.getElementById('novo-usr-slack').value='';
+  document.getElementById('novo-usr-escritorio').value='';
+  document.getElementById('novo-usr-role').value='user';
+  document.getElementById('novo-usr-status').value='ativo';
+  openModal('m-novo-usr');
+}
+
+async function criarNovoUsuario(){
+  const nome=document.getElementById('novo-usr-nome').value.trim();
+  const email=document.getElementById('novo-usr-email').value.trim();
+  const slack=document.getElementById('novo-usr-slack').value.trim();
+  const escritorio=document.getElementById('novo-usr-escritorio').value.trim();
+  const role=document.getElementById('novo-usr-role').value;
+  const status=document.getElementById('novo-usr-status').value;
+  
+  // Validações
+  if(!nome||nome.length<3){
+    showToast('❌ Nome deve ter pelo menos 3 caracteres!');
+    return;
+  }
+  
+  if(!email||!email.includes('@')){
+    showToast('❌ Email inválido!');
+    return;
+  }
+  
+  if(!escritorio||escritorio.length<2){
+    showToast('❌ Escritório obrigatório!');
+    return;
+  }
+  
+  // Verificar se email já existe
+  const{data:existente}=await sb.from('users').select('id').eq('email',email).single();
+  if(existente){
+    showToast('❌ Email já existe no sistema!');
+    return;
+  }
+  
+  try{
+    showToast('⏳ Criando usuário...');
+    
+    // Gerar ID único
+    const userId='usr_'+Math.random().toString(36).substr(2,9);
+    
+    // Gerar senha temporária
+    const senhaTemp=Math.random().toString(36).slice(-10).toUpperCase();
+    
+    // Criar usuário no banco
+    const{error:errDb}=await sb.from('users').insert({
+      id:userId,
+      nome:nome,
+      email:email,
+      slack_name:slack,
+      escritorio:escritorio,
+      role:role,
+      status:status,
+      termos_aceitos:true,
+      created_at:new Date().toISOString()
+    });
+    
+    if(errDb)throw new Error('Erro ao criar: '+errDb.message);
+    
+    // Registrar em logs
+    await logAction('Usuário criado manualmente',{user_id:userId,nome:nome,email:email});
+    
+    // Mostrar senha temporária
+    alert(`✅ USUÁRIO CRIADO COM SUCESSO!\n\n👤 Nome: ${nome}\n📧 Email: ${email}\n🔑 Senha Temporária: ${senhaTemp}\n\nCOMUNIQUE ESSES DADOS AO USUÁRIO!`);
+    
+    showToast('✅ Usuário criado! Comunique a senha temporária.');
+    closeModal('m-novo-usr');
+    loadAdmUsr();
+  }catch(e){
+    console.error('Erro:',e);
     showToast('❌ Erro: '+e.message);
   }
 }
