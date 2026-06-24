@@ -446,6 +446,9 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
     <div id="vw-list" class="ilist" style="display:none;"></div>
     <div id="items-empty" class="empty" style="display:none;"><div class="empty-icon">📦</div><div>Nenhum item encontrado</div></div>
     <div id="items-load" class="empty"><div class="spinner" style="margin:0 auto 12px;"></div><div style="font-size:13px;color:var(--ink-soft);">Carregando itens...</div></div>
+    <div style="margin-top:40px;padding:20px;border-top:1px solid var(--border);text-align:center;font-size:12px;color:var(--ink-soft);">
+      <a href="#" onclick="abrirTermos()" style="color:var(--teal);text-decoration:none;font-weight:500;cursor:pointer;">📋 Termos de Uso e Responsabilidade</a>
+    </div>
   </div>
 </div>
 
@@ -712,7 +715,48 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
   </div>
 </div>
 
+<div id="m-termos" class="modal-ov">
+  <div class="modal" style="max-height:90vh;display:flex;flex-direction:column;">
+    <div class="mhdr"><div class="mtitle">📋 Termos de Uso e Responsabilidade</div><button class="mclose" onclick="closeModal('m-termos')">×</button></div>
+    <div class="mbody" style="flex:1;overflow-y:auto;padding:20px;font-size:13px;line-height:1.7;color:var(--ink-mid);">
+      <div style="margin-bottom:16px;"><b>1. ACEITAÇÃO DOS TERMOS</b><br/>Ao utilizar a plataforma Repass, o usuário aceita integralmente os termos aqui descritos. A não aceitação impede acesso ao marketplace.</div>
+      
+      <div style="margin-bottom:16px;"><b>2. DA NATUREZA DOS ITENS</b><br/>Todos os itens são disponibilizados no estado em que se encontram ("as is"). Nenhum item possui garantia de funcionamento ou qualidade. A empresa não realiza testes de qualidade antes da disponibilização.</div>
+      
+      <div style="margin-bottom:16px;"><b>3. ISENÇÃO DE RESPONSABILIDADE</b><br/>A empresa não se responsabiliza por: (a) Danos físicos ou materiais após retirada do item; (b) Falhas de funcionamento ou defeitos ocultos; (c) Perda, roubo ou deterioração após retirada; (d) Incompatibilidade com equipamentos do usuário; (e) Danos a terceiros causados pelo item.</div>
+      
+      <div style="margin-bottom:16px;"><b>4. INSPEÇÃO E CONFORMIDADE</b><br/>O usuário aceita inspecionar o item antes de retirar. O usuário declara que o item não viola normas internas ou externas. O usuário garante conformidade com legislação vigente.</div>
+      
+      <div style="margin-bottom:16px;"><b>5. RESPONSABILIDADE DO TRANSPORTE</b><br/>Todo transporte é responsabilidade exclusiva do retirador. A empresa não fornece suporte logístico ou de deslocamento. Custos de transporte são do retirador.</div>
+      
+      <div style="margin-bottom:16px;"><b>6. RETIRADA E POSSE</b><br/>Ao retirar o item, o usuário assume plena responsabilidade sobre ele. A empresa se isenta de qualquer responsabilidade posterior à retirada. Itens não reclamados no prazo podem ser descartados.</div>
+      
+      <div style="margin-bottom:16px;"><b>7. CANCELAMENTO E REEMBOLSO</b><br/>Cancelamentos devem ser feitos dentro do prazo de retirada. Itens já retirados não podem ser devolvidos. Não há reembolso em caso de arrependimento após retirada.</div>
+      
+      <div style="margin-bottom:16px;"><b>8. CONDUTA DO USUÁRIO</b><br/>Usuário não pode comercializar itens ilegalmente. Não pode usar a plataforma para atividades ilícitas. A empresa pode bloquear usuários que violarem os termos.</div>
+      
+      <div style="margin-bottom:16px;"><b>9. LIMITE DE RESPONSABILIDADE</b><br/>A responsabilidade máxima da empresa é limitada ao valor do item. Não há indenização por danos indiretos ou morais. Não há ressarcimento por perda de oportunidade.</div>
+      
+      <div style="margin-bottom:16px;"><b>10. MODIFICAÇÃO DOS TERMOS</b><br/>A empresa se reserva o direito de modificar os termos a qualquer momento. Modificações entram em vigor imediatamente. Uso contínuo implica aceitação das novas condições.</div>
+      
+      <div style="margin-bottom:16px;"><b>11. PRIVACIDADE E DADOS</b><br/>Dados pessoais serão processados conforme legislação vigente. A empresa pode usar dados para melhorar serviços. Dados não serão compartilhados com terceiros sem consentimento.</div>
+      
+      <div style="margin-bottom:16px;"><b>12. RESCISÃO</b><br/>A empresa pode rescindir o acesso do usuário a qualquer momento. Motivos incluem violação de termos ou conduta imprópria.</div>
+      
+      <div style="margin-bottom:16px;"><b>13. LEI APLICÁVEL</b><br/>Este termo é regido pelas leis do Brasil. Competência exclusiva é da justiça brasileira.</div>
+      
+      <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);font-size:11px;color:var(--ink-soft);">
+        <b>Última atualização:</b> {DATA}<br/>
+        <b>Versão:</b> 1.0
+      </div>
+    </div>
+    <div class="mfoot"><button class="btn btn-primary" onclick="closeModal('m-termos')">Entendi</button></div>
+  </div>
+</div>
+
 <script>
+function abrirTermos(){openModal('m-termos');}
+
 const SURL='https://waisdhoqyqflzetkxcts.supabase.co';
 const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhaXNkaG9xeXFmbHpldGt4Y3RzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MDg2NzUsImV4cCI6MjA5MjA4NDY3NX0.tTJ7CvSMmRtxJZw_BeIp0aXK8Af2ArI4AM9sgb869ro';
 const sb=supabase.createClient(SURL,SKEY);
