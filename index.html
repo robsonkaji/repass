@@ -619,7 +619,7 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
       </div>
       <div id="p-usuarios" class="apanel"><div class="atitle">Usuários</div><div class="asub">Gerenciar cadastros e acessos</div><div id="adm-usr"></div></div>
       <div id="p-compliance" class="apanel"><div class="atitle">Compliance</div><div class="asub">Registro de aceite dos termos</div><div class="alert ai" style="margin-bottom:20px;">Registro automático exportável para auditorias.</div><div id="adm-comp"></div></div>
-      <div id="p-itens" class="apanel"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div><div class="atitle">Itens</div><div class="asub">Cadastrar e gerenciar</div></div><button class="btn btn-primary" onclick="openItemModal()">+ Novo item</button></div><div id="adm-itens"></div></div>
+      <div id="p-itens" class="apanel"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div><div class="atitle">Itens</div><div class="asub">Cadastrar e gerenciar</div></div><button class="btn btn-primary" onclick="openItemModal()">+ Novo item</button></div><div style="display:flex;gap:12px;margin-bottom:16px;align-items:center;"><label style="font-size:13px;font-weight:600;color:var(--ink-mid);">Filtrar por status:</label><select id="itens-filtro-status" class="fi" style="max-width:200px;" onchange="filtrarItensPorStatus()"><option value="">Todos</option><option value="ativo">Ativos</option><option value="retirado">Retirados</option><option value="arquivado">Arquivados</option><option value="reservado">Reservados</option></select></div><div id="adm-itens"></div></div>
       <div id="p-relatorio" class="apanel">
         <div class="atitle">📊 Relatório de Vendas</div>
         
@@ -882,6 +882,7 @@ function abrirTermos(){openModal('m-termos');}
 
 let resAprovadaAtual=null;
 let vendaAtualPDF=null;
+let allItemsData=[];
 
 
 const SURL='https://waisdhoqyqflzetkxcts.supabase.co';
@@ -1186,15 +1187,34 @@ async function loadAdmComp(){const{data}=await sb.from('users').select('nome,sla
 
 async function loadAdmItens(){
   const{data}=await sb.from('items').select('*').order('created_at',{ascending:false});
-  const el=document.getElementById('adm-itens');if(!data)return;
+  allItemsData=data||[];
+  renderizarItensFiltrados();
+}
+
+function filtrarItensPorStatus(){
+  const filtro=document.getElementById('itens-filtro-status').value;
+  renderizarItensFiltrados(filtro);
+}
+
+function renderizarItensFiltrados(filtro=''){
+  const el=document.getElementById('adm-itens');
+  if(!allItemsData)return;
+  
+  const itensFiltrados=filtro?allItemsData.filter(i=>i.status===filtro):allItemsData;
+  
+  if(!itensFiltrados.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div>Nenhum item nesta categoria.</div></div>';
+    return;
+  }
+  
   var rows='';
-  data.forEach(function(i){
+  itensFiltrados.forEach(function(i){
     var tipoBadge=i.tipo==='doacao'?'<span class="badge badge-doacao">Doação</span>':'<span class="badge badge-venda">Venda R$'+parseFloat(i.preco||0).toFixed(2)+'</span>';
     var statusBadge='<span class="badge badge-'+(i.status==='ativo'?'ativo':i.status==='retirado'?'retirado':'pendente')+'">'+i.status+'</span>';
     var fixPin=i.fixado?'<span class="badge badge-fixado" style="font-size:10px;margin-left:4px;">📌</span>':'';
     var acoes='';
     if(i.status==='ativo'||i.status==='reservado'){acoes='<button class="btn btn-sm btn-green" onclick="marcarRetirado(\''+i.id+'\')">Retirado</button><button class="btn btn-sm btn-outline" onclick="editItemById(\''+i.id+'\')">Editar</button><button class="btn btn-sm btn-outline" onclick="duplicarItemById(\''+i.id+'\')">📋</button><button class="btn btn-sm btn-red" onclick="arquivarItem(\''+i.id+'\')">Arquivar</button>';}
-    else if(i.status==='retirado'){acoes='<button class="btn btn-sm" style="padding:6px 12px;border:1.5px solid var(--amber);background:var(--amber-light);cursor:pointer;border-radius:8px;color:var(--amber-dark);font-weight:600;" onclick="desfazerRetirada(\''+i.id+'\')" title="Desfazer retirada">↩ Desfazer</button>';}
+    else if(i.status==='retirado'){acoes='<button class="btn btn-sm" style="padding:6px 12px;border:1.5px solid var(--amber);background:var(--amber-light);cursor:pointer;border-radius:8px;color:var(--amber-dark);font-weight:600;" onclick="desfazerRetirada(\''+i.id+'\')" title="Devolver item">↩ Devolver</button>';}
     else{acoes='<button class="btn btn-sm btn-outline" onclick="desfazerStatus(\''+i.id+'\')">↩ Reativar</button>';}
     acoes+='<button class="btn btn-sm" style="padding:6px 8px;border:1.5px solid var(--border);background:white;cursor:pointer;border-radius:8px;color:var(--red);" onclick="abrirExcluir(\''+i.id+'\')" title="Excluir">🗑️</button>';
     rows+='<tr><td><b>'+i.nome+'</b>'+fixPin+'</td><td>'+tipoBadge+'</td><td>'+condBadge(i.condicao)+'</td><td>'+i.escritorio+'</td><td>'+statusBadge+'</td><td><div class="tact">'+acoes+'</div></td></tr>';
@@ -1207,7 +1227,7 @@ async function arquivarItem(id){await sb.from('items').update({status:'arquivado
 async function desfazerStatus(id){if(!confirm('Reativar este item?'))return;await sb.from('items').update({status:'ativo'}).eq('id',id);await logAction('Item reativado',{item_id:id});showToast('Reativado!');loadAdmItens();loadItems();}
 
 async function desfazerRetirada(id){
-  if(!confirm('Desfazer retirada deste item? Ele voltará para disponível.'))return;
+  if(!confirm('Devolver este item? Ele voltará para disponível.'))return;
   
   // Atualizar item para disponível
   await sb.from('items').update({status:'ativo'}).eq('id',id);
@@ -1215,9 +1235,15 @@ async function desfazerRetirada(id){
   // Atualizar reserva ativa para cancelada
   await sb.from('reservas').update({status:'cancelada',cancelada_em:new Date().toISOString()}).eq('item_id',id).eq('status','retirada');
   
-  await logAction('Retirada desfeita',{item_id:id});
-  showToast('Retirada desfeita! Item voltou para disponível.');
-  loadAdmItens();
+  await logAction('Item devolvido',{item_id:id});
+  showToast('✅ Item devolvido! Voltou para disponível.');
+  
+  // Recarregar com filtro mantido
+  const filtro=document.getElementById('itens-filtro-status').value;
+  await loadAdmItens();
+  if(filtro)document.getElementById('itens-filtro-status').value=filtro;
+  renderizarItensFiltrados(filtro);
+  
   loadItems();
 }
 
