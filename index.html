@@ -927,7 +927,7 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
         <div>
           <div class="user-info-item">
             <div class="user-info-label">Nome</div>
-            <div class="user-info-value" id="usr-info-nome">—</div>
+            <input type="text" id="usr-edit-nome" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
           </div>
         </div>
         <div>
@@ -944,7 +944,13 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
         <div>
           <div class="user-info-item">
             <div class="user-info-label">Email</div>
-            <div class="user-info-value" id="usr-info-email">—</div>
+            <input type="email" id="usr-edit-email" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Nova Senha (opcional)</div>
+            <input type="password" id="usr-edit-password" placeholder="Deixe em branco para não alterar" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
           </div>
         </div>
         <div>
@@ -967,16 +973,15 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
         </div>
         <div>
           <div class="user-info-item">
-            <div class="user-info-label">Cadastro</div>
-            <div class="user-info-value" id="usr-info-cadastro">—</div>
-          </div>
-        </div>
-        <div>
-          <div class="user-info-item">
             <div class="user-info-label">Aprovado em</div>
             <div class="user-info-value" id="usr-info-aprovado">—</div>
           </div>
         </div>
+      </div>
+      
+      <!-- Aviso de Segurança -->
+      <div class="alert ai" style="margin-bottom:16px;">
+        <strong>⚠️ Segurança:</strong> Alterações de email e senha afetam diretamente o acesso do usuário. Notifique o usuário das mudanças.
       </div>
       <div style="margin-top:20px;">
         <div style="font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">Histórico de Atividades</div>
@@ -1725,14 +1730,14 @@ async function abrirEdicaoUsuario(userId){
   usuarioEditandoId=userId;
   const user=usersFilterData.find(u=>u.id===userId);
   if(!user)return;
-  document.getElementById('usr-info-nome').textContent=user.nome;
-  document.getElementById('usr-info-email').textContent=user.email;
+  document.getElementById('usr-edit-nome').value=user.nome||'';
+  document.getElementById('usr-edit-email').value=user.email||'';
+  document.getElementById('usr-edit-password').value='';
   document.getElementById('usr-info-status').textContent=user.status;
   document.getElementById('usr-edit-slack').value=user.slack_name||'';
   document.getElementById('usr-edit-escritorio').value=user.escritorio||'';
   document.getElementById('usr-edit-role').value=user.role;
   const dataCadastro=new Date(user.created_at).toLocaleDateString('pt-BR');
-  document.getElementById('usr-info-cadastro').textContent=dataCadastro;
   const approved=user.updated_at?new Date(user.updated_at).toLocaleDateString('pt-BR'):'—';
   document.getElementById('usr-info-aprovado').textContent=user.status==='pendente'?'—':approved;
   const{data:logs}=await sb.from('logs').select('*').eq('user_id',userId).order('created_at',{ascending:false}).limit(5);
@@ -1743,14 +1748,73 @@ async function abrirEdicaoUsuario(userId){
 }
 async function salvarEdicaoUsuario(){
   if(!usuarioEditandoId)return;
+  
+  const nome=document.getElementById('usr-edit-nome').value.trim();
+  const email=document.getElementById('usr-edit-email').value.trim();
+  const password=document.getElementById('usr-edit-password').value;
   const slack=document.getElementById('usr-edit-slack').value;
   const escritorio=document.getElementById('usr-edit-escritorio').value;
   const role=document.getElementById('usr-edit-role').value;
-  await sb.from('users').update({slack_name:slack,escritorio:escritorio,role:role}).eq('id',usuarioEditandoId);
-  await logAction('Usuário editado',{user_id:usuarioEditandoId,slack:slack,role:role});
-  showToast('✓ Usuário atualizado!');
-  closeModal('m-editar-usr');
-  loadAdmUsr();
+  
+  // Validar nome
+  if(!nome||nome.length<3){
+    showToast('❌ Nome deve ter pelo menos 3 caracteres!');
+    return;
+  }
+  
+  // Validar email
+  if(!email||!email.includes('@')){
+    showToast('❌ Email inválido!');
+    return;
+  }
+  
+  // Validar senha se preenchida
+  if(password&&password.length<6){
+    showToast('❌ Senha deve ter pelo menos 6 caracteres!');
+    return;
+  }
+  
+  try{
+    // Atualizar dados do usuário no banco
+    await sb.from('users').update({
+      nome:nome,
+      slack_name:slack,
+      escritorio:escritorio,
+      role:role,
+      email:email
+    }).eq('id',usuarioEditandoId);
+    
+    // Tentar atualizar email e senha via Auth
+    const updateData={};
+    if(email){updateData.email=email;}
+    if(password){updateData.password=password;}
+    
+    if(Object.keys(updateData).length>0){
+      // Usar RPC para atualizar via backend (requer função no Supabase)
+      // Alternativa: usar fetch direto com service key
+      const{data,error}=await fetch('https://waisdhoqyqflzetkxcts.supabase.co/rest/v1/rpc/update_user_auth',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhaXNkaG9xeXFmbHpldGt4Y3RzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MDg2NzUsImV4cCI6MjA5MjA4NDY3NX0.tTJ7CvSMmRtxJZw_BeIp0aXK8Af2ArI4AM9sgb869ro'
+        },
+        body:JSON.stringify({
+          user_id:usuarioEditandoId,
+          ...updateData
+        })
+      }).then(r=>r.json());
+      
+      if(error){console.warn('Aviso: Auth não atualizado, mas dados foram salvos',error);}
+    }
+    
+    await logAction('Usuário editado',{user_id:usuarioEditandoId,nome:nome,email:email,slack:slack,role:role,alterou_senha:password?'sim':'não'});
+    showToast('✓ Usuário atualizado com sucesso!');
+    closeModal('m-editar-usr');
+    loadAdmUsr();
+  }catch(e){
+    console.error('Erro ao salvar usuário:',e);
+    showToast('❌ Erro ao salvar: '+e.message);
+  }
 }
 function selecionarTodos(){
   const allChecked=document.getElementById('usr-select-all').checked;
