@@ -6,6 +6,7 @@
 <title>Repass</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -619,7 +620,95 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
       <div id="p-usuarios" class="apanel"><div class="atitle">Usuários</div><div class="asub">Gerenciar cadastros e acessos</div><div id="adm-usr"></div></div>
       <div id="p-compliance" class="apanel"><div class="atitle">Compliance</div><div class="asub">Registro de aceite dos termos</div><div class="alert ai" style="margin-bottom:20px;">Registro automático exportável para auditorias.</div><div id="adm-comp"></div></div>
       <div id="p-itens" class="apanel"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div><div class="atitle">Itens</div><div class="asub">Cadastrar e gerenciar</div></div><button class="btn btn-primary" onclick="openItemModal()">+ Novo item</button></div><div id="adm-itens"></div></div>
-      <div id="p-relatorio" class="apanel"><div class="atitle">Relatório</div><div class="asub" id="rel-per">Carregando...</div><div class="astats"><div class="astat"><div class="astat-n" id="rel-cad">—</div><div class="astat-l">Cadastrados</div></div><div class="astat"><div class="astat-n" id="rel-ret">—</div><div class="astat-l">Retirados</div></div><div class="astat"><div class="astat-n" id="rel-doa" style="color:var(--green);">—</div><div class="astat-l">Doações</div></div><div class="astat"><div class="astat-n" id="rel-vnd" style="color:var(--teal-dark);">—</div><div class="astat-l">Em vendas</div></div></div><div id="adm-rel"></div></div>
+      <div id="p-relatorio" class="apanel">
+        <div class="atitle">📊 Relatório de Vendas</div>
+        
+        <div style="display:flex;gap:12px;margin:16px 0;flex-wrap:wrap;">
+          <select id="rel-filtro-periodo" onchange="loadAdmRel()" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--r);background:white;color:var(--ink);font-size:13px;cursor:pointer;">
+            <option value="mes">Este mês</option>
+            <option value="trimestre">Últimos 3 meses</option>
+            <option value="semestre">Últimos 6 meses</option>
+            <option value="ano">Último ano</option>
+            <option value="tudo">Desde o início</option>
+          </select>
+          <select id="rel-filtro-categoria" onchange="loadAdmRel()" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--r);background:white;color:var(--ink);font-size:13px;cursor:pointer;">
+            <option value="">Todas as categorias</option>
+            <option value="Mobiliário">🪑 Mobiliário</option>
+            <option value="Eletrônicos">🖥️ Eletrônicos</option>
+            <option value="Informática">💻 Informática</option>
+            <option value="Eletrodomésticos">🔌 Eletrodomésticos</option>
+            <option value="Outros">📦 Outros</option>
+          </select>
+          <button class="btn btn-sm btn-outline" onclick="exportarRelatorio()">⬇️ Exportar CSV</button>
+        </div>
+
+        <div class="astats" style="margin-bottom:20px;">
+          <div class="astat">
+            <div class="astat-n" id="rel-cad" style="color:var(--blue);">—</div>
+            <div class="astat-l">Itens<br/>Cadastrados</div>
+          </div>
+          <div class="astat">
+            <div class="astat-n" id="rel-ret" style="color:var(--purple);">—</div>
+            <div class="astat-l">Itens<br/>Retirados</div>
+          </div>
+          <div class="astat">
+            <div class="astat-n" id="rel-taxa" style="color:var(--amber);">—</div>
+            <div class="astat-l">Taxa de<br/>Retirada</div>
+          </div>
+          <div class="astat">
+            <div class="astat-n" id="rel-doa" style="color:var(--green);">—</div>
+            <div class="astat-l">Doações<br/>Retiradas</div>
+          </div>
+          <div class="astat">
+            <div class="astat-n" id="rel-vnd" style="color:var(--teal-dark);">—</div>
+            <div class="astat-l">Vendas<br/>Total</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+          <div style="background:var(--surface2);border-radius:var(--r);padding:16px;">
+            <div style="font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:12px;text-transform:uppercase;">💰 Resumo Financeiro</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span style="color:var(--ink-soft);font-size:13px;">Total em vendas:</span>
+              <span style="font-weight:700;color:var(--teal-dark);font-size:14px;" id="rel-total-vendas">R$ 0,00</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span style="color:var(--ink-soft);font-size:13px;">Ticket médio:</span>
+              <span style="font-weight:700;color:var(--ink);font-size:14px;" id="rel-ticket-medio">R$ 0,00</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;">
+              <span style="color:var(--ink-soft);font-size:13px;">Maior venda:</span>
+              <span style="font-weight:700;color:var(--green-dark);font-size:14px;" id="rel-maior-venda">R$ 0,00</span>
+            </div>
+          </div>
+
+          <div style="background:var(--surface2);border-radius:var(--r);padding:16px;">
+            <div style="font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:12px;text-transform:uppercase;">👥 Top Doadores</div>
+            <div id="rel-top-doadores" style="font-size:13px;line-height:1.8;color:var(--ink-mid);">—</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+          <div style="background:var(--surface2);border-radius:var(--r);padding:16px;text-align:center;">
+            <div style="font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:12px;text-transform:uppercase;">📊 Doações vs Vendas</div>
+            <canvas id="rel-chart-tipo" style="max-width:100%;"></canvas>
+          </div>
+          <div style="background:var(--surface2);border-radius:var(--r);padding:16px;text-align:center;">
+            <div style="font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:12px;text-transform:uppercase;">📂 Por Categoria</div>
+            <canvas id="rel-chart-categoria" style="max-width:100%;"></canvas>
+          </div>
+        </div>
+
+        <div style="background:var(--surface2);border-radius:var(--r);padding:16px;margin-bottom:16px;">
+          <div style="font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:12px;text-transform:uppercase;">📈 Evolução Temporal</div>
+          <canvas id="rel-chart-timeline" style="max-width:100%;height:250px;"></canvas>
+        </div>
+
+        <div style="background:var(--surface2);border-radius:var(--r);padding:16px;">
+          <div style="font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:12px;text-transform:uppercase;">📋 Detalhes dos Itens Retirados</div>
+          <div id="adm-rel" style="overflow-x:auto;"></div>
+        </div>
+      </div>
       <div id="p-logs" class="apanel"><div class="atitle">Logs</div><div class="asub">Registro de ações administrativas</div><div id="adm-log"></div></div>
     </div>
   </div>
@@ -1123,7 +1212,96 @@ async function loadAdmBan(){const{data}=await sb.from('banners').select('*').ord
 async function salvarBanner(){const tipo=val('#bn-tipo'),titulo=val('#bn-titulo').trim(),sub=val('#bn-sub').trim(),validade=val('#bn-val'),loc=val('#bn-loc');if(!titulo)return showToast('Digite um título.');const{error}=await sb.from('banners').insert({tipo,titulo,subtitulo:sub||null,valido_ate:validade||null,escritorio:loc,ativo:true,criado_por:CU&&CU.id});if(error)return showToast('Erro: '+error.message);await logAction('Banner criado',{tipo,titulo});closeModal('m-banner');showToast('Banner publicado!');loadAdmBan();loadBanners();}
 async function desatBanner(id){await sb.from('banners').update({ativo:false}).eq('id',id);showToast('Desativado!');loadAdmBan();loadBanners();}
 
-async function loadAdmRel(){const mes=new Date();mes.setDate(1);mes.setHours(0,0,0,0);document.getElementById('rel-per').textContent=mes.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});const{data:itens}=await sb.from('items').select('*').gte('created_at',mes.toISOString());const{data:ret}=await sb.from('reservas').select('*,items(nome,tipo,preco),users(nome)').eq('status','retirada').gte('updated_at',mes.toISOString());document.getElementById('rel-cad').textContent=itens?itens.length:0;document.getElementById('rel-ret').textContent=ret?ret.length:0;document.getElementById('rel-doa').textContent=ret?ret.filter(function(r){return r.items&&r.items.tipo==='doacao';}).length:0;const tv=(ret||[]).filter(function(r){return r.items&&r.items.tipo==='venda';}).reduce(function(a,r){return a+parseFloat(r.items&&r.items.preco||0);},0);document.getElementById('rel-vnd').textContent='R$'+tv.toFixed(2).replace('.',',');const el=document.getElementById('adm-rel');if(!ret||!ret.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div><div>Nenhum item retirado este mês.</div></div>';return;}var rows=ret.map(function(r){return'<tr><td>'+(r.items&&r.items.nome||'—')+'</td><td>'+(r.items&&r.items.tipo==='doacao'?'<span class="badge badge-doacao">Doação</span>':'<span class="badge badge-venda">Venda</span>')+'</td><td>'+(r.users&&r.users.nome||'—')+'</td><td>'+new Date(r.updated_at).toLocaleDateString('pt-BR')+'</td><td>'+(r.items&&r.items.tipo==='venda'?'R$'+parseFloat(r.items.preco||0).toFixed(2).replace('.',','):'—')+'</td></tr>';}).join('');el.innerHTML='<table class="atable" style="margin-top:16px;"><thead><tr><th>Item</th><th>Tipo</th><th>Quem retirou</th><th>Data</th><th>Valor</th></tr></thead><tbody>'+rows+'</tbody></table>';}
+async function loadAdmRel(){
+  const periodo=document.getElementById('rel-filtro-periodo').value;
+  const categoria=document.getElementById('rel-filtro-categoria').value;
+  
+  let dataInicio=new Date();
+  const agora=new Date();
+  
+  if(periodo==='mes'){dataInicio.setDate(1);dataInicio.setHours(0,0,0,0);}
+  else if(periodo==='trimestre'){dataInicio.setMonth(dataInicio.getMonth()-3);dataInicio.setHours(0,0,0,0);}
+  else if(periodo==='semestre'){dataInicio.setMonth(dataInicio.getMonth()-6);dataInicio.setHours(0,0,0,0);}
+  else if(periodo==='ano'){dataInicio.setFullYear(dataInicio.getFullYear()-1);dataInicio.setHours(0,0,0,0);}
+  else if(periodo==='tudo'){dataInicio=new Date('1970-01-01');}
+  
+  let query1=sb.from('items').select('*').gte('created_at',dataInicio.toISOString());
+  if(categoria)query1=query1.eq('categoria',categoria);
+  const{data:itens}=await query1;
+  
+  let query2=sb.from('reservas').select('*,items(nome,tipo,preco,categoria),users(nome)').eq('status','retirada').gte('updated_at',dataInicio.toISOString());
+  if(categoria)query2=query2.eq('items.categoria',categoria);
+  const{data:ret}=await query2;
+  
+  const totalCad=itens?itens.length:0;
+  const totalRet=ret?ret.length:0;
+  const taxaRet=totalCad>0?((totalRet/totalCad)*100).toFixed(1)+'%':'0%';
+  const doacoes=ret?ret.filter(r=>r.items&&r.items.tipo==='doacao').length:0;
+  const vendas=ret?ret.filter(r=>r.items&&r.items.tipo==='venda'):[];
+  const totalVendas=vendas.reduce((a,r)=>a+parseFloat(r.items?.preco||0),0);
+  const ticketMedio=vendas.length>0?(totalVendas/vendas.length):0;
+  const maiorVenda=vendas.length>0?Math.max(...vendas.map(r=>parseFloat(r.items?.preco||0))):0;
+  
+  document.getElementById('rel-cad').textContent=totalCad;
+  document.getElementById('rel-ret').textContent=totalRet;
+  document.getElementById('rel-taxa').textContent=taxaRet;
+  document.getElementById('rel-doa').textContent=doacoes;
+  document.getElementById('rel-vnd').textContent='R$'+totalVendas.toFixed(2).replace('.',',');
+  document.getElementById('rel-total-vendas').textContent='R$'+totalVendas.toFixed(2).replace('.',',');
+  document.getElementById('rel-ticket-medio').textContent='R$'+ticketMedio.toFixed(2).replace('.',',');
+  document.getElementById('rel-maior-venda').textContent='R$'+maiorVenda.toFixed(2).replace('.',',');
+  
+  const doadores=new Map();
+  ret?.forEach(r=>{const nome=r.users?.nome||'Desconhecido';const atual=doadores.get(nome)||0;doadores.set(nome,atual+1);});
+  const topDoadores=[...doadores.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const doadoresHTML=topDoadores.map(([nome,qty],i)=>`<div style="display:flex;justify-content:space-between;align-items:center;">${i+1}. <b>${nome}</b> <span style="background:var(--green-bg);color:var(--green-dark);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;">${qty}</span></div>`).join('');
+  document.getElementById('rel-top-doadores').innerHTML=doadoresHTML||'—';
+  
+  const tipoData={Doação:doacoes,'Venda':vendas.length};
+  const ctx1=document.getElementById('rel-chart-tipo').getContext('2d');
+  if(window.chartTipo)window.chartTipo.destroy();
+  window.chartTipo=new Chart(ctx1,{type:'doughnut',data:{labels:Object.keys(tipoData),datasets:[{data:Object.values(tipoData),backgroundColor:['#2d9d60','#1da8b0'],borderColor:['#1b5c3f','#0d6b76'],borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{color:'#666',font:{size:12}}}}}});
+  
+  const categoriaData={};
+  ret?.forEach(r=>{const cat=r.items?.categoria||'Outros';categoriaData[cat]=(categoriaData[cat]||0)+1;});
+  const ctx2=document.getElementById('rel-chart-categoria').getContext('2d');
+  if(window.chartCat)window.chartCat.destroy();
+  window.chartCat=new Chart(ctx2,{type:'bar',data:{labels:Object.keys(categoriaData),datasets:[{label:'Retirados',data:Object.values(categoriaData),backgroundColor:'#1da8b0',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:true,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1}}}}});
+  
+  const cronologia={};
+  ret?.forEach(r=>{const data=new Date(r.updated_at).toLocaleDateString('pt-BR');cronologia[data]=(cronologia[data]||0)+1;});
+  const datasOrdenadas=Object.keys(cronologia).sort((a,b)=>new Date(a.split('/').reverse().join('-'))-new Date(b.split('/').reverse().join('-')));
+  const ctx3=document.getElementById('rel-chart-timeline').getContext('2d');
+  if(window.chartTime)window.chartTime.destroy();
+  window.chartTime=new Chart(ctx3,{type:'line',data:{labels:datasOrdenadas,datasets:[{label:'Retiradas por dia',data:datasOrdenadas.map(d=>cronologia[d]),borderColor:'#1da8b0',backgroundColor:'rgba(29,168,176,0.1)',tension:0.4,fill:true,pointBackgroundColor:'#1da8b0',pointBorderColor:'white',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#666',font:{size:12}}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}},x:{ticks:{color:'#999',font:{size:10}}}}}});
+  
+  const el=document.getElementById('adm-rel');
+  if(!ret||!ret.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div><div>Nenhum item retirado neste período.</div></div>';return;}
+  const rows=ret.map(r=>`<tr><td style="font-weight:600;">${r.items?.nome||'—'}</td><td><span class="badge badge-${r.items?.tipo==='doacao'?'doacao':'venda'}">${r.items?.tipo==='doacao'?'Doação':'Venda'}</span></td><td>${r.items?.categoria||'—'}</td><td>${r.users?.nome||'—'}</td><td>${new Date(r.updated_at).toLocaleDateString('pt-BR')}</td><td style="text-align:right;font-weight:600;color:var(--teal-dark);">${r.items?.tipo==='venda'?'R$'+parseFloat(r.items.preco||0).toFixed(2).replace('.',','):'—'}</td></tr>`).join('');
+  el.innerHTML=`<table class="atable"><thead><tr><th>Item</th><th>Tipo</th><th>Categoria</th><th>Quem retirou</th><th>Data</th><th style="text-align:right;">Valor</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function exportarRelatorio(){
+  const periodo=document.getElementById('rel-filtro-periodo').value;
+  const categoria=document.getElementById('rel-filtro-categoria').value;
+  const tabela=document.querySelector('#adm-rel table');
+  if(!tabela){showToast('Nenhum dado para exportar');return;}
+  
+  const header=['Item','Tipo','Categoria','Quem retirou','Data','Valor'];
+  const rows=[];
+  tabela.querySelectorAll('tbody tr').forEach(tr=>{
+    const cells=[];
+    tr.querySelectorAll('td').forEach(td=>{cells.push(td.textContent.trim());});
+    rows.push(cells.join(','));
+  });
+  
+  const csv='data:text/csv;charset=utf-8,'+encodeURIComponent(header.join(',')+'\n'+rows.join('\n'));
+  const link=document.createElement('a');
+  link.setAttribute('href',csv);
+  link.setAttribute('download','relatorio_repass_'+new Date().toISOString().split('T')[0]+'.csv');
+  link.click();
+  showToast('Relatório exportado!');
+}
 
 async function loadAdmLogs(){const{data}=await sb.from('logs').select('*,users(nome)').order('created_at',{ascending:false}).limit(50);const el=document.getElementById('adm-log');if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-icon">🔒</div><div>Nenhuma ação registrada.</div></div>';return;}var html='<div class="loglist">';data.forEach(function(l){html+='<div class="logitem"><div class="logdot"></div><div><div class="logtext"><b>'+(l.users&&l.users.nome||'Sistema')+'</b> — '+l.acao+'</div><div class="logtime">'+new Date(l.created_at).toLocaleString('pt-BR')+'</div></div></div>';});html+='</div>';el.innerHTML=html;}
 
