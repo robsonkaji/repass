@@ -6,7 +6,7 @@
 <title>Repass</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -688,22 +688,6 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
-          <div style="background:var(--surface2);border-radius:var(--r);padding:16px;text-align:center;">
-            <div style="font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:12px;text-transform:uppercase;">📊 Doações vs Vendas</div>
-            <canvas id="rel-chart-tipo" style="max-width:100%;"></canvas>
-          </div>
-          <div style="background:var(--surface2);border-radius:var(--r);padding:16px;text-align:center;">
-            <div style="font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:12px;text-transform:uppercase;">📂 Por Categoria</div>
-            <canvas id="rel-chart-categoria" style="max-width:100%;"></canvas>
-          </div>
-        </div>
-
-        <div style="background:var(--surface2);border-radius:var(--r);padding:16px;margin-bottom:16px;">
-          <div style="font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:12px;text-transform:uppercase;">📈 Evolução Temporal</div>
-          <canvas id="rel-chart-timeline" style="max-width:100%;height:250px;"></canvas>
-        </div>
-
         <div style="background:var(--surface2);border-radius:var(--r);padding:16px;">
           <div style="font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:12px;text-transform:uppercase;">📋 Detalhes dos Itens Retirados</div>
           <div id="adm-rel" style="overflow-x:auto;"></div>
@@ -879,10 +863,26 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
   </div>
 </div>
 
+<div id="m-documento-venda" class="modal-ov">
+  <div class="modal" style="max-width:900px;max-height:90vh;overflow-y:auto;">
+    <div class="mhdr">
+      <div class="mtitle">📄 Documento de Venda</div>
+      <button class="mclose" onclick="closeModal('m-documento-venda')">×</button>
+    </div>
+    <div class="mbody" id="doc-conteudo" style="padding:24px;background:white;"></div>
+    <div class="mfoot">
+      <button class="btn btn-outline" onclick="closeModal('m-documento-venda')">Fechar</button>
+      <button class="btn btn-primary" onclick="gerarPDFVenda()">📥 Gerar PDF</button>
+    </div>
+  </div>
+</div>
+
 <script>
 function abrirTermos(){openModal('m-termos');}
 
 let resAprovadaAtual=null;
+let vendaAtualPDF=null;
+
 
 const SURL='https://waisdhoqyqflzetkxcts.supabase.co';
 const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhaXNkaG9xeXFmbHpldGt4Y3RzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MDg2NzUsImV4cCI6MjA5MjA4NDY3NX0.tTJ7CvSMmRtxJZw_BeIp0aXK8Af2ArI4AM9sgb869ro';
@@ -1257,27 +1257,10 @@ async function loadAdmRel(){
   const doadoresHTML=topDoadores.map(([nome,qty],i)=>`<div style="display:flex;justify-content:space-between;align-items:center;">${i+1}. <b>${nome}</b> <span style="background:var(--green-bg);color:var(--green-dark);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;">${qty}</span></div>`).join('');
   document.getElementById('rel-top-doadores').innerHTML=doadoresHTML||'—';
   
-  const tipoData={Doação:doacoes,'Venda':vendas.length};
-  const ctx1=document.getElementById('rel-chart-tipo').getContext('2d');
-  if(window.chartTipo)window.chartTipo.destroy();
-  window.chartTipo=new Chart(ctx1,{type:'doughnut',data:{labels:Object.keys(tipoData),datasets:[{data:Object.values(tipoData),backgroundColor:['#2d9d60','#1da8b0'],borderColor:['#1b5c3f','#0d6b76'],borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{color:'#666',font:{size:12}}}}}});
-  
-  const categoriaData={};
-  ret?.forEach(r=>{const cat=r.items?.categoria||'Outros';categoriaData[cat]=(categoriaData[cat]||0)+1;});
-  const ctx2=document.getElementById('rel-chart-categoria').getContext('2d');
-  if(window.chartCat)window.chartCat.destroy();
-  window.chartCat=new Chart(ctx2,{type:'bar',data:{labels:Object.keys(categoriaData),datasets:[{label:'Retirados',data:Object.values(categoriaData),backgroundColor:'#1da8b0',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:true,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1}}}}});
-  
-  const cronologia={};
-  ret?.forEach(r=>{const data=new Date(r.updated_at).toLocaleDateString('pt-BR');cronologia[data]=(cronologia[data]||0)+1;});
-  const datasOrdenadas=Object.keys(cronologia).sort((a,b)=>new Date(a.split('/').reverse().join('-'))-new Date(b.split('/').reverse().join('-')));
-  const ctx3=document.getElementById('rel-chart-timeline').getContext('2d');
-  if(window.chartTime)window.chartTime.destroy();
-  window.chartTime=new Chart(ctx3,{type:'line',data:{labels:datasOrdenadas,datasets:[{label:'Retiradas por dia',data:datasOrdenadas.map(d=>cronologia[d]),borderColor:'#1da8b0',backgroundColor:'rgba(29,168,176,0.1)',tension:0.4,fill:true,pointBackgroundColor:'#1da8b0',pointBorderColor:'white',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#666',font:{size:12}}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}},x:{ticks:{color:'#999',font:{size:10}}}}}});
-  
   const el=document.getElementById('adm-rel');
   if(!ret||!ret.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div><div>Nenhum item retirado neste período.</div></div>';return;}
-  const rows=ret.map(r=>`<tr><td style="font-weight:600;">${r.items?.nome||'—'}</td><td><span class="badge badge-${r.items?.tipo==='doacao'?'doacao':'venda'}">${r.items?.tipo==='doacao'?'Doação':'Venda'}</span></td><td>${r.items?.categoria||'—'}</td><td>${r.users?.nome||'—'}</td><td>${new Date(r.updated_at).toLocaleDateString('pt-BR')}</td><td style="text-align:right;font-weight:600;color:var(--teal-dark);">${r.items?.tipo==='venda'?'R$'+parseFloat(r.items.preco||0).toFixed(2).replace('.',','):'—'}</td></tr>`).join('');
+  const rows=ret.map((r,idx)=>`<tr style="cursor:pointer;transition:background .2s;" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background=''" onclick="abrirDocumentoVenda(${idx})"><td style="font-weight:600;">${r.items?.nome||'—'}</td><td><span class="badge badge-${r.items?.tipo==='doacao'?'doacao':'venda'}">${r.items?.tipo==='doacao'?'Doação':'Venda'}</span></td><td>${r.items?.categoria||'—'}</td><td>${r.users?.nome||'—'}</td><td>${new Date(r.updated_at).toLocaleDateString('pt-BR')}</td><td style="text-align:right;font-weight:600;color:var(--teal-dark);">${r.items?.tipo==='venda'?'R$'+parseFloat(r.items.preco||0).toFixed(2).replace('.',','):'—'}</td></tr>`).join('');
+  window.vendas=ret;
   el.innerHTML=`<table class="atable"><thead><tr><th>Item</th><th>Tipo</th><th>Categoria</th><th>Quem retirou</th><th>Data</th><th style="text-align:right;">Valor</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
@@ -1303,7 +1286,130 @@ function exportarRelatorio(){
   showToast('Relatório exportado!');
 }
 
-async function loadAdmLogs(){const{data}=await sb.from('logs').select('*,users(nome)').order('created_at',{ascending:false}).limit(50);const el=document.getElementById('adm-log');if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-icon">🔒</div><div>Nenhuma ação registrada.</div></div>';return;}var html='<div class="loglist">';data.forEach(function(l){html+='<div class="logitem"><div class="logdot"></div><div><div class="logtext"><b>'+(l.users&&l.users.nome||'Sistema')+'</b> — '+l.acao+'</div><div class="logtime">'+new Date(l.created_at).toLocaleString('pt-BR')+'</div></div></div>';});html+='</div>';el.innerHTML=html;}
+function abrirDocumentoVenda(idx){
+  if(!window.vendas||!window.vendas[idx]){showToast('Erro ao abrir documento');return;}
+  const venda=window.vendas[idx];
+  const item=venda.items;
+  const usuario=venda.users;
+  const fotoUrl=item?.fotos?.[0]||'';
+  
+  const dataVenda=new Date(venda.updated_at);
+  const dataFormatada=dataVenda.toLocaleDateString('pt-BR');
+  const horaFormatada=dataVenda.toLocaleTimeString('pt-BR');
+  
+  let htmlDoc=`
+    <div style="max-width:800px;margin:0 auto;font-family:Arial,sans-serif;color:#333;">
+      <div style="text-align:center;border-bottom:3px solid #1da8b0;padding-bottom:20px;margin-bottom:20px;">
+        <h1 style="margin:0;color:#1da8b0;font-size:28px;">REPASS</h1>
+        <p style="margin:5px 0 0 0;color:#666;font-size:12px;">Marketplace Interno de Reutilização</p>
+      </div>
+      
+      <div style="background:#f5f5f5;padding:15px;border-radius:8px;margin-bottom:20px;">
+        <h2 style="margin:0 0 15px 0;font-size:16px;color:#1da8b0;">📄 DOCUMENTO DE ${item?.tipo==='venda'?'VENDA':'DOAÇÃO'}</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;font-size:13px;">
+          <div>
+            <strong style="color:#666;">Data:</strong><br/>${dataFormatada}
+          </div>
+          <div>
+            <strong style="color:#666;">Hora:</strong><br/>${horaFormatada}
+          </div>
+          <div style="grid-column:1/-1;">
+            <strong style="color:#666;">Documento ID:</strong><br/>${venda.id}
+          </div>
+        </div>
+      </div>
+      
+      ${fotoUrl?`<div style="text-align:center;margin-bottom:20px;">
+        <img src="${fotoUrl}" style="max-width:300px;max-height:300px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);"/>
+      </div>`:''}
+      
+      <div style="background:#f9f9f9;padding:15px;border-left:4px solid #1da8b0;margin-bottom:20px;border-radius:4px;">
+        <h3 style="margin:0 0 15px 0;font-size:14px;color:#1da8b0;">📦 INFORMAÇÕES DO ITEM</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;width:120px;">Nome:</td>
+            <td style="padding:8px;">${item?.nome||'—'}</td>
+          </tr>
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;">Categoria:</td>
+            <td style="padding:8px;">${item?.categoria||'—'}</td>
+          </tr>
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;">Tipo:</td>
+            <td style="padding:8px;">${item?.tipo==='venda'?'Venda':'Doação'}</td>
+          </tr>
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;">Condição:</td>
+            <td style="padding:8px;">${item?.condicao||'—'}</td>
+          </tr>
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;">Descrição:</td>
+            <td style="padding:8px;">${item?.descricao||'—'}</td>
+          </tr>
+        </table>
+      </div>
+      
+      <div style="background:#f9f9f9;padding:15px;border-left:4px solid #2d9d60;margin-bottom:20px;border-radius:4px;">
+        <h3 style="margin:0 0 15px 0;font-size:14px;color:#2d9d60;">👤 INFORMAÇÕES DE RETIRADA</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;width:120px;">Retirado por:</td>
+            <td style="padding:8px;">${usuario?.nome||'—'}</td>
+          </tr>
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;">Email:</td>
+            <td style="padding:8px;">${usuario?.email||'—'}</td>
+          </tr>
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;">Escritório:</td>
+            <td style="padding:8px;">${usuario?.escritorio||'—'}</td>
+          </tr>
+        </table>
+      </div>
+      
+      ${item?.tipo==='venda'?`
+      <div style="background:#fff9e6;padding:15px;border-left:4px solid #f59e0b;margin-bottom:20px;border-radius:4px;">
+        <h3 style="margin:0 0 15px 0;font-size:14px;color:#d97706;">💳 INFORMAÇÕES DE PAGAMENTO</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;width:120px;">Valor:</td>
+            <td style="padding:8px;font-size:16px;font-weight:bold;color:#f59e0b;">R$ ${parseFloat(item?.preco||0).toFixed(2).replace('.',',')}</td>
+          </tr>
+          <tr>
+            <td colspan="2" style="padding:8px;font-size:12px;color:#d97706;">
+              ⚠️ <strong>ATENÇÃO:</strong> A forma de pagamento deve ser coordenada com o departamento financeiro. Favor entrar em contato.
+            </td>
+          </tr>
+        </table>
+      </div>
+      `:''}
+      
+      <div style="background:#f0f9ff;padding:15px;border-left:4px solid #3b82f6;margin-bottom:20px;border-radius:4px;font-size:12px;">
+        <strong>⚠️ AVISO IMPORTANTE:</strong><br/>
+        Este documento comprova a retirada do item do Repass. O item foi retirado em ${item?.escritorio||'local indicado'} e é responsabilidade do retirador o transporte e armazenamento seguro do mesmo.<br/>
+        Para itens de venda, favor contatar o departamento financeiro para definir a forma de pagamento.
+      </div>
+      
+      <div style="text-align:center;color:#999;font-size:11px;border-top:1px solid #ddd;padding-top:15px;margin-top:20px;">
+        <p>Repass © ${new Date().getFullYear()} - Documento gerado automaticamente em ${new Date().toLocaleString('pt-BR')}</p>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('doc-conteudo').innerHTML=htmlDoc;
+  vendaAtualPDF={venda,item,usuario,dataFormatada,horaFormatada};
+  openModal('m-documento-venda');
+}
+
+function gerarPDFVenda(){
+  if(!vendaAtualPDF){showToast('Erro ao gerar PDF');return;}
+  const{venda,item,usuario}=vendaAtualPDF;
+  const elemento=document.getElementById('doc-conteudo');
+  const opt={margin:10,filename:`venda_${item?.nome}_${new Date().getTime()}.pdf`,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2},jsPDF:{orientation:'portrait',unit:'mm',format:'a4'}};
+  html2pdf().set(opt).from(elemento).save();
+  showToast('PDF gerado com sucesso!');
+}
+
 
 async function logAction(acao,det){if(CU)await sb.from('logs').insert({admin_id:CU.id,acao:acao,detalhes:det});}
 
