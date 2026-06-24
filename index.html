@@ -1176,11 +1176,41 @@ function renderResTabPorUsuario(data){
   el.innerHTML=html;
 }
 
-async function aprovarRes(id){const prazo=new Date();prazo.setDate(prazo.getDate()+3);const{error}=await sb.from('reservas').update({status:'aprovada',prazo_retirada:prazo.toISOString()}).eq('id',id);if(error)return showToast('Erro: '+error.message);await logAction('Reserva aprovada',{reserva_id:id});showToast('Reserva aprovada!');loadAdmRes();}
+async function aprovarRes(id){
+  const prazo=new Date();
+  prazo.setDate(prazo.getDate()+3);
+  
+  // Buscar a reserva para pegar o item_id
+  const{data:res}=await sb.from('reservas').select('item_id').eq('id',id).single();
+  if(!res)return showToast('Erro ao buscar reserva');
+  
+  // Atualizar status da reserva para aprovada
+  const{error}=await sb.from('reservas').update({status:'aprovada',prazo_retirada:prazo.toISOString()}).eq('id',id);
+  if(error)return showToast('Erro: '+error.message);
+  
+  // Atualizar item para 'reservado' (retira do catálogo)
+  await sb.from('items').update({status:'reservado'}).eq('id',res.item_id);
+  
+  await logAction('Reserva aprovada',{reserva_id:id,item_id:res.item_id});
+  showToast('✅ Reserva aprovada! Item removido do catálogo.');
+  loadAdmRes();
+  loadItems(); // Atualizar catálogo
+}
 function abrirRecusa(id){document.getElementById('rec-id').value=id;document.getElementById('rec-motivo').value='';openModal('m-recusa');}
 async function confirmarRecusa(){const id=document.getElementById('rec-id').value;const motivo=document.getElementById('rec-motivo').value.trim();if(!motivo)return showToast('Digite o motivo.');await sb.from('reservas').update({status:'recusada',motivo_recusa:motivo}).eq('id',id);await logAction('Reserva recusada',{reserva_id:id,motivo});closeModal('m-recusa');showToast('Reserva recusada.');loadAdmRes();}
 async function switchResTab(tab,el){document.querySelectorAll('.res-tab').forEach(function(t){t.style.color='var(--ink-soft)';t.style.borderBottomColor='transparent';t.style.fontWeight='500';});el.style.color='var(--teal-dark)';el.style.borderBottomColor='var(--teal)';el.style.fontWeight='700';['pendentes','aprovadas','prazo','fila-itens','por-usuario','historico'].forEach(function(t){var d=document.getElementById('res-'+t);if(d)d.style.display=t===tab?'block':'none';});}
-async function marcarRetiradoRes(resId,itemId){await sb.from('reservas').update({status:'retirada',retirada_em:new Date().toISOString()}).eq('id',resId);if(itemId)await sb.from('items').update({status:'retirado'}).eq('id',itemId);await logAction('Retirada confirmada',{reserva_id:resId});showToast('Retirada confirmada!');loadAdmRes();loadItems();}
+async function marcarRetiradoRes(resId,itemId){
+  await sb.from('reservas').update({status:'retirada',retirada_em:new Date().toISOString()}).eq('id',resId);
+  if(itemId)await sb.from('items').update({status:'retirado'}).eq('id',itemId);
+  await logAction('Retirada confirmada',{reserva_id:resId});
+  
+  // Promover próximo da fila
+  await promoverProximoDaFila(itemId);
+  
+  showToast('✅ Retirada confirmada! Próximo da fila foi aprovado automaticamente.');
+  loadAdmRes();
+  loadItems();
+}
 async function cancelarRes(resId){if(!confirm('Cancelar esta reserva?'))return;await sb.from('reservas').update({status:'cancelada'}).eq('id',resId);await logAction('Reserva cancelada',{reserva_id:resId});showToast('Cancelada.');loadAdmRes();}
 
 async function loadAdmComp(){const{data}=await sb.from('users').select('nome,slack_name,email,escritorio,termos_aceitos,termos_aceitos_em,termos_versao').order('created_at',{ascending:false});document.getElementById('adm-comp').innerHTML='<table class="atable"><thead><tr><th>Nome</th><th>Slack</th><th>E-mail</th><th>Local</th><th>Data aceite</th><th>Versão</th><th>Status</th></tr></thead><tbody>'+(data||[]).map(function(u){return'<tr><td>'+u.nome+'</td><td>'+u.slack_name+'</td><td style="font-size:12px;">'+u.email+'</td><td>'+u.escritorio+'</td><td style="font-size:12px;">'+(u.termos_aceitos_em?new Date(u.termos_aceitos_em).toLocaleString('pt-BR'):'—')+'</td><td>'+(u.termos_versao||'—')+'</td><td><span class="ctag '+(u.termos_aceitos?'ctag-ok':'ctag-pend')+'">'+(u.termos_aceitos?'✓ Aceitos':'⏳')+'</span></td></tr>';}).join('')+'</tbody></table>';}
@@ -1226,8 +1256,26 @@ async function marcarRetirado(id){await sb.from('items').update({status:'retirad
 async function arquivarItem(id){await sb.from('items').update({status:'arquivado'}).eq('id',id);await logAction('Item arquivado',{item_id:id});showToast('Arquivado.');loadAdmItens();}
 async function desfazerStatus(id){if(!confirm('Reativar este item?'))return;await sb.from('items').update({status:'ativo'}).eq('id',id);await logAction('Item reativado',{item_id:id});showToast('Reativado!');loadAdmItens();loadItems();}
 
+async function promoverProximoDaFila(itemId){
+  // Buscar próximo da fila (menor posicao_fila com status='fila')
+  const{data:proximaRes}=await sb.from('reservas').select('id,user_id').eq('item_id',itemId).eq('status','fila').order('posicao_fila',{ascending:true}).limit(1).single();
+  
+  if(!proximaRes)return; // Nenhum na fila
+  
+  // Promover para aprovada
+  const prazo=new Date();
+  prazo.setDate(prazo.getDate()+3);
+  
+  await sb.from('reservas').update({status:'aprovada',prazo_retirada:prazo.toISOString()}).eq('id',proximaRes.id);
+  
+  await logAction('Próximo da fila promovido',{item_id:itemId,reserva_id:proximaRes.id});
+  
+  // Notificar usuário (opcional - apenas log por enquanto)
+  console.log('Promoção automática: usuário',proximaRes.user_id,'aprovado para item',itemId);
+}
+
 async function desfazerRetirada(id){
-  if(!confirm('Devolver este item? Ele voltará para disponível.'))return;
+  if(!confirm('Devolver este item? Ele voltará para disponível e próximo da fila será aprovado.'))return;
   
   // Atualizar item para disponível
   await sb.from('items').update({status:'ativo'}).eq('id',id);
@@ -1236,7 +1284,10 @@ async function desfazerRetirada(id){
   await sb.from('reservas').update({status:'cancelada',cancelada_em:new Date().toISOString()}).eq('item_id',id).eq('status','retirada');
   
   await logAction('Item devolvido',{item_id:id});
-  showToast('✅ Item devolvido! Voltou para disponível.');
+  showToast('✅ Item devolvido! Próximo da fila foi aprovado automaticamente.');
+  
+  // Promover próximo da fila
+  await promoverProximoDaFila(id);
   
   // Recarregar com filtro mantido
   const filtro=document.getElementById('itens-filtro-status').value;
@@ -1544,9 +1595,25 @@ document.addEventListener('keydown',function(e){if(e.key==='Enter'){const ls=doc
 async function cancelarReserva(reservaId){
   if(!confirm('Tem certeza que deseja desistir desta reserva? Esta ação não pode ser desfeita.'))return;
   const btn=event.target;btn.disabled=true;const btnText=btn.textContent;btn.textContent='Cancelando...';
+  
+  // Buscar dados da reserva
+  const{data:res}=await sb.from('reservas').select('item_id,status').eq('id',reservaId).single();
+  
   const{error}=await sb.from('reservas').update({status:'cancelada',cancelada_em:new Date().toISOString()}).eq('id',reservaId);
   if(error){showToast('Erro: '+error.message);btn.disabled=false;btn.textContent=btnText;return;}
-  await logAction('Reserva cancelada',{reserva_id:reservaId});showToast('Reserva cancelada com sucesso!');loadPerfil();
+  
+  // Se era aprovada, voltar item para ativo e promover próximo
+  if(res && res.status==='aprovada'){
+    await sb.from('items').update({status:'ativo'}).eq('id',res.item_id);
+    await promoverProximoDaFila(res.item_id);
+    showToast('Cancelado! Próximo da fila foi aprovado automaticamente.');
+  } else {
+    showToast('Reserva cancelada com sucesso!');
+  }
+  
+  await logAction('Reserva cancelada',{reserva_id:reservaId,item_id:res?.item_id});
+  loadPerfil();
+  loadItems();
 }
 
 async function mostrarBannerAprovacao(screenId){
@@ -1580,8 +1647,12 @@ async function confirmarRetiradaFinal(){
   const btn=document.getElementById('btn-conf-ret');btn.disabled=true;btn.textContent='Confirmando...';
   const{error}=await sb.from('reservas').update({status:'retirada',retirada_em:new Date().toISOString()}).eq('id',resAprovadaAtual.resId);
   if(error){showToast('Erro: '+error.message);btn.disabled=false;btn.textContent='Confirmar Retirada';return;}
+  
+  // Promover próximo da fila
+  await promoverProximoDaFila(resAprovadaAtual.itemId);
+  
   await logAction('Retirada confirmada',{reserva_id:resAprovadaAtual.resId});
-  showToast('Retirada confirmada! Você tem 24h para retirar.');
+  showToast('✅ Retirada confirmada! Próximo da fila foi aprovado automaticamente.');
   closeModal('m-confirmar-retirada');
   btn.disabled=false;btn.textContent='Confirmar Retirada';
   loadPerfil();loadItems();
