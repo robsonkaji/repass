@@ -1229,7 +1229,7 @@ async function loadAdmRel(){
   if(categoria)query1=query1.eq('categoria',categoria);
   const{data:itens}=await query1;
   
-  let query2=sb.from('reservas').select('*,items(nome,tipo,preco,categoria),users(nome)').eq('status','retirada').gte('updated_at',dataInicio.toISOString());
+  let query2=sb.from('reservas').select('*,items(nome,tipo,preco,categoria,fotos),users(nome)').eq('status','retirada').gte('updated_at',dataInicio.toISOString());
   if(categoria)query2=query2.eq('items.categoria',categoria);
   const{data:ret}=await query2;
   
@@ -1260,9 +1260,9 @@ async function loadAdmRel(){
   
   const el=document.getElementById('adm-rel');
   if(!ret||!ret.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div><div>Nenhum item retirado neste período.</div></div>';return;}
-  const rows=ret.map((r,idx)=>`<tr style="cursor:pointer;transition:background .2s;" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background=''" onclick="abrirDocumentoVenda(${idx})"><td style="text-align:center;"><img src="${r.items?.fotos?.[0]||'https://via.placeholder.com/40?text=Sem+foto'}" style="width:40px;height:40px;border-radius:4px;object-fit:cover;border:1px solid #ddd;" title="${r.items?.nome||'Item'}"/></td><td style="font-weight:600;">${r.items?.nome||'—'}</td><td><span class="badge badge-${r.items?.tipo==='doacao'?'doacao':'venda'}">${r.items?.tipo==='doacao'?'Doação':'Venda'}</span></td><td>${r.items?.categoria||'—'}</td><td>${r.users?.nome||'—'}</td><td>${new Date(r.updated_at).toLocaleDateString('pt-BR')}</td><td style="text-align:right;font-weight:600;color:var(--teal-dark);">${r.items?.tipo==='venda'?'R$'+parseFloat(r.items.preco||0).toFixed(2).replace('.',','):'—'}</td></tr>`).join('');
+  const rows=ret.map((r,idx)=>`<tr style="cursor:pointer;transition:background .2s;" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background=''" onclick="abrirDocumentoVenda(${idx})"><td style="font-weight:600;">${r.items?.nome||'—'}</td><td><span class="badge badge-${r.items?.tipo==='doacao'?'doacao':'venda'}">${r.items?.tipo==='doacao'?'Doação':'Venda'}</span></td><td>${r.items?.categoria||'—'}</td><td>${r.users?.nome||'—'}</td><td>${new Date(r.updated_at).toLocaleDateString('pt-BR')}</td><td style="text-align:right;font-weight:600;color:var(--teal-dark);">${r.items?.tipo==='venda'?'R$'+parseFloat(r.items.preco||0).toFixed(2).replace('.',','):'—'}</td></tr>`).join('');
   window.vendas=ret;
-  el.innerHTML=`<table class="atable"><thead><tr><th style="text-align:center;width:50px;">Foto</th><th>Item</th><th>Tipo</th><th>Categoria</th><th>Quem retirou</th><th>Data</th><th style="text-align:right;">Valor</th></tr></thead><tbody>${rows}</tbody></table>`;
+  el.innerHTML=`<table class="atable"><thead><tr><th>Item</th><th>Tipo</th><th>Categoria</th><th>Quem retirou</th><th>Data</th><th style="text-align:right;">Valor</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 function exportarRelatorio(){
@@ -1294,6 +1294,8 @@ function abrirDocumentoVenda(idx){
   const usuario=venda.users;
   const fotoUrl=item?.fotos?.[0]||'';
   
+  console.log('Item dados:', {nome: item?.nome, fotos: item?.fotos, fotoUrl});
+  
   const dataVenda=new Date(venda.updated_at);
   const dataFormatada=dataVenda.toLocaleDateString('pt-BR');
   const horaFormatada=dataVenda.toLocaleTimeString('pt-BR');
@@ -1322,7 +1324,8 @@ function abrirDocumentoVenda(idx){
       
       ${fotoUrl?`<div style="text-align:center;margin-bottom:20px;border:2px solid #1da8b0;padding:12px;border-radius:8px;background:#f5f5f5;">
         <div style="font-size:12px;color:#666;margin-bottom:8px;font-weight:bold;">📸 FOTO DO ITEM</div>
-        <img src="${fotoUrl}" style="max-width:400px;max-height:400px;width:100%;border-radius:6px;box-shadow:0 4px 12px rgba(29,168,176,0.2);"/>
+        <img src="${fotoUrl}" style="max-width:400px;max-height:400px;width:100%;border-radius:6px;box-shadow:0 4px 12px rgba(29,168,176,0.2);" onerror="this.style.display='none';this.parentElement.querySelector('.erro-foto').style.display='block';" />
+        <div class="erro-foto" style="display:none;padding:20px;color:#999;font-size:12px;">Foto indisponível</div>
       </div>`:'<div style="text-align:center;margin-bottom:20px;padding:20px;background:#f5f5f5;border:2px dashed #ccc;border-radius:8px;color:#999;font-size:12px;">Nenhuma foto disponível</div>'}
       
       <div style="background:#f9f9f9;padding:15px;border-left:4px solid #1da8b0;margin-bottom:20px;border-radius:4px;">
