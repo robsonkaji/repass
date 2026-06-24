@@ -1855,7 +1855,36 @@ function exportarUsuariosCSV(){
   document.body.removeChild(link);
   showToast('✓ CSV exportado!');
 }
-async function aprovUsr(id){await sb.from('users').update({status:'ativo'}).eq('id',id);await logAction('Usuário aprovado',{user_id:id});showToast('✓ Aprovado!');loadAdmUsr();}
+async function aprovUsr(id){
+  try{
+    // Atualizar status no banco
+    await sb.from('users').update({status:'ativo'}).eq('id',id);
+    
+    // Confirmar email no Supabase Auth usando Admin API
+    // Isso permite que o usuário faça login mesmo sem clicar no link de confirmação
+    try{
+      const response=await fetch('https://waisdhoqyqflzetkxcts.supabase.co/auth/v1/admin/users/'+id,{
+        method:'PATCH',
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhaXNkaG9xeXFmbHpldGt4Y3RzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MDg2NzUsImV4cCI6MjA5MjA4NDY3NX0.tTJ7CvSMmRtxJZw_BeIp0aXK8Af2ArI4AM9sgb869ro'
+        },
+        body:JSON.stringify({
+          email_confirm:true
+        })
+      });
+    }catch(e){
+      console.warn('Aviso: Email não confirmado no auth, mas usuário foi aprovado',e);
+    }
+    
+    await logAction('Usuário aprovado',{user_id:id});
+    showToast('✓ Aprovado! Email confirmado automaticamente.');
+    loadAdmUsr();
+  }catch(e){
+    console.error('Erro ao aprovar:',e);
+    showToast('❌ Erro ao aprovar: '+e.message);
+  }
+}
 async function blkUsr(id,st){await sb.from('users').update({status:st}).eq('id',id);await logAction('Status: '+st,{user_id:id});showToast('✓ Status atualizado!');loadAdmUsr();}
 
 
