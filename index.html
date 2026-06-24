@@ -398,7 +398,6 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
       <div class="avatar" id="nav-av" onclick="showScreen('perfil')"></div>
     </div>
   </nav>
-  <div id="banner-aprovacao" style="display:none;"></div>
   <div class="banners" id="banners-stack"></div>
   <div id="hero">
     <div id="hero-ov" style="position:absolute;inset:0;background:transparent;"></div>
@@ -505,7 +504,6 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
     <div class="logo" onclick="showScreen('catalogo')"><div class="logo-mark"><svg width="14" height="14" viewBox="0 0 36 36" fill="none"><path d="M6,10 A14,14 0 0,1 30,10" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round"/><path d="M23,2 L30,10 L20,11" fill="white"/><path d="M30,26 A14,14 0 0,1 6,26" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" opacity="0.75"/><path d="M13,34 L6,26 L16,25" fill="white" opacity="0.75"/></svg></div><div class="logo-text">Repass</div></div>
     <div class="nav-r"><button class="nbtn" onclick="showScreen('catalogo')">← Catálogo</button><button class="nbtn pri" id="p-admin" onclick="showScreen('admin')" style="display:none;">Admin</button></div>
   </nav>
-  <div id="banner-aprovacao-perfil" style="display:none;"></div>
   <div style="flex:1;padding:28px;max-width:700px;margin:0 auto;width:100%;">
     <div class="ptitle" style="margin-bottom:20px;">Meu perfil</div>
     <div id="p-termos" class="as" style="display:none;margin-bottom:16px;">✅ <b>Termos aceitos</b> em <span id="p-termos-data"></span></div>
@@ -758,21 +756,37 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
 
 <div id="m-confirmar-retirada" class="modal-ov">
   <div class="modal">
-    <div class="mhdr"><div class="mtitle">Confirmar Retirada</div><button class="mclose" onclick="closeModal('m-confirmar-retirada')">×</button></div>
+    <div class="mhdr"><div class="mtitle">🎉 Sua reserva foi aprovada!</div><button class="mclose" onclick="closeModal('m-confirmar-retirada')">×</button></div>
     <div class="mbody">
-      <p style="font-size:14px;color:var(--ink-mid);line-height:1.6;">Você está confirmando a retirada do item: <b id="conf-item-nome"></b></p>
-      <div class="alert ai mt12">Após confirmar, você terá 24 horas para retirar no local informado.</div>
-      <div style="margin-top:16px;padding:14px;background:var(--surface2);border-radius:var(--r);font-size:13px;">
-        <div style="color:var(--ink-soft);margin-bottom:8px;"><b>Local de retirada:</b></div>
-        <div style="font-weight:700;color:var(--ink);margin-bottom:12px;" id="conf-local">—</div>
-        <div style="color:var(--ink-soft);margin-bottom:8px;"><b>Prazo:</b></div>
-        <div style="font-weight:700;color:var(--ink);margin-bottom:12px;" id="conf-prazo">—</div>
-        <div style="color:var(--ink-soft);margin-bottom:8px;"><b>Pagamento:</b></div>
-        <div style="font-weight:600;color:var(--amber-dark);" id="conf-pagamento">Para itens de venda, entre em contato com o departamento financeiro.</div>
+      <div style="margin-bottom:20px;padding:16px;background:var(--green-bg);border-left:4px solid var(--green);border-radius:var(--r);">
+        <div style="font-size:14px;font-weight:700;color:var(--green-dark);margin-bottom:12px;">✅ Item Aprovado</div>
+        <div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:16px;" id="conf-item-nome"></div>
+        
+        <div style="margin-bottom:16px;">
+          <div style="font-size:12px;color:var(--ink-soft);margin-bottom:4px;font-weight:600;text-transform:uppercase;">📍 Local de Retirada</div>
+          <div style="font-size:16px;font-weight:700;color:var(--ink);" id="conf-local"></div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div style="font-size:12px;color:var(--ink-soft);margin-bottom:4px;font-weight:600;text-transform:uppercase;">⏱️ Prazo</div>
+          <div style="font-size:16px;font-weight:700;color:var(--ink);" id="conf-prazo"></div>
+        </div>
+
+        <div style="margin-bottom:16px;padding:12px;background:var(--surface2);border-radius:6px;">
+          <div style="font-size:12px;color:var(--ink-soft);margin-bottom:4px;font-weight:600;">💳 Pagamento</div>
+          <div style="font-size:13px;color:var(--amber-dark);font-weight:600;" id="conf-pagamento"></div>
+        </div>
+
+        <div style="background:var(--orange-bg);border-left:4px solid var(--orange);padding:12px;border-radius:6px;font-size:12px;line-height:1.6;">
+          <span style="color:var(--orange-dark);font-weight:700;">⚠️ Importante:</span><br/>
+          <span style="color:var(--ink-mid);">Apenas você pode retirar este item. Você tem até <b id="conf-prazo-dias"></b> para retirar.</span>
+        </div>
       </div>
-      <div class="alert aw mt12">⚠️ Apenas você poderá retirar este item. Certifique-se de cumprir o prazo.</div>
     </div>
-    <div class="mfoot"><button class="btn btn-outline" onclick="closeModal('m-confirmar-retirada')">Cancelar</button><button class="btn btn-primary" id="btn-conf-ret" onclick="confirmarRetiradaFinal()">Confirmar Retirada</button></div>
+    <div class="mfoot">
+      <button class="btn btn-outline" onclick="closeModal('m-confirmar-retirada')">Mais tarde</button>
+      <button class="btn btn-primary" id="btn-conf-ret" onclick="confirmarRetiradaFinal()">Confirmar Retirada</button>
+    </div>
   </div>
 </div>
 
@@ -1209,19 +1223,26 @@ async function cancelarReserva(reservaId){
 async function mostrarBannerAprovacao(screenId){
   if(!CU)return;
   const{data:reservas}=await sb.from('reservas').select('*,items(*)').eq('user_id',CU.id).eq('status','aprovada');
-  if(!reservas||reservas.length===0){document.getElementById('banner-'+screenId).style.display='none';return;}
-  const res=reservas[0];const item=res.items;const bannerId='banner-'+screenId;const el=document.getElementById(bannerId);
-  const prazoRetirada=new Date(res.prazo_retirada);const prazoFormatado=prazoRetirada.toLocaleDateString('pt-BR');
-  el.innerHTML=`<div style="background:var(--green-bg);border-left:4px solid var(--green);padding:16px;margin:16px 28px 0;border-radius:var(--r);"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;"><div style="flex:1;"><div style="font-size:14px;font-weight:700;color:var(--green-dark);margin-bottom:8px;">✅ Reserva Aprovada!</div><div style="font-size:13px;color:var(--ink-mid);line-height:1.6;"><b>${item.nome}</b><br/>📍 Local: ${item.escritorio}<br/>⏱️ Retire até: ${prazoFormatado}<br/><br/><span style="color:var(--amber-dark);font-weight:600;">💳 Pagamento:</span> Para itens de venda, entre em contato com o departamento financeiro para definir a melhor forma de pagamento.<br/><br/><span style="font-size:12px;color:var(--ink-soft);">⚠️ Apenas você poderá retirar este item.</span></div></div><button class="btn btn-sm btn-primary" onclick="abrirConfirmacaoRetirada(${res.id},'${item.id}','${item.nome}','${item.escritorio}','${prazoFormatado}','${item.tipo}')">Confirmar Retirada</button></div></div>`;
-  el.style.display='block';
-}
-
-function abrirConfirmacaoRetirada(resId,itemId,itemNome,local,prazo,tipo){
-  resAprovadaAtual={resId,itemId};
-  set('#conf-item-nome',itemNome);
-  set('#conf-local',local);
-  set('#conf-prazo','Até '+prazo);
-  document.getElementById('conf-pagamento').textContent=tipo==='venda'?'💳 Venda - Entre em contato com financeiro':'✅ Doação - Sem pagamento necessário';
+  if(!reservas||reservas.length===0)return;
+  
+  const res=reservas[0];
+  const item=res.items;
+  const prazoRetirada=new Date(res.prazo_retirada);
+  const prazoFormatado=prazoRetirada.toLocaleDateString('pt-BR');
+  const diasRestantes=Math.ceil((prazoRetirada-new Date())/(1000*60*60*24));
+  
+  resAprovadaAtual={resId:res.id,itemId:item.id};
+  
+  set('#conf-item-nome',item.nome);
+  set('#conf-local',item.escritorio||'Não informado');
+  set('#conf-prazo','Até '+prazoFormatado);
+  set('#conf-prazo-dias',diasRestantes+' dias');
+  
+  const pagText=item.tipo==='venda'
+    ?'💳 <b>Venda</b> - Entre em contato com o departamento financeiro para definir o pagamento'
+    :'✅ <b>Doação</b> - Sem custos';
+  document.getElementById('conf-pagamento').innerHTML=pagText;
+  
   openModal('m-confirmar-retirada');
 }
 
