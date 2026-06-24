@@ -1337,13 +1337,64 @@ function renderResTabFilaItens(data){
   itens.sort((a,b)=>b.reservas.length-a.reservas.length).forEach(function({item,reservas}){
     var thumb=item?.fotos?.length?'<img src="'+item.fotos[0]+'" style="width:100%;height:100%;object-fit:cover;"/>':catEmoji(item?.categoria)||'📦';
     html+='<div style="background:white;border:1.5px solid var(--border);border-radius:var(--rl);margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);"><div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--surface2);border-bottom:1px solid var(--border);"><div style="width:44px;height:44px;border-radius:var(--r);background:var(--surface3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">'+thumb+'</div><div style="flex:1;"><div style="font-size:14px;font-weight:700;color:var(--ink);">'+(item?.nome||'—')+'</div><div style="font-size:12px;color:var(--ink-soft);">📍 '+(item?.escritorio||'—')+' · '+reservas.length+' pessoa(s) na fila</div></div><span style="background:var(--teal-light);color:var(--teal-dark);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;">'+reservas.length+' na fila</span></div>';
-    reservas.sort((a,b)=>a.posicao_fila-b.posicao_fila).forEach(function(r,i){
-      var isAprov=r.status==='aprovada';var prazoStr=r.prazo_retirada?new Date(r.prazo_retirada).toLocaleDateString('pt-BR'):'—';
-      html+='<div style="display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--border-light);'+(isAprov?'background:var(--green-bg);':'')+'"><div style="width:26px;height:26px;border-radius:50%;background:'+(i===0?'var(--teal)':'var(--surface3)')+';color:'+(i===0?'white':'var(--ink)')+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">'+(i+1)+'</div><div style="flex:1;font-size:13px;font-weight:500;color:var(--ink);">'+(r.users?.nome||'—')+' <span style="font-size:11px;color:var(--ink-soft);">'+(r.users?.slack_name||'')+'</span></div><div style="font-size:11px;color:var(--ink-soft);">'+new Date(r.created_at).toLocaleDateString('pt-BR')+'</div>'+(isAprov?'<span style="font-size:11px;color:var(--green-dark);font-weight:700;">✅ Aprovada · '+prazoStr+'</span>':'')+'<span class="badge badge-'+(r.status==='aprovada'?'aprovada':'fila')+'" style="font-size:10px;">'+r.status+'</span></div>';
+    reservas.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at)).forEach(function(r,i){
+      var isAprov=r.status==='aprovada';
+      var prazoStr=r.prazo_retirada?new Date(r.prazo_retirada).toLocaleDateString('pt-BR'):'—';
+      var isPrimeiro=i===0&&!isAprov;
+      var createdAt=new Date(r.created_at);
+      var agora=new Date();
+      var diffMs=agora-createdAt;
+      var diffMins=Math.floor(diffMs/(1000*60));
+      var diffHours=Math.floor(diffMs/(1000*60*60));
+      var timeAgo=diffHours>0?diffHours+'h '+diffMins%60+'min':diffMins+'min';
+      
+      var bgColor=isPrimeiro?'background:linear-gradient(90deg, rgba(0,180,130,0.08), rgba(0,180,130,0.02));border-left:4px solid var(--teal);':isAprov?'background:var(--green-bg);':i===1?'background:rgba(250,200,50,0.05);':'';
+      
+      html+='<div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border-light);'+bgColor+'"><div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:45px;">';
+      
+      // Badge de posição
+      if(isPrimeiro){
+        html+='<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg, var(--teal), var(--teal-dark));color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;box-shadow:0 2px 8px rgba(0,180,130,0.3);">🥇</div>';
+        html+='<span style="font-size:10px;font-weight:700;color:var(--teal-dark);">PRÓXIMO</span>';
+      }else if(i===1){
+        html+='<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg, rgba(250,200,50,0.9), rgba(250,180,20,0.9));color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;">🥈</div>';
+        html+='<span style="font-size:10px;font-weight:700;color:var(--amber-dark);">2º lugar</span>';
+      }else if(i===2){
+        html+='<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg, rgba(200,150,100,0.9), rgba(160,100,60,0.9));color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;">🥉</div>';
+        html+='<span style="font-size:10px;font-weight:700;color:var(--surface4);">3º lugar</span>';
+      }else{
+        html+='<div style="width:32px;height:32px;border-radius:50%;background:var(--surface3);color:var(--ink-soft);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">'+(i+1)+'</div>';
+        html+='<span style="font-size:10px;font-weight:700;color:var(--ink-soft);">'+ordinalSuffix(i+1)+'</span>';
+      }
+      
+      html+='</div>';
+      html+='<div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;"><span style="font-size:14px;font-weight:700;color:var(--ink);">'+(r.users?.nome||'—')+'</span>';
+      if(isPrimeiro)html+='<span style="background:var(--teal);color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;">🚀 Primeira na fila</span>';
+      html+='</div>';
+      html+='<div style="display:flex;gap:12px;font-size:11px;color:var(--ink-soft);margin-bottom:2px;"><span>👤 '+(r.users?.slack_name||'—')+'</span><span>📍 '+(r.users?.escritorio||'—')+'</span></div>';
+      html+='<div style="display:flex;gap:12px;font-size:11px;color:var(--ink-soft);"><span>🕐 Entrou há '+timeAgo+'</span><span>📅 '+createdAt.toLocaleDateString('pt-BR')+' às '+createdAt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'</span></div>';
+      
+      html+='</div>';
+      
+      if(isAprov){
+        html+='<div style="text-align:right;"><span style="font-size:11px;font-weight:700;color:var(--green-dark);display:block;margin-bottom:4px;">✅ APROVADA</span><span style="font-size:11px;color:var(--ink-soft);">Prazo: '+prazoStr+'</span></div>';
+      }else{
+        html+='<span class="badge badge-fila" style="font-size:10px;font-weight:700;">📋 '+r.status+'</span>';
+      }
+      
+      html+='</div>';
     });
     html+='</div>';
   });
   el.innerHTML=html;
+}
+
+function ordinalSuffix(num){
+  const j=num%10;const k=num%100;
+  if(j===1&&k!==11)return num+'º';
+  if(j===2&&k!==12)return num+'º';
+  if(j===3&&k!==13)return num+'º';
+  return num+'º';
 }
 
 function renderResTabPorUsuario(data){
@@ -2081,8 +2132,8 @@ async function criarNovoUsuario(){
   try{
     showToast('⏳ Criando usuário...');
     
-    // Gerar ID único
-    const userId='usr_'+Math.random().toString(36).substr(2,9);
+    // Gerar UUID válido usando crypto
+    const userId=crypto.randomUUID();
     
     // Gerar senha temporária
     const senhaTemp=Math.random().toString(36).slice(-10).toUpperCase();
