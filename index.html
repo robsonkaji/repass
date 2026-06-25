@@ -2991,8 +2991,7 @@ async function confirmarCienciaRetirada(){
   showToast('✅ Prazo iniciado! Você tem 3 dias úteis para retirar o item.');
   closeModal('m-confirmar-retirada');
   bloqueiaModalAprovacao=true;
-  setTimeout(()=>{bloqueiaModalAprovacao=false;},500);
-  if(typeof loadPerfil==='function')loadPerfil();
+  if(typeof loadPerfil==='function')await loadPerfil();
 }
 
 async function confirmarRetiradaFinal(){
