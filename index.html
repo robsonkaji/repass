@@ -1043,11 +1043,14 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
         <div>
           <div class="user-info-item">
             <div class="user-info-label">Senha temporária *</div>
-            <div style="position:relative;">
-              <input type="password" id="novo-usr-senha" placeholder="Mínimo 8 caracteres" style="width:100%;padding:8px;padding-right:36px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;box-sizing:border-box;" oninput="limparErroNovUsr('novo-usr-senha')">
-              <button type="button" onclick="toggleSenha('novo-usr-senha','novo-usr-eye')" id="novo-usr-eye" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;color:var(--ink-soft);font-size:14px;padding:0;">👁</button>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <div style="position:relative;flex:1;">
+                <input type="text" id="novo-usr-senha" placeholder="Clique em Gerar →" style="width:100%;padding:8px;padding-right:36px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;box-sizing:border-box;font-family:monospace;" oninput="limparErroNovUsr('novo-usr-senha')" readonly>
+              </div>
+              <button type="button" onclick="gerarSenhaTemp()" style="white-space:nowrap;padding:8px 12px;background:var(--teal);color:white;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;">🔀 Gerar</button>
+              <button type="button" onclick="copiarSenhaTemp()" title="Copiar senha" style="padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:14px;">📋</button>
             </div>
-            <span style="font-size:11px;color:var(--ink-soft);">Comunique ao usuário após criar</span>
+            <span style="font-size:11px;color:var(--ink-soft);">Gerada automaticamente. Comunique ao usuário — ele será solicitado a criar uma nova senha no primeiro acesso.</span>
           </div>
         </div>
         <div>
