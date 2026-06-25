@@ -2342,6 +2342,7 @@ function val(s){return(document.querySelector(s)&&document.querySelector(s).valu
 function set(s,v){const el=document.querySelector(s);if(el){if(typeof v==='string'&&v.indexOf('<')>-1){el.innerHTML=v;}else{el.textContent=v;}}}
 function show(s){const el=document.querySelector(s);if(el)el.style.display='';}
 function hide(s){const el=document.querySelector(s);if(el)el.style.display='none';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'){const ls=document.getElementById('screen-login');if(ls&&ls.classList.contains('active')&&document.getElementById('vw-login').style.display!=='none')doLogin();}});
 
 async function cancelarReserva(reservaId){
