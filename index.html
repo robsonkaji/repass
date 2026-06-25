@@ -2327,9 +2327,15 @@ async function criarNovoUsuario(){
   const role=document.getElementById('novo-usr-role').value;
   const status=document.getElementById('novo-usr-status').value;
 
-  if(!nome||nome.length<3)return showToast('❌ Nome deve ter pelo menos 3 caracteres!');
-  if(!email||!email.includes('@'))return showToast('❌ Email inválido!');
-  if(!escritorio||escritorio.length<2)return showToast('❌ Escritório obrigatório!');
+  const errEl=document.getElementById('novo-usr-err');
+  const mostrarErro=(msg,campo)=>{
+    errEl.textContent=msg;errEl.style.display='block';
+    if(campo){const el=document.getElementById(campo);if(el)el.style.borderColor='var(--red)';}
+  };
+  errEl.style.display='none';
+  if(!nome||nome.length<3)return mostrarErro('Nome deve ter pelo menos 3 caracteres.','novo-usr-nome');
+  if(!email||!email.includes('@'))return mostrarErro('E-mail inválido.','novo-usr-email');
+  if(!escritorio)return mostrarErro('Selecione o escritório.','novo-usr-escritorio');
 
   try{
     showToast('⏳ Criando usuário...');
