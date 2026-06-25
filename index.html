@@ -2434,15 +2434,26 @@ async function criarNovoUsuario(){
   try{
     showToast('Criando usuário...');
 
-    const{data,error}=await sb.rpc('admin_criar_usuario',{
-      p_nome:nome, p_email:email, p_senha:senha,
-      p_slack:slack, p_escritorio:escritorio,
-      p_role:role, p_status:status
+    // Cria via GoTrue Admin API — garante hash correto e login funcionando
+    const res=await fetch(`${SURL}/auth/v1/admin/users`,{
+      method:'POST',
+      headers:{'Authorization':`Bearer ${SSRV}`,'apikey':SSRV,'Content-Type':'application/json'},
+      body:JSON.stringify({
+        email,password:senha,email_confirm:true,
+        user_metadata:{nome,slack_name:slack,escritorio,role}
+      })
     });
+    const authUser=await res.json();
+    if(!res.ok)throw new Error(authUser.message||authUser.msg||'Erro ao criar usuário no Auth');
 
-    if(error)throw new Error(error.message);
+    // Trigger já criou a linha em public.users — atualiza com os dados corretos
+    const{error:errDb}=await sb.from('users').update({
+      nome,slack_name:slack,escritorio,role,
+      status,termos_aceitos:true,senha_temporaria:true
+    }).eq('id',authUser.id);
+    if(errDb)throw new Error('Usuário criado no Auth mas erro no perfil: '+errDb.message);
 
-    await logAction('Usuário criado pelo admin',{nome,email,role});
+    await logAction('Usuário criado pelo admin',{user_id:authUser.id,nome,email,role});
 
     alert(`✅ USUÁRIO CRIADO!\n\n👤 Nome: ${nome}\n📧 Email: ${email}\n🔑 Senha: ${senha}\n\nComunique esses dados ao usuário.\nEle pode entrar no site agora.`);
 
