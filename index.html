@@ -1528,19 +1528,19 @@ function renderCompTable(data){
   const pendentes=data.filter(u=>!u.termos_aceitos);
   let html='';
   if(pendentes.length){
-    html+=`<div class="alert aw" style="margin-bottom:16px;">⚠️ <b>${pendentes.length} usuário(s)</b> ainda não aceitaram os termos: ${pendentes.map(u=>'<b>'+u.nome+'</b>').join(', ')}</div>`;
+    html+=`<div class="alert aw" style="margin-bottom:16px;">⚠️ <b>${pendentes.length} usuário(s)</b> ainda não aceitaram os termos: ${pendentes.map(u=>'<b>'+esc(u.nome)+'</b>').join(', ')}</div>`;
   }
   html+='<table class="atable"><thead><tr><th>Nome</th><th>Slack</th><th>E-mail</th><th>Escritório</th><th>Data do aceite</th><th>Versão</th><th>Status</th></tr></thead><tbody>';
   data.forEach(u=>{
     const aceiteData=u.termos_aceitos_em?new Date(u.termos_aceitos_em).toLocaleString('pt-BR'):'—';
     const rowStyle=!u.termos_aceitos?'background:var(--amber-bg);':'';
     html+=`<tr style="${rowStyle}">
-      <td><b>${u.nome}</b></td>
-      <td style="font-size:12px;color:var(--ink-soft);">${u.slack_name||'—'}</td>
-      <td style="font-size:12px;">${u.email}</td>
-      <td>${u.escritorio}</td>
+      <td><b>${esc(u.nome)}</b></td>
+      <td style="font-size:12px;color:var(--ink-soft);">${esc(u.slack_name||'—')}</td>
+      <td style="font-size:12px;">${esc(u.email)}</td>
+      <td>${esc(u.escritorio)}</td>
       <td style="font-size:12px;">${aceiteData}</td>
-      <td><span style="font-size:12px;font-weight:600;">${u.termos_versao||'—'}</span></td>
+      <td><span style="font-size:12px;font-weight:600;">${esc(u.termos_versao||'—')}</span></td>
       <td><span class="ctag ${u.termos_aceitos?'ctag-ok':'ctag-pend'}">${u.termos_aceitos?'✓ Aceitos':'⏳ Pendente'}</span></td>
     </tr>`;
   });
