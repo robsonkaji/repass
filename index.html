@@ -36,19 +36,19 @@ body{font-family:"DM Sans",sans-serif;background:var(--surface);color:var(--ink)
 .screen{display:none;min-height:100vh;flex-direction:column;animation:fadeIn .25s ease;}
 .screen.active{display:flex;}
 
-/* NAV — dark */
-nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(13,27,42,.4);}
+/* NAV — teal */
+nav{background:var(--teal);border-bottom:none;padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(29,168,176,.35);}
 .logo{display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px 10px;border-radius:var(--r);transition:background .15s;}
-.logo:hover{background:rgba(255,255,255,.08);}
-.logo-mark{width:36px;height:36px;border-radius:var(--r);background:var(--teal);display:flex;align-items:center;justify-content:center;color:white;box-shadow:var(--shadow-teal);}
-.logo-text{font-family:"DM Serif Display",serif;font-size:22px;color:white;font-style:italic;}
-.nav-r{display:flex;align-items:center;gap:10px;}
-.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#0e6b70);color:white;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:var(--shadow-teal);transition:transform .15s;}
-.avatar:hover{transform:scale(1.08);}
-.nbtn{padding:8px 16px;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:rgba(255,255,255,.9);font-family:"DM Sans",sans-serif;transition:all .15s;}
-.nbtn:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4);}
-.nbtn.pri{background:var(--teal);color:white;border-color:var(--teal);box-shadow:var(--shadow-teal);}
-.nbtn.pri:hover{background:var(--teal-dark);}
+.logo:hover{background:rgba(255,255,255,.12);}
+.logo-mark{width:34px;height:34px;border-radius:var(--r);background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;color:white;}
+.logo-text{font-family:"DM Serif Display",serif;font-size:22px;color:white;font-style:italic;letter-spacing:-.01em;}
+.nav-r{display:flex;align-items:center;gap:8px;}
+.avatar{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.22);color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;border:1.5px solid rgba(255,255,255,.35);}
+.avatar:hover{background:rgba(255,255,255,.35);transform:scale(1.06);}
+.nbtn{padding:7px 15px;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:white;font-family:"DM Sans",sans-serif;transition:all .15s;}
+.nbtn:hover{background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.5);}
+.nbtn.pri{background:white;color:var(--teal-dark);border-color:white;font-weight:700;}
+.nbtn.pri:hover{background:rgba(255,255,255,.92);}
 
 /* BUTTONS */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 22px;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:"DM Sans",sans-serif;transition:all .18s ease;letter-spacing:.01em;}
