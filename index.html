@@ -2260,9 +2260,10 @@ async function removerUsuario(userId){
   try{
     showToast('Removendo usuário...');
 
-    // Remove da tabela users
-    const{error}=await sb.from('users').delete().eq('id',userId);
+    // Remove da tabela users — .select() retorna as linhas deletadas, útil para detectar bloqueio por RLS
+    const{data:deleted,error}=await sb.from('users').delete().eq('id',userId).select();
     if(error)throw new Error(error.message);
+    if(!deleted||deleted.length===0)throw new Error('Nenhum registro removido. Verifique se você tem permissão de DELETE na tabela users no Supabase (RLS).');
 
     // Tenta revogar sessões ativas via RPC (requer função no Supabase com service role)
     // Se não existir, o usuário perderá acesso na próxima vez que tentar usar o sistema
