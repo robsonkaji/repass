@@ -2312,7 +2312,7 @@ async function removerUsuario(userId){
 
 // Novo Usuário
 function abrirModalNovoUsuario(){
-  ['novo-usr-nome','novo-usr-email','novo-usr-senha','novo-usr-slack'].forEach(id=>{
+  ['novo-usr-nome','novo-usr-email','novo-usr-slack'].forEach(id=>{
     const el=document.getElementById(id);if(el){el.value='';el.style.borderColor='';}
   });
   document.getElementById('novo-usr-escritorio').value='São Paulo';
@@ -2320,6 +2320,7 @@ function abrirModalNovoUsuario(){
   document.getElementById('novo-usr-status').value='ativo';
   const errEl=document.getElementById('novo-usr-err');
   if(errEl){errEl.style.display='none';errEl.textContent='';}
+  gerarSenhaTemp();
   openModal('m-novo-usr');
 }
 
