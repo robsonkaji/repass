@@ -2326,6 +2326,7 @@ async function criarNovoUsuario(){
   const role=document.getElementById('novo-usr-role').value;
   const status=document.getElementById('novo-usr-status').value;
 
+  const senha=document.getElementById('novo-usr-senha').value.trim();
   const errEl=document.getElementById('novo-usr-err');
   const mostrarErro=(msg,campo)=>{
     errEl.textContent=msg;errEl.style.display='block';
@@ -2334,33 +2335,30 @@ async function criarNovoUsuario(){
   errEl.style.display='none';
   if(!nome||nome.length<3)return mostrarErro('Nome deve ter pelo menos 3 caracteres.','novo-usr-nome');
   if(!email||!email.includes('@'))return mostrarErro('E-mail inválido.','novo-usr-email');
+  if(!senha||senha.length<8)return mostrarErro('Senha deve ter pelo menos 8 caracteres.','novo-usr-senha');
   if(!escritorio)return mostrarErro('Selecione o escritório.','novo-usr-escritorio');
 
   try{
-    showToast('⏳ Criando usuário...');
+    showToast('Criando usuário...');
 
-    const{data:existente}=await sb.from('users').select('id').eq('email',email).maybeSingle();
-    if(existente)return showToast('❌ Email já cadastrado no sistema!');
-
-    // Cria apenas o perfil — sem envio de email, sem mexer na sessão atual
-    // O usuário vai se cadastrar pela tela de cadastro do site usando esse mesmo email
-    const userId=crypto.randomUUID();
-    const{error:errDb}=await sb.from('users').insert({
-      id:userId,nome,email,slack_name:slack,escritorio,role,
-      status,termos_aceitos:true,created_at:new Date().toISOString()
+    const{data,error}=await sb.rpc('admin_criar_usuario',{
+      p_nome:nome, p_email:email, p_senha:senha,
+      p_slack:slack, p_escritorio:escritorio,
+      p_role:role, p_status:status
     });
-    if(errDb)throw new Error('Erro no banco: '+errDb.message);
 
-    await logAction('Usuário pré-cadastrado pelo admin',{user_id:userId,nome,email,role});
+    if(error)throw new Error(error.message);
 
-    alert(`✅ USUÁRIO PRÉ-CADASTRADO!\n\n👤 Nome: ${nome}\n📧 Email: ${email}\n🏢 Escritório: ${escritorio}\n🔑 Role: ${role}\n\nOriente o usuário a acessar o site e clicar em "Solicitar cadastro" usando esse email.\nO perfil já estará configurado com as permissões corretas.`);
+    await logAction('Usuário criado pelo admin',{nome,email,role});
 
-    showToast('✅ Usuário pré-cadastrado!');
+    alert(`✅ USUÁRIO CRIADO!\n\n👤 Nome: ${nome}\n📧 Email: ${email}\n🔑 Senha: ${senha}\n\nComunique esses dados ao usuário.\nEle pode entrar no site agora.`);
+
+    showToast('✅ Usuário criado com sucesso!');
     closeModal('m-novo-usr');
     loadAdmUsr();
   }catch(e){
     console.error('Erro:',e);
-    showToast('❌ Erro: '+e.message);
+    mostrarErro(e.message);
   }
 }
 
