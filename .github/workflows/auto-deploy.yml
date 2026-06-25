@@ -1,0 +1,27 @@
+name: 🚀 Auto Deploy Repass
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.REPASS_GITHUB_TOKEN }}
+
+      - name: ⚙️ Configurar Git
+        run: |
+          git config --local user.email "rmkajihara@gmail.com"
+          git config --local user.name "Robson"
+
+      - name: 📤 Commit e Push
+        run: |
+          git add -A
+          git commit -m "🔧 Atualização: $(date '+%Y-%m-%d %H:%M:%S')" || echo "Sem mudanças"
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPASS_GITHUB_TOKEN }}
