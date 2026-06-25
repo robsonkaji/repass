@@ -484,8 +484,10 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
     <div id="vw-list" class="ilist" style="display:none;"></div>
     <div id="items-empty" class="empty" style="display:none;"><div class="empty-icon">📦</div><div>Nenhum item encontrado</div></div>
     <div id="items-load" class="empty"><div class="spinner" style="margin:0 auto 12px;"></div><div style="font-size:13px;color:var(--ink-soft);">Carregando itens...</div></div>
-    <div style="margin-top:40px;padding:20px;border-top:1px solid var(--border);text-align:center;font-size:12px;color:var(--ink-soft);">
-      <a href="#" onclick="abrirTermos()" style="color:var(--teal);text-decoration:none;font-weight:500;cursor:pointer;">📋 Termos de Uso e Responsabilidade</a>
+    <div style="margin-top:40px;padding:20px;border-top:1px solid var(--border);text-align:center;font-size:12px;color:var(--ink-soft);display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
+      <a href="#" onclick="abrirTermos()" style="color:var(--teal);text-decoration:none;font-weight:500;">📋 Termos de Uso</a>
+      <span style="color:var(--border);">|</span>
+      <a href="#" onclick="openModal('m-lgpd')" style="color:var(--teal);text-decoration:none;font-weight:500;">🔒 Política de Privacidade (LGPD)</a>
     </div>
   </div>
 </div>
