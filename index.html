@@ -1739,6 +1739,8 @@ async function loadPerfil(){
     sb.from('reservas').select('*,items(*)').eq('user_id',CU.id).in('status',['retirada','cancelada','recusada']).order('updated_at',{ascending:false}).limit(20)
   ]);
   myRes=resData.data||[];
+  // Aplica prazo confirmado localmente caso o DB ainda não refletiu
+  if(pendingPrazoLocal){const r=myRes.find(r=>r.id===pendingPrazoLocal.resId);if(r)r.prazo_retirada=pendingPrazoLocal.prazo;pendingPrazoLocal=null;}
   const favs=favsData.data||[];
   const hist=histData.data||[];
 
