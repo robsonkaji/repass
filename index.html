@@ -2254,34 +2254,32 @@ async function criarNovoUsuario(){
   try{
     showToast('⏳ Criando usuário...');
 
-    // Gera senha temporária forte
-    const senhaTemp=Array.from(crypto.getRandomValues(new Uint8Array(12)))
-      .map(b=>'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#'[b%59])
-      .join('');
+    // Verifica duplicidade de email
+    const{data:existente}=await sb.from('users').select('id').eq('email',email).maybeSingle();
+    if(existente)return showToast('❌ Email já cadastrado no sistema!');
 
-    // Cria a conta real no Supabase Auth (garante que o usuário pode fazer login)
-    const{data:authData,error:authError}=await sb.auth.signUp({
-      email,
-      password:senhaTemp,
-      options:{data:{nome,slack_name:slack,escritorio,role}}
-    });
-
-    if(authError)throw new Error('Erro no Auth: '+authError.message);
-
-    const userId=authData.user?.id;
-    if(!userId)throw new Error('Usuário Auth não retornou ID.');
-
-    // Atualiza/cria perfil na tabela users com o ID real do Auth
-    const{error:errDb}=await sb.from('users').upsert({
+    // Cria o perfil na tabela users (o login será criado quando o usuário acessar o link do email)
+    const userId=crypto.randomUUID();
+    const{error:errDb}=await sb.from('users').insert({
       id:userId,nome,email,slack_name:slack,escritorio,role,
       status,termos_aceitos:true,created_at:new Date().toISOString()
     });
-
     if(errDb)throw new Error('Erro no banco: '+errDb.message);
+
+    // Envia magic link para o email do novo usuário — cria conta no Auth sem afetar a sessão do admin
+    const{error:otpError}=await sb.auth.signInWithOtp({
+      email,
+      options:{shouldCreateUser:true,data:{nome,slack_name:slack,escritorio,role}}
+    });
+    if(otpError)console.warn('Magic link não enviado:',otpError.message);
 
     await logAction('Usuário criado manualmente',{user_id:userId,nome,email});
 
-    alert(`✅ USUÁRIO CRIADO!\n\n👤 Nome: ${nome}\n📧 Email: ${email}\n🔑 Senha temporária: ${senhaTemp}\n\nComunique esses dados ao usuário.\nEle deverá alterar a senha no primeiro acesso.`);
+    const avisoOtp=otpError
+      ? '\n\n⚠️ Não foi possível enviar o email de acesso. Peça ao usuário para usar "Esqueci minha senha" no primeiro acesso.'
+      : '\n\n📧 Um email com link de acesso foi enviado para o usuário.';
+
+    alert(`✅ USUÁRIO CRIADO!\n\n👤 Nome: ${nome}\n📧 Email: ${email}\n🏢 Escritório: ${escritorio}\n🔑 Role: ${role}${avisoOtp}`);
 
     showToast('✅ Usuário criado com sucesso!');
     closeModal('m-novo-usr');
