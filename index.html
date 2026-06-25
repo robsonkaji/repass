@@ -2317,8 +2317,11 @@ async function confirmarRetiradaFinal(){
     showToast('✅ Retirada confirmada!');
     resAprovadaAtual=null;
     closeModal('m-confirmar-retirada');
-    loadPerfil();
-    loadItems();
+    
+    // Recarregar após 500ms para garantir que a API atualizou
+    setTimeout(async()=>{
+      loadItems();
+    },500);
   }catch(e){
     showToast('❌ Erro: '+e.message);
   }finally{
