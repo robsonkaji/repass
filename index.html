@@ -1456,7 +1456,7 @@ async function salvarNovaSenha(){
   showToast('Senha atualizada com sucesso!');
 }
 
-function toggleChk(n){chkS[n]=!chkS[n];const r=document.getElementById('chk-r'+n),b=document.getElementById('chkb'+n);r.classList.toggle('on',chkS[n]);b.classList.toggle('on',chkS[n]);b.textContent=chkS[n]?'✓':'';document.getElementById('btn-aceitar').disabled=!(chkS[1]&&chkS[2]);}
+function toggleChk(n){chkS[n]=!chkS[n];const r=document.getElementById('chk-r'+n),b=document.getElementById('chkb'+n);r.classList.toggle('on',chkS[n]);b.classList.toggle('on',chkS[n]);b.textContent=chkS[n]?'✓':'';document.getElementById('btn-aceitar').disabled=!(chkS[1]&&chkS[2]&&chkS[3]);}
 
 async function doSignup(){
   const nome=val('#c-nome'),slack=val('#c-slack'),email=val('#c-email'),senha=val('#c-senha'),esc=val('#c-esc');
