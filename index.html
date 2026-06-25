@@ -541,31 +541,93 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
     <div class="logo" onclick="showScreen('catalogo')"><div class="logo-mark"><svg width="14" height="14" viewBox="0 0 36 36" fill="none"><path d="M6,10 A14,14 0 0,1 30,10" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round"/><path d="M23,2 L30,10 L20,11" fill="white"/><path d="M30,26 A14,14 0 0,1 6,26" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" opacity="0.75"/><path d="M13,34 L6,26 L16,25" fill="white" opacity="0.75"/></svg></div><div class="logo-text">Repass</div></div>
     <div class="nav-r"><button class="nbtn" onclick="showScreen('catalogo')">← Catálogo</button><button class="nbtn pri" id="p-admin" onclick="showScreen('admin')" style="display:none;">Admin</button></div>
   </nav>
-  <div style="flex:1;padding:28px;max-width:700px;margin:0 auto;width:100%;">
-    <div class="ptitle" style="margin-bottom:20px;">Meu perfil</div>
-    <div id="p-termos" class="as" style="display:none;margin-bottom:16px;">✅ <b>Termos aceitos</b> em <span id="p-termos-data"></span></div>
-    <div class="pcard">
-      <div class="pavatar" id="p-av"></div>
-      <div style="flex:1;">
-        <div style="font-size:20px;font-weight:700;color:var(--ink);" id="p-nome"></div>
-        <div style="font-size:13px;color:var(--ink-soft);" id="p-slack"></div>
-        <div style="font-size:12px;color:var(--ink-soft);margin-top:2px;" id="p-email"></div>
-        <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
-          <span style="font-size:12px;color:var(--ink-soft);">Reservas:</span>
-          <div class="lbar-bg"><div class="lbar" id="p-lbar" style="width:0%;"></div></div>
-          <span style="font-size:12px;font-weight:700;color:var(--teal-dark);" id="p-lim"></span>
+  <div style="flex:1;padding:28px;max-width:780px;margin:0 auto;width:100%;">
+    <div class="ptitle" style="margin-bottom:4px;">Meu perfil</div>
+    <div class="psub" style="margin-bottom:24px;">Gerencie seus dados e acompanhe suas atividades</div>
+
+    <!-- Card principal -->
+    <div class="pcard" style="align-items:flex-start;gap:24px;margin-bottom:20px;">
+      <!-- Avatar -->
+      <div style="flex-shrink:0;text-align:center;">
+        <div class="pavatar" id="p-av" style="width:80px;height:80px;font-size:28px;cursor:pointer;position:relative;overflow:hidden;" onclick="document.getElementById('p-av-input').click()" title="Clique para alterar foto"></div>
+        <div style="position:relative;margin-top:-14px;display:flex;justify-content:center;">
+          <button onclick="document.getElementById('p-av-input').click()" style="background:var(--teal);color:white;border:2px solid white;border-radius:20px;font-size:10px;padding:2px 8px;cursor:pointer;font-weight:600;">✏️ Foto</button>
+        </div>
+        <input type="file" id="p-av-input" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="uploadAvatar(this)">
+      </div>
+
+      <!-- Dados -->
+      <div style="flex:1;min-width:0;">
+        <!-- VIEW -->
+        <div id="p-view">
+          <div style="font-size:22px;font-weight:700;color:var(--ink);line-height:1.2;" id="p-nome"></div>
+          <div style="font-size:13px;color:var(--ink-soft);margin-top:4px;" id="p-escritorio-txt"></div>
+          <div style="font-size:13px;color:var(--ink-soft);" id="p-slack-txt"></div>
+          <div style="font-size:12px;color:var(--ink-soft);margin-top:2px;" id="p-email"></div>
+          <div id="p-termos" style="display:none;margin-top:8px;font-size:12px;color:var(--teal-dark);">✅ Termos aceitos em <span id="p-termos-data"></span></div>
+          <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-sm btn-outline" onclick="entrarEdicao()">✏️ Editar dados</button>
+            <button class="btn btn-sm btn-outline" onclick="abrirTrocarSenha()">🔑 Trocar senha</button>
+            <button class="btn btn-sm btn-outline" style="margin-left:auto;color:var(--red);border-color:var(--red);" onclick="doLogout()">Sair da conta</button>
+          </div>
+        </div>
+        <!-- EDIT -->
+        <div id="p-edit" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div class="fg">
+              <label class="fl">Nome completo *</label>
+              <input type="text" class="fi" id="p-ed-nome" placeholder="Seu nome completo">
+            </div>
+            <div class="fg">
+              <label class="fl">Slack (opcional)</label>
+              <input type="text" class="fi" id="p-ed-slack" placeholder="@seu-usuario">
+            </div>
+            <div class="fg">
+              <label class="fl">Escritório *</label>
+              <select class="fi" id="p-ed-esc">
+                <option value="São Paulo">São Paulo</option>
+                <option value="Joinville">Joinville</option>
+              </select>
+            </div>
+          </div>
+          <div id="p-ed-err" style="display:none;color:var(--red);font-size:13px;margin-bottom:8px;padding:8px 12px;background:rgba(239,68,68,.08);border-radius:8px;"></div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-sm btn-primary" onclick="salvarPerfil()">✓ Salvar alterações</button>
+            <button class="btn btn-sm btn-outline" onclick="cancelarEdicao()">Cancelar</button>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;">
+      <div style="background:white;border:1.5px solid var(--border);border-radius:var(--rxl);padding:16px;text-align:center;box-shadow:var(--shadow);">
+        <div style="font-size:26px;font-weight:800;color:var(--teal-dark);" id="st-ativas">—</div>
+        <div style="font-size:11px;color:var(--ink-soft);margin-top:2px;">Reservas ativas</div>
+        <div style="margin-top:8px;"><div class="lbar-bg"><div class="lbar" id="p-lbar" style="width:0%;"></div></div></div>
+        <div style="font-size:10px;color:var(--ink-soft);margin-top:3px;" id="p-lim"></div>
+      </div>
+      <div style="background:white;border:1.5px solid var(--border);border-radius:var(--rxl);padding:16px;text-align:center;box-shadow:var(--shadow);">
+        <div style="font-size:26px;font-weight:800;color:var(--teal-dark);" id="st-recebidos">—</div>
+        <div style="font-size:11px;color:var(--ink-soft);margin-top:2px;">Itens recebidos</div>
+      </div>
+      <div style="background:white;border:1.5px solid var(--border);border-radius:var(--rxl);padding:16px;text-align:center;box-shadow:var(--shadow);">
+        <div style="font-size:26px;font-weight:800;color:var(--teal-dark);" id="st-favs">—</div>
+        <div style="font-size:11px;color:var(--ink-soft);margin-top:2px;">Favoritos</div>
+      </div>
+      <div style="background:white;border:1.5px solid var(--border);border-radius:var(--rxl);padding:16px;text-align:center;box-shadow:var(--shadow);">
+        <div style="font-size:26px;font-weight:800;color:var(--teal-dark);" id="st-hist">—</div>
+        <div style="font-size:11px;color:var(--ink-soft);margin-top:2px;">No histórico</div>
+      </div>
+    </div>
+
     <div class="stitle">Reservas ativas</div>
     <div class="rlist" id="perfil-reservas"></div>
-    <div class="stitle">Favoritos</div>
+    <div class="stitle" style="margin-top:20px;">Favoritos</div>
     <div class="rlist" id="p-favs"></div>
     <div class="divider"></div>
     <div class="stitle">Histórico</div>
     <div class="rlist" id="p-hist"></div>
-    <div class="divider"></div>
-    <button class="btn btn-outline btn-sm" onclick="doLogout()">Sair da conta</button>
   </div>
 </div>
 
