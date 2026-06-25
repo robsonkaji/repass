@@ -935,18 +935,109 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
       
       <div style="margin-bottom:16px;"><b>10. MODIFICAÇÃO DOS TERMOS</b><br/>A empresa se reserva o direito de modificar os termos a qualquer momento. Modificações entram em vigor imediatamente. Uso contínuo implica aceitação das novas condições.</div>
       
-      <div style="margin-bottom:16px;"><b>11. PRIVACIDADE E DADOS</b><br/>Dados pessoais serão processados conforme legislação vigente. A empresa pode usar dados para melhorar serviços. Dados não serão compartilhados com terceiros sem consentimento.</div>
-      
+      <div style="margin-bottom:16px;"><b>11. PRIVACIDADE E PROTEÇÃO DE DADOS (LGPD)</b><br/>O tratamento de dados pessoais obedece à Lei nº 13.709/2018 (LGPD). Coletamos apenas os dados necessários para operação da plataforma: nome, e-mail, escritório, Slack e foto de perfil. Os dados são usados exclusivamente para fins internos. O titular pode solicitar acesso, correção ou exclusão dos seus dados a qualquer momento. <button onclick="closeModal('m-termos');openModal('m-lgpd')" style="background:none;border:none;color:var(--teal-dark);font-weight:700;cursor:pointer;font-size:13px;padding:0;text-decoration:underline;">Ver Política de Privacidade completa →</button></div>
+
       <div style="margin-bottom:16px;"><b>12. RESCISÃO</b><br/>A empresa pode rescindir o acesso do usuário a qualquer momento. Motivos incluem violação de termos ou conduta imprópria.</div>
-      
+
       <div style="margin-bottom:16px;"><b>13. LEI APLICÁVEL</b><br/>Este termo é regido pelas leis do Brasil. Competência exclusiva é da justiça brasileira.</div>
-      
+
       <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);font-size:11px;color:var(--ink-soft);">
-        <b>Última atualização:</b> {DATA}<br/>
-        <b>Versão:</b> 1.0
+        <b>Última atualização:</b> Junho/2026<br/>
+        <b>Versão:</b> 1.1
       </div>
     </div>
-    <div class="mfoot"><button class="btn btn-primary" onclick="closeModal('m-termos')">Entendi</button></div>
+    <div class="mfoot"><button class="btn btn-outline" onclick="closeModal('m-termos');openModal('m-lgpd')">🔒 Política de Privacidade</button><button class="btn btn-primary" onclick="closeModal('m-termos')">Entendi</button></div>
+  </div>
+</div>
+
+<!-- MODAL LGPD -->
+<div id="m-lgpd" class="modal-ov">
+  <div class="modal" style="max-width:600px;max-height:90vh;display:flex;flex-direction:column;">
+    <div class="mhdr"><div class="mtitle">🔒 Política de Privacidade — LGPD</div><button class="mclose" onclick="closeModal('m-lgpd')">×</button></div>
+    <div class="mbody" style="flex:1;overflow-y:auto;padding:20px;font-size:13px;line-height:1.75;color:var(--ink-mid);">
+      <div style="background:var(--teal-light);border-left:4px solid var(--teal);padding:12px 14px;border-radius:6px;margin-bottom:20px;font-size:12px;color:var(--teal-dark);">
+        Em conformidade com a <b>Lei Geral de Proteção de Dados Pessoais — Lei nº 13.709/2018 (LGPD)</b>, a JEM Systems informa como trata os dados pessoais dos colaboradores na plataforma Repass.
+      </div>
+
+      <div style="margin-bottom:16px;"><b>1. CONTROLADOR DOS DADOS</b><br/>
+      <b>Empresa:</b> JEM Systems<br/>
+      <b>Plataforma:</b> Repass — Marketplace Interno de Reutilização<br/>
+      <b>Contato DPO:</b> Entre em contato com o departamento de TI ou RH para exercer seus direitos.</div>
+
+      <div style="margin-bottom:16px;"><b>2. DADOS COLETADOS</b><br/>
+      Coletamos apenas os dados estritamente necessários para operação da plataforma:
+      <ul style="padding-left:18px;margin-top:6px;">
+        <li><b>Nome completo</b> — identificação do colaborador</li>
+        <li><b>E-mail corporativo</b> — autenticação e comunicação</li>
+        <li><b>Escritório/localização</b> — para retirada presencial</li>
+        <li><b>Nome no Slack</b> (opcional) — contato entre colaboradores</li>
+        <li><b>Foto de perfil</b> (opcional) — personalização da conta</li>
+        <li><b>Histórico de reservas e transações</b> — rastreabilidade e compliance</li>
+        <li><b>Logs de acesso e ações</b> — segurança e auditoria</li>
+      </ul></div>
+
+      <div style="margin-bottom:16px;"><b>3. FINALIDADE DO TRATAMENTO</b><br/>
+      Os dados são utilizados exclusivamente para:
+      <ul style="padding-left:18px;margin-top:6px;">
+        <li>Operação do marketplace interno de reutilização de itens</li>
+        <li>Identificação do colaborador nas transações</li>
+        <li>Controle de reservas, filas e retiradas</li>
+        <li>Auditoria e compliance interno</li>
+        <li>Geração de documentos de venda/doação</li>
+      </ul></div>
+
+      <div style="margin-bottom:16px;"><b>4. BASE LEGAL</b><br/>
+      O tratamento se baseia em:
+      <ul style="padding-left:18px;margin-top:6px;">
+        <li><b>Consentimento do titular</b> (Art. 7º, I — LGPD): aceito no momento do cadastro</li>
+        <li><b>Legítimo interesse</b> (Art. 7º, IX — LGPD): operação do marketplace interno</li>
+        <li><b>Execução de contrato</b> (Art. 7º, V — LGPD): vínculo empregatício</li>
+      </ul></div>
+
+      <div style="margin-bottom:16px;"><b>5. COMPARTILHAMENTO DE DADOS</b><br/>
+      <ul style="padding-left:18px;margin-top:6px;">
+        <li>Dados <b>não</b> são compartilhados com terceiros externos</li>
+        <li>Internamente: nome e escritório são visíveis a outros colaboradores na fila do mesmo item</li>
+        <li>Admins da plataforma têm acesso a todos os dados para fins de gestão</li>
+        <li>Fotos dos itens são públicas dentro da plataforma interna</li>
+      </ul></div>
+
+      <div style="margin-bottom:16px;"><b>6. RETENÇÃO DE DADOS</b><br/>
+      Os dados são mantidos enquanto o colaborador estiver ativo na empresa. Após encerramento do vínculo empregatício, os dados poderão ser anonimizados ou excluídos mediante solicitação formal ao DPO.</div>
+
+      <div style="margin-bottom:16px;"><b>7. SEGURANÇA DOS DADOS</b><br/>
+      Adotamos medidas técnicas para proteger os dados:
+      <ul style="padding-left:18px;margin-top:6px;">
+        <li>Autenticação segura com senha criptografada</li>
+        <li>Comunicação criptografada (HTTPS/TLS)</li>
+        <li>Controle de acesso por perfil (RLS — Row Level Security)</li>
+        <li>Logs de auditoria de todas as ações relevantes</li>
+        <li>Armazenamento em nuvem com conformidade SOC 2</li>
+      </ul></div>
+
+      <div style="margin-bottom:16px;"><b>8. DIREITOS DO TITULAR</b><br/>
+      Conforme a LGPD, você tem direito a:
+      <ul style="padding-left:18px;margin-top:6px;">
+        <li>✅ <b>Confirmação</b> — saber se seus dados são tratados</li>
+        <li>✅ <b>Acesso</b> — obter cópia dos seus dados</li>
+        <li>✅ <b>Correção</b> — corrigir dados incorretos (via perfil da plataforma)</li>
+        <li>✅ <b>Anonimização ou exclusão</b> — quando o tratamento for desnecessário</li>
+        <li>✅ <b>Portabilidade</b> — receber seus dados em formato estruturado</li>
+        <li>✅ <b>Revogação do consentimento</b> — a qualquer momento, com impacto no acesso à plataforma</li>
+        <li>✅ <b>Oposição</b> — contestar o tratamento em caso de descumprimento da lei</li>
+      </ul></div>
+
+      <div style="margin-bottom:16px;"><b>9. COOKIES E ARMAZENAMENTO LOCAL</b><br/>
+      A plataforma utiliza armazenamento local (<i>localStorage</i>) exclusivamente para manter a sessão ativa do usuário. Nenhum cookie de rastreamento ou publicidade é utilizado.</div>
+
+      <div style="margin-bottom:16px;"><b>10. ALTERAÇÕES NESTA POLÍTICA</b><br/>
+      Esta política pode ser atualizada periodicamente. Alterações relevantes serão comunicadas via plataforma. A versão vigente está sempre disponível neste documento.</div>
+
+      <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);font-size:11px;color:var(--ink-soft);">
+        <b>Versão:</b> 1.0 · <b>Vigência:</b> Junho/2026 · <b>Lei:</b> LGPD — Lei nº 13.709/2018
+      </div>
+    </div>
+    <div class="mfoot"><button class="btn btn-primary" onclick="closeModal('m-lgpd')">Entendi</button></div>
   </div>
 </div>
 
