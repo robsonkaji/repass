@@ -2264,61 +2264,44 @@ async function criarNovoUsuario(){
   const escritorio=document.getElementById('novo-usr-escritorio').value.trim();
   const role=document.getElementById('novo-usr-role').value;
   const status=document.getElementById('novo-usr-status').value;
-  
-  // Validações
-  if(!nome||nome.length<3){
-    showToast('❌ Nome deve ter pelo menos 3 caracteres!');
-    return;
-  }
-  
-  if(!email||!email.includes('@')){
-    showToast('❌ Email inválido!');
-    return;
-  }
-  
-  if(!escritorio||escritorio.length<2){
-    showToast('❌ Escritório obrigatório!');
-    return;
-  }
-  
-  // Verificar se email já existe
-  const{data:existente}=await sb.from('users').select('id').eq('email',email).single();
-  if(existente){
-    showToast('❌ Email já existe no sistema!');
-    return;
-  }
-  
+
+  if(!nome||nome.length<3)return showToast('❌ Nome deve ter pelo menos 3 caracteres!');
+  if(!email||!email.includes('@'))return showToast('❌ Email inválido!');
+  if(!escritorio||escritorio.length<2)return showToast('❌ Escritório obrigatório!');
+
   try{
     showToast('⏳ Criando usuário...');
-    
-    // Gerar UUID válido usando crypto
-    const userId=crypto.randomUUID();
-    
-    // Gerar senha temporária
-    const senhaTemp=Math.random().toString(36).slice(-10).toUpperCase();
-    
-    // Criar usuário no banco
-    const{error:errDb}=await sb.from('users').insert({
-      id:userId,
-      nome:nome,
-      email:email,
-      slack_name:slack,
-      escritorio:escritorio,
-      role:role,
-      status:status,
-      termos_aceitos:true,
-      created_at:new Date().toISOString()
+
+    // Gera senha temporária forte
+    const senhaTemp=Array.from(crypto.getRandomValues(new Uint8Array(12)))
+      .map(b=>'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#'[b%59])
+      .join('');
+
+    // Cria a conta real no Supabase Auth (garante que o usuário pode fazer login)
+    const{data:authData,error:authError}=await sb.auth.signUp({
+      email,
+      password:senhaTemp,
+      options:{data:{nome,slack_name:slack,escritorio,role}}
     });
-    
-    if(errDb)throw new Error('Erro ao criar: '+errDb.message);
-    
-    // Registrar em logs
-    await logAction('Usuário criado manualmente',{user_id:userId,nome:nome,email:email});
-    
-    // Mostrar senha temporária
-    alert(`✅ USUÁRIO CRIADO COM SUCESSO!\n\n👤 Nome: ${nome}\n📧 Email: ${email}\n🔑 Senha Temporária: ${senhaTemp}\n\nCOMUNIQUE ESSES DADOS AO USUÁRIO!`);
-    
-    showToast('✅ Usuário criado! Comunique a senha temporária.');
+
+    if(authError)throw new Error('Erro no Auth: '+authError.message);
+
+    const userId=authData.user?.id;
+    if(!userId)throw new Error('Usuário Auth não retornou ID.');
+
+    // Atualiza/cria perfil na tabela users com o ID real do Auth
+    const{error:errDb}=await sb.from('users').upsert({
+      id:userId,nome,email,slack_name:slack,escritorio,role,
+      status,termos_aceitos:true,created_at:new Date().toISOString()
+    });
+
+    if(errDb)throw new Error('Erro no banco: '+errDb.message);
+
+    await logAction('Usuário criado manualmente',{user_id:userId,nome,email});
+
+    alert(`✅ USUÁRIO CRIADO!\n\n👤 Nome: ${nome}\n📧 Email: ${email}\n🔑 Senha temporária: ${senhaTemp}\n\nComunique esses dados ao usuário.\nEle deverá alterar a senha no primeiro acesso.`);
+
+    showToast('✅ Usuário criado com sucesso!');
     closeModal('m-novo-usr');
     loadAdmUsr();
   }catch(e){
