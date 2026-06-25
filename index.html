@@ -1324,6 +1324,7 @@ const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI
 const SSRV='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhaXNkaG9xeXFmbHpldGt4Y3RzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjUwODY3NSwiZXhwIjoyMDkyMDg0Njc1fQ.vkrKM-ovi-waiuF4NSqdyXvq1g-6PR2E8ggIhKYH9pk';
 const sb=supabase.createClient(SURL,SKEY);
 let CU=null,CP=null,CI=null,allItems=[],myFavs=[],myRes=[],fotosFiles=[],capaImgFile=null;
+let pendingPrazoLocal=null; // {resId, prazo} aplicado após loadPerfil re-buscar do DB
 let chkS={1:false,2:false};
 
 window.addEventListener('DOMContentLoaded',async()=>{
