@@ -604,14 +604,12 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
           <button class="res-tab act" onclick="switchResTab('pendentes',this)" style="padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--teal-dark);border-bottom:2px solid var(--teal);margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Pendentes <span id="tab-cnt-pendentes" style="background:var(--teal);color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">0</span></button>
           <button class="res-tab" onclick="switchResTab('aprovadas',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Aprovadas <span id="tab-cnt-aprovadas" style="background:var(--surface3);color:var(--ink-soft);border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">0</span></button>
           <button class="res-tab" onclick="switchResTab('prazo',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">⚠️ Prazo <span id="tab-cnt-prazo" style="background:var(--surface3);color:var(--ink-soft);border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">0</span></button>
-          <button class="res-tab" onclick="switchResTab('fila-itens',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Fila por item</button>
           <button class="res-tab" onclick="switchResTab('por-usuario',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Por usuário</button>
           <button class="res-tab" onclick="switchResTab('historico',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Histórico</button>
         </div>
         <div id="res-pendentes"></div>
         <div id="res-aprovadas" style="display:none;"></div>
         <div id="res-prazo" style="display:none;"></div>
-        <div id="res-fila-itens" style="display:none;"></div>
         <div id="res-por-usuario" style="display:none;"></div>
         <div id="res-historico" style="display:none;"></div>
       </div>
@@ -1264,7 +1262,7 @@ async function switchPanel(p,el){document.querySelectorAll('.apanel').forEach(x=
 
 let allReservas=[];
 async function loadAdmRes(){
-  const tabs=['pendentes','aprovadas','prazo','fila-itens','por-usuario','historico'];
+  const tabs=['pendentes','aprovadas','prazo','por-usuario','historico'];
   tabs.forEach(t=>{const el=document.getElementById('res-'+t);if(el)el.innerHTML='<div class="empty"><div class="spinner" style="margin:0 auto;"></div></div>';});
   const{data,error}=await sb.from('reservas').select('*,items(id,nome,tipo,preco,escritorio,condicao,fotos,categoria),users(nome,slack_name,escritorio)').order('created_at',{ascending:false});
   if(error){document.getElementById('res-pendentes').innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><div>Erro: '+error.message+'</div></div>';return;}
@@ -1294,7 +1292,7 @@ function renderReservas(){
   if(statsEl)statsEl.innerHTML=`<div class="astat"><div class="astat-n">${total}</div><div class="astat-l">Ativas</div></div><div class="astat"><div class="astat-n">${pendentes.length}</div><div class="astat-l">Pendentes</div></div><div class="astat"><div class="astat-n" style="color:var(--amber);">${vencendo}</div><div class="astat-l">Vencendo 48h</div></div><div class="astat"><div class="astat-n" style="color:var(--red);">${vencidas}</div><div class="astat-l">Prazo vencido</div></div><div class="astat"><div class="astat-n" style="color:var(--green);">${retiradas}</div><div class="astat-l">Retiradas</div></div>`;
   const setCnt=(id,n,warn)=>{const el=document.getElementById('tab-cnt-'+id);if(el){el.textContent=n;el.style.background=warn&&n>0?'var(--red)':n>0?'var(--teal)':'var(--surface3)';el.style.color=n>0?'white':'var(--ink-soft)';}};
   setCnt('pendentes',pendentes.length,false);setCnt('aprovadas',aprovadas.length,false);setCnt('prazo',prazo.length,true);
-  renderResTabPendentesComFila(pendentes);renderResTab('res-aprovadas',aprovadas,'aprovada');renderResTab('res-prazo',prazo,'prazo');renderResTabFilaItens(data);renderResTabPorUsuario(data);renderResTab('res-historico',historico,'historico');
+  renderResTabPendentesComFila(pendentes);renderResTab('res-aprovadas',aprovadas,'aprovada');renderResTab('res-prazo',prazo,'prazo');renderResTabPorUsuario(data);renderResTab('res-historico',historico,'historico');
 }
 
 function renderResTab(elId,items,tipo){
@@ -1369,7 +1367,7 @@ function renderResTabPendentesComFila(pendentes){
       // Badge de posição
       if(isPrimeiro){
         html+='<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg, var(--teal), var(--teal-dark));color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;box-shadow:0 2px 8px rgba(0,180,130,0.3);">🥇</div>';
-        html+='<span style="font-size:10px;font-weight:700;color:var(--teal-dark);text-align:center;">PRÓXIMO</span>';
+        html+='<span style="font-size:10px;font-weight:700;color:var(--teal-dark);text-align:center;">1º DA<br>FILA</span>';
       }else if(i===1){
         html+='<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg, rgba(250,200,50,0.9), rgba(250,180,20,0.9));color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;">🥈</div>';
         html+='<span style="font-size:10px;font-weight:700;color:var(--amber-dark);">2º</span>';
@@ -1405,67 +1403,6 @@ function ordinalSuffix(num){
   return num+'º';
 }
 
-function renderResTabFilaItens(data){
-  var el=document.getElementById('res-fila-itens');if(!el)return;
-  var porItem={};
-  data.filter(r=>['fila','aprovada'].includes(r.status)).forEach(r=>{var id=r.item_id;if(!porItem[id])porItem[id]={item:r.items,reservas:[]};porItem[id].reservas.push(r);});
-  var itens=Object.values(porItem);
-  if(!itens.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div>Nenhuma fila ativa.</div></div>';return;}
-  var html='';
-  itens.sort((a,b)=>b.reservas.length-a.reservas.length).forEach(function({item,reservas}){
-    var thumb=item?.fotos?.length?'<img src="'+item.fotos[0]+'" style="width:100%;height:100%;object-fit:cover;"/>':catEmoji(item?.categoria)||'📦';
-    html+='<div style="background:white;border:1.5px solid var(--border);border-radius:var(--rl);margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);"><div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--surface2);border-bottom:1px solid var(--border);"><div style="width:44px;height:44px;border-radius:var(--r);background:var(--surface3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">'+thumb+'</div><div style="flex:1;"><div style="font-size:14px;font-weight:700;color:var(--ink);">'+(item?.nome||'—')+'</div><div style="font-size:12px;color:var(--ink-soft);">📍 '+(item?.escritorio||'—')+' · '+reservas.length+' pessoa(s) na fila</div></div><span style="background:var(--teal-light);color:var(--teal-dark);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;">'+reservas.length+' na fila</span></div>';
-    reservas.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at)).forEach(function(r,i){
-      var isAprov=r.status==='aprovada';
-      var prazoStr=r.prazo_retirada?new Date(r.prazo_retirada).toLocaleDateString('pt-BR'):'—';
-      var isPrimeiro=i===0&&!isAprov;
-      var createdAt=new Date(r.created_at);
-      var agora=new Date();
-      var diffMs=agora-createdAt;
-      var diffMins=Math.floor(diffMs/(1000*60));
-      var diffHours=Math.floor(diffMs/(1000*60*60));
-      var timeAgo=diffHours>0?diffHours+'h '+diffMins%60+'min':diffMins+'min';
-      
-      var bgColor=isPrimeiro?'background:linear-gradient(90deg, rgba(0,180,130,0.08), rgba(0,180,130,0.02));border-left:4px solid var(--teal);':isAprov?'background:var(--green-bg);':i===1?'background:rgba(250,200,50,0.05);':'';
-      
-      html+='<div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border-light);'+bgColor+'"><div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:45px;">';
-      
-      // Badge de posição
-      if(isPrimeiro){
-        html+='<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg, var(--teal), var(--teal-dark));color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;box-shadow:0 2px 8px rgba(0,180,130,0.3);">🥇</div>';
-        html+='<span style="font-size:10px;font-weight:700;color:var(--teal-dark);">PRÓXIMO</span>';
-      }else if(i===1){
-        html+='<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg, rgba(250,200,50,0.9), rgba(250,180,20,0.9));color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;">🥈</div>';
-        html+='<span style="font-size:10px;font-weight:700;color:var(--amber-dark);">2º lugar</span>';
-      }else if(i===2){
-        html+='<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg, rgba(200,150,100,0.9), rgba(160,100,60,0.9));color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;">🥉</div>';
-        html+='<span style="font-size:10px;font-weight:700;color:var(--surface4);">3º lugar</span>';
-      }else{
-        html+='<div style="width:32px;height:32px;border-radius:50%;background:var(--surface3);color:var(--ink-soft);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">'+(i+1)+'</div>';
-        html+='<span style="font-size:10px;font-weight:700;color:var(--ink-soft);">'+ordinalSuffix(i+1)+'</span>';
-      }
-      
-      html+='</div>';
-      html+='<div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;"><span style="font-size:14px;font-weight:700;color:var(--ink);">'+(r.users?.nome||'—')+'</span>';
-      if(isPrimeiro)html+='<span style="background:var(--teal);color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;">🚀 Primeira na fila</span>';
-      html+='</div>';
-      html+='<div style="display:flex;gap:12px;font-size:11px;color:var(--ink-soft);margin-bottom:2px;"><span>👤 '+(r.users?.slack_name||'—')+'</span><span>📍 '+(r.users?.escritorio||'—')+'</span></div>';
-      html+='<div style="display:flex;gap:12px;font-size:11px;color:var(--ink-soft);"><span>🕐 Entrou há '+timeAgo+'</span><span>📅 '+createdAt.toLocaleDateString('pt-BR')+' às '+createdAt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'</span></div>';
-      
-      html+='</div>';
-      
-      if(isAprov){
-        html+='<div style="text-align:right;"><span style="font-size:11px;font-weight:700;color:var(--green-dark);display:block;margin-bottom:4px;">✅ APROVADA</span><span style="font-size:11px;color:var(--ink-soft);">Prazo: '+prazoStr+'</span></div>';
-      }else{
-        html+='<span class="badge badge-fila" style="font-size:10px;font-weight:700;">📋 '+r.status+'</span>';
-      }
-      
-      html+='</div>';
-    });
-    html+='</div>';
-  });
-  el.innerHTML=html;
-}
 
 function renderResTabPorUsuario(data){
   var el=document.getElementById('res-por-usuario');if(!el)return;
@@ -1505,7 +1442,7 @@ async function aprovarRes(id){
 }
 function abrirRecusa(id){document.getElementById('rec-id').value=id;document.getElementById('rec-motivo').value='';openModal('m-recusa');}
 async function confirmarRecusa(){const id=document.getElementById('rec-id').value;const motivo=document.getElementById('rec-motivo').value.trim();if(!motivo)return showToast('Digite o motivo.');await sb.from('reservas').update({status:'recusada',motivo_recusa:motivo}).eq('id',id);await logAction('Reserva recusada',{reserva_id:id,motivo});closeModal('m-recusa');showToast('Reserva recusada.');loadAdmRes();}
-async function switchResTab(tab,el){document.querySelectorAll('.res-tab').forEach(function(t){t.style.color='var(--ink-soft)';t.style.borderBottomColor='transparent';t.style.fontWeight='500';});el.style.color='var(--teal-dark)';el.style.borderBottomColor='var(--teal)';el.style.fontWeight='700';['pendentes','aprovadas','prazo','fila-itens','por-usuario','historico'].forEach(function(t){var d=document.getElementById('res-'+t);if(d)d.style.display=t===tab?'block':'none';});}
+async function switchResTab(tab,el){document.querySelectorAll('.res-tab').forEach(function(t){t.style.color='var(--ink-soft)';t.style.borderBottomColor='transparent';t.style.fontWeight='500';});el.style.color='var(--teal-dark)';el.style.borderBottomColor='var(--teal)';el.style.fontWeight='700';['pendentes','aprovadas','prazo','por-usuario','historico'].forEach(function(t){var d=document.getElementById('res-'+t);if(d)d.style.display=t===tab?'block':'none';});}
 async function marcarRetiradoRes(resId,itemId){
   await sb.from('reservas').update({status:'retirada',retirada_em:new Date().toISOString()}).eq('id',resId);
   if(itemId)await sb.from('items').update({status:'retirado'}).eq('id',itemId);
