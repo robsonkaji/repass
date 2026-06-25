@@ -2155,22 +2155,6 @@ async function aprovUsr(id){
   }
 }
 
-// Método alternativo de confirmação
-async function confirmarEmailAlternativo(userId){
-  try{
-    const user = usersFilterData.find(u => u.id === userId);
-    if(!user)return;
-    
-    // Tentar via SQL direto
-    const{error}=await sb.from('auth.users').update({
-      email_confirmed_at: new Date().toISOString()
-    }).eq('email',user.email);
-    
-    if(error)console.warn('Erro alternativo:',error);
-  }catch(e){
-    console.warn('Método alternativo falhou',e);
-  }
-}
 
 // Novo: Função para admin confirmar email manualmente
 async function confirmarEmailManualmente(userId){
