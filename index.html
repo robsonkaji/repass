@@ -1404,6 +1404,8 @@ function ordinalSuffix(num){
   if(j===3&&k!==13)return num+'º';
   return num+'º';
 }
+
+function renderResTabFilaItens(data){
   var el=document.getElementById('res-fila-itens');if(!el)return;
   var porItem={};
   data.filter(r=>['fila','aprovada'].includes(r.status)).forEach(r=>{var id=r.item_id;if(!porItem[id])porItem[id]={item:r.items,reservas:[]};porItem[id].reservas.push(r);});
@@ -1463,14 +1465,6 @@ function ordinalSuffix(num){
     html+='</div>';
   });
   el.innerHTML=html;
-}
-
-function ordinalSuffix(num){
-  const j=num%10;const k=num%100;
-  if(j===1&&k!==11)return num+'º';
-  if(j===2&&k!==12)return num+'º';
-  if(j===3&&k!==13)return num+'º';
-  return num+'º';
 }
 
 function renderResTabPorUsuario(data){
