@@ -1465,6 +1465,7 @@ async function doSignup(){
   const{data,error}=await sb.auth.signUp({email,password:senha,options:{data:{nome,slack_name:slack,escritorio:esc,role:'user'}}});
   if(error){showToast('Erro: '+error.message);btn.disabled=false;btn.textContent='Solicitar acesso';return;}
 
+  const agora=new Date().toISOString();
   let preAprovado=false;
   if(data.user){
     const{data:perfil}=await sb.from('users').select('id,status').eq('email',email).maybeSingle();
@@ -1472,16 +1473,18 @@ async function doSignup(){
       await sb.from('users').update({
         id:data.user.id,
         termos_aceitos:true,
-        termos_aceitos_em:new Date().toISOString(),
-        termos_versao:'v1.0'
+        termos_aceitos_em:agora,
+        termos_versao:'v1.1',
+        lgpd_aceito_em:agora
       }).eq('email',email);
       preAprovado=perfil.status==='ativo';
     }else{
       await sb.from('users').insert({
         id:data.user.id,nome,email,slack_name:slack,escritorio:esc,
         role:'user',status:'pendente',
-        termos_aceitos:true,termos_aceitos_em:new Date().toISOString(),termos_versao:'v1.0',
-        created_at:new Date().toISOString()
+        termos_aceitos:true,termos_aceitos_em:agora,termos_versao:'v1.1',
+        lgpd_aceito_em:agora,
+        created_at:agora
       });
     }
   }
