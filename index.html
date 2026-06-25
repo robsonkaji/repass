@@ -1461,6 +1461,7 @@ function filterItems(){
 
 async function abrirItem(item){
   CI=item;set('#det-nome',item.nome);set('#det-preco',fmtPreco(item));set('#det-cat',item.categoria);set('#det-loc','📍 '+item.escritorio);set('#det-qtd',item.quantidade_disponivel+' unidade(s)');
+  if(item.codigo){set('#det-codigo',esc(item.codigo));show('#det-codigo-box');}else{hide('#det-codigo-box');}
   document.getElementById('det-cond').innerHTML=condBadge(item.condicao);
   if(item.descricao){set('#det-desc',item.descricao);show('#det-desc');}else hide('#det-desc');
   if(item.motivo_descarte){set('#det-motivo',item.motivo_descarte);show('#det-motivo-box');}else hide('#det-motivo-box');
