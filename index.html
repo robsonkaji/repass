@@ -1153,9 +1153,31 @@ function toggleChk(n){chkS[n]=!chkS[n];const r=document.getElementById('chk-r'+n
 async function doSignup(){
   const nome=val('#c-nome'),slack=val('#c-slack'),email=val('#c-email'),senha=val('#c-senha'),esc=val('#c-esc');
   const btn=document.getElementById('btn-aceitar');btn.disabled=true;btn.textContent='Enviando...';
+
   const{data,error}=await sb.auth.signUp({email,password:senha,options:{data:{nome,slack_name:slack,escritorio:esc,role:'user'}}});
   if(error){showToast('Erro: '+error.message);btn.disabled=false;btn.textContent='Solicitar acesso';return;}
-  if(data.user)await sb.from('users').update({termos_aceitos:true,termos_aceitos_em:new Date().toISOString(),termos_versao:'v1.0'}).eq('id',data.user.id);
+
+  if(data.user){
+    // Verifica se o admin já pré-cadastrou esse email
+    const{data:perfil}=await sb.from('users').select('id').eq('email',email).maybeSingle();
+    if(perfil){
+      // Vincula o ID real do Auth ao perfil existente (preserva role e configurações do admin)
+      await sb.from('users').update({
+        id:data.user.id,
+        termos_aceitos:true,
+        termos_aceitos_em:new Date().toISOString(),
+        termos_versao:'v1.0'
+      }).eq('email',email);
+    }else{
+      // Cadastro novo sem pré-registro — cria perfil padrão aguardando aprovação
+      await sb.from('users').insert({
+        id:data.user.id,nome,email,slack_name:slack,escritorio:esc,
+        role:'user',status:'pendente',
+        termos_aceitos:true,termos_aceitos_em:new Date().toISOString(),termos_versao:'v1.0',
+        created_at:new Date().toISOString()
+      });
+    }
+  }
   showToast('Cadastro enviado! Aguarde aprovação.');showScreen('login');showVw('pendente');
 }
 
