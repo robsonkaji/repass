@@ -371,10 +371,11 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
       <p class="llnk" style="margin-top:6px;"><a onclick="showVw('forgot')" style="color:var(--ink-soft);">Esqueci minha senha</a></p>
     </div>
     <div id="vw-cadastro" style="display:none;">
-      <div class="fg"><label class="fl">Nome completo</label><input class="fi" id="c-nome" placeholder="Seu nome"/></div>
-      <div class="fg"><label class="fl">Nome no Slack</label><input class="fi" id="c-slack" placeholder="@nome.sobrenome"/><span class="fn">Use exatamente como aparece no Slack</span></div>
-      <div class="fg"><label class="fl">E-mail corporativo</label><input class="fi" id="c-email" type="email" placeholder="nome@empresa.com"/></div>
-      <div class="fg"><label class="fl">Senha</label><input class="fi" id="c-senha" type="password" placeholder="Mínimo 8 caracteres"/></div>
+      <div class="fg"><label class="fl">Nome completo</label><input class="fi" id="c-nome" placeholder="Seu nome completo"/></div>
+      <div class="fg"><label class="fl">Nome no Slack <span style="font-size:11px;color:var(--ink-soft);font-weight:400;">(opcional)</span></label><input class="fi" id="c-slack" placeholder="@nome.sobrenome"/><span class="fn">Deixe em branco se não usar Slack</span></div>
+      <div class="fg"><label class="fl">E-mail</label><input class="fi" id="c-email" type="email" placeholder="seu@email.com"/></div>
+      <div class="fg"><label class="fl">Senha</label><div style="position:relative;"><input class="fi" id="c-senha" type="password" placeholder="Mínimo 8 caracteres" style="padding-right:44px;" oninput="atualizarForcaSenha()"/><button type="button" onclick="toggleSenha('c-senha','eye1')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;color:var(--ink-soft);font-size:16px;padding:0;" id="eye1">👁</button></div><div id="senha-forca" style="margin-top:6px;display:none;"><div style="height:4px;border-radius:2px;background:var(--border);overflow:hidden;"><div id="senha-barra" style="height:100%;width:0;border-radius:2px;transition:all .3s;"></div></div><span id="senha-texto" style="font-size:11px;color:var(--ink-soft);margin-top:3px;display:block;"></span></div></div>
+      <div class="fg"><label class="fl">Confirmar senha</label><div style="position:relative;"><input class="fi" id="c-senha2" type="password" placeholder="Repita a senha" style="padding-right:44px;"/><button type="button" onclick="toggleSenha('c-senha2','eye2')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;color:var(--ink-soft);font-size:16px;padding:0;" id="eye2">👁</button></div></div>
       <div class="fg"><label class="fl">Escritório</label><select class="fs" id="c-esc"><option value="São Paulo">São Paulo</option><option value="Joinville">Joinville</option></select></div>
       <div id="c-err" class="ae" style="display:none;"></div>
       <button class="btn btn-primary btn-block" onclick="irTermos()">Continuar para os termos →</button>
