@@ -1602,7 +1602,19 @@ async function abrirItem(item){
   const isFav=myFavs.includes(item.id);set('#btn-fav',isFav?'♥ Favoritado':'♡ Favoritar');
   const myR=myRes.find(r=>r.item_id===item.id&&r.status==='aprovada');
   document.getElementById('btn-comp').style.display=myR?'inline-flex':'none';
-  if(myR){const p=new Date(myR.prazo_retirada);const diff=Math.ceil((p-new Date())/(864e5));set('#det-prazo',`⏱ <b>Reserva aprovada!</b> Retire até ${p.toLocaleDateString('pt-BR')}. <b>${diff} dia(s).</b>`);document.getElementById('det-prazo').style.display='block';set('#cp-item',item.nome);set('#cp-tipo',item.tipo==='doacao'?'Doação':'Venda — '+fmtPreco(item));set('#cp-user',CP?.nome||'—');set('#cp-data',new Date(myR.created_at).toLocaleDateString('pt-BR'));set('#cp-prazo','até '+p.toLocaleDateString('pt-BR'));set('#cp-local',item.escritorio);}
+  if(myR){
+    const prazoEl=document.getElementById('det-prazo');
+    if(myR.prazo_retirada){
+      const p=new Date(myR.prazo_retirada);const dias=businessDaysRemaining(p);
+      set('#det-prazo',`⏱ <b>Reserva aprovada!</b> Retire até ${p.toLocaleDateString('pt-BR')}. <b>${dias} dia(s) útil(is).</b>`);
+      set('#cp-prazo','até '+p.toLocaleDateString('pt-BR'));
+    }else{
+      set('#det-prazo','⏱ <b>Reserva aprovada!</b> Confirme no seu perfil para iniciar o prazo de retirada.');
+      set('#cp-prazo','Aguardando confirmação');
+    }
+    prazoEl.style.display='block';
+    set('#cp-item',item.nome);set('#cp-tipo',item.tipo==='doacao'?'Doação':'Venda — '+fmtPreco(item));set('#cp-user',CP?.nome||'—');set('#cp-data',new Date(myR.created_at).toLocaleDateString('pt-BR'));set('#cp-local',item.escritorio);
+  }
   else document.getElementById('det-prazo').style.display='none';
   showScreen('detalhe');
 }
