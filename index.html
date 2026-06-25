@@ -142,6 +142,9 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
 .icard:hover{transform:translateY(-6px);box-shadow:0 16px 48px rgba(13,27,42,.14);border-color:var(--teal);}
 .icard:active{transform:translateY(-3px);}
 .icard.fixado{border-color:#a855f7;border-width:2px;}
+.icard.reservado{border-color:var(--amber-dark);opacity:.92;}
+.icard-res-overlay{position:absolute;bottom:0;left:0;right:0;background:rgba(146,64,14,.82);color:white;font-size:11px;font-weight:700;padding:6px 12px;display:flex;align-items:center;gap:6px;backdrop-filter:blur(2px);}
+.icard-prazo{font-size:11px;font-weight:600;color:var(--amber-dark);background:var(--amber-bg);border-radius:6px;padding:5px 10px;margin-top:8px;display:flex;align-items:center;gap:5px;}
 .ithumb{height:180px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;overflow:hidden;}
 .ithumb img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease;}
 .icard:hover .ithumb img{transform:scale(1.06);}
