@@ -2332,7 +2332,28 @@ async function salvarCapa(){
   const{error}=await sb.from('capa_config').update(payload).eq('id',1);if(error)return showToast('Erro: '+error.message);await logAction('Capa atualizada',{});showToast('Capa salva!');
 }
 
-function openItemModal(){document.getElementById('mi-id').value='';document.getElementById('mi-title').textContent='Novo item';document.getElementById('mi-nome').value='';document.getElementById('mi-codigo').value='';document.getElementById('mi-desc').value='';document.getElementById('mi-preco').value='';document.getElementById('mi-fotos-prev').innerHTML='';document.getElementById('mi-foto-capa').value='0';fotosFiles=[];document.getElementById('btn-sv-item').textContent='Cadastrar';togglePreco();openModal('m-item');}
+async function openItemModal(){
+  document.getElementById('mi-id').value='';
+  document.getElementById('mi-title').textContent='Novo item';
+  document.getElementById('mi-nome').value='';
+  document.getElementById('mi-desc').value='';
+  document.getElementById('mi-preco').value='';
+  document.getElementById('mi-fotos-prev').innerHTML='';
+  document.getElementById('mi-foto-capa').value='0';
+  fotosFiles=[];
+  document.getElementById('btn-sv-item').textContent='Cadastrar';
+  togglePreco();
+  // Gerar próximo código PAT-
+  document.getElementById('mi-codigo').value='Gerando...';
+  openModal('m-item');
+  const{data}=await sb.from('items').select('codigo').like('codigo','PAT-%').order('codigo',{ascending:false});
+  let nextNum=1;
+  if(data&&data.length){
+    const nums=data.map(r=>{const m=r.codigo?.match(/^PAT-(\d+)$/);return m?parseInt(m[1]):0;}).filter(n=>n>0);
+    if(nums.length)nextNum=Math.max(...nums)+1;
+  }
+  document.getElementById('mi-codigo').value='PAT-'+String(nextNum).padStart(4,'0');
+}
 function abrirItemById(id){const item=allItems.find(function(i){return i.id===id;});if(item)abrirItem(item);}
 function editItemById(id){const item=allItems.find(function(i){return i.id===id;});if(item){editItem(item);return;}sb.from('items').select('*').eq('id',id).single().then(function(res){if(res.data)editItem(res.data);});}
 function duplicarItemById(id){const item=allItems.find(function(i){return i.id===id;});if(item){duplicarItem(item);return;}sb.from('items').select('*').eq('id',id).single().then(function(res){if(res.data)duplicarItem(res.data);});}
