@@ -1030,32 +1030,35 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
       <div class="user-info-grid">
         <div>
           <div class="user-info-item">
-            <div class="user-info-label">Nome *</div>
-            <input type="text" id="novo-usr-nome" placeholder="Ex: Silva, João" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+            <div class="user-info-label">Nome completo *</div>
+            <input type="text" id="novo-usr-nome" placeholder="Ex: João Silva" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;" oninput="limparErroNovUsr('novo-usr-nome')">
           </div>
         </div>
         <div>
           <div class="user-info-item">
-            <div class="user-info-label">Email *</div>
-            <input type="email" id="novo-usr-email" placeholder="Ex: joao@company.com" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+            <div class="user-info-label">E-mail *</div>
+            <input type="email" id="novo-usr-email" placeholder="Ex: joao@email.com" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;" oninput="limparErroNovUsr('novo-usr-email')">
           </div>
         </div>
         <div>
           <div class="user-info-item">
-            <div class="user-info-label">Slack</div>
+            <div class="user-info-label">Slack <span style="font-size:11px;color:var(--ink-soft);font-weight:400;">(opcional)</span></div>
             <input type="text" id="novo-usr-slack" placeholder="Ex: joao_silva" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
           </div>
         </div>
         <div>
           <div class="user-info-item">
             <div class="user-info-label">Escritório *</div>
-            <input type="text" id="novo-usr-escritorio" placeholder="Ex: São Paulo" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+            <select id="novo-usr-escritorio" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;" oninput="limparErroNovUsr('novo-usr-escritorio')">
+              <option value="São Paulo">São Paulo</option>
+              <option value="Joinville">Joinville</option>
+            </select>
           </div>
         </div>
         <div>
           <div class="user-info-item">
             <div class="user-info-label">Role</div>
-            <select id="novo-usr-role" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+            <select id="novo-usr-role" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;" onchange="confirmarRoleAdmin(this)">
               <option value="user">👤 User</option>
               <option value="admin">⚙️ Admin</option>
             </select>
@@ -1065,15 +1068,17 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
           <div class="user-info-item">
             <div class="user-info-label">Status</div>
             <select id="novo-usr-status" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
-              <option value="ativo">✓ Ativo</option>
-              <option value="pendente">⏳ Pendente</option>
+              <option value="ativo">✓ Ativo — acesso liberado ao se cadastrar</option>
+              <option value="pendente">⏳ Pendente — aguarda aprovação manual</option>
             </select>
           </div>
         </div>
       </div>
-      
+
+      <div id="novo-usr-err" class="ae" style="display:none;margin-top:12px;"></div>
+
       <div class="alert ai" style="margin-top:16px;">
-        <strong>ℹ️ Informação:</strong> Uma senha temporária será gerada e exibida após a criação. Você deverá comunicar ao usuário.
+        <strong>ℹ️ Como funciona:</strong> O perfil é criado com as permissões definidas acima. O usuário deve acessar o site e se cadastrar usando esse mesmo e-mail para ativar o acesso.
       </div>
     </div>
     <div class="mfoot">
