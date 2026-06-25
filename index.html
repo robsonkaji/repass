@@ -1501,21 +1501,29 @@ async function arquivarItem(id){await sb.from('items').update({status:'arquivado
 async function desfazerStatus(id){if(!confirm('Reativar este item?'))return;await sb.from('items').update({status:'ativo'}).eq('id',id);await logAction('Item reativado',{item_id:id});showToast('Reativado!');loadAdmItens();loadItems();}
 
 async function promoverProximoDaFila(itemId){
-  // Buscar próximo da fila (menor posicao_fila com status='fila')
-  const{data:proximaRes}=await sb.from('reservas').select('id,user_id').eq('item_id',itemId).eq('status','fila').order('posicao_fila',{ascending:true}).limit(1).single();
-  
-  if(!proximaRes)return; // Nenhum na fila
-  
-  // Promover para aprovada
-  const prazo=new Date();
-  prazo.setDate(prazo.getDate()+3);
-  
-  await sb.from('reservas').update({status:'aprovada',prazo_retirada:prazo.toISOString()}).eq('id',proximaRes.id);
-  
-  await logAction('Próximo da fila promovido',{item_id:itemId,reserva_id:proximaRes.id});
-  
-  // Notificar usuário (opcional - apenas log por enquanto)
-  console.log('Promoção automática: usuário',proximaRes.user_id,'aprovado para item',itemId);
+  try{
+    // Buscar próximo da fila (menor posicao_fila com status='fila')
+    const{data:proximaRes,error}=await sb.from('reservas').select('id,user_id').eq('item_id',itemId).eq('status','fila').order('posicao_fila',{ascending:true}).limit(1);
+    
+    if(error||!proximaRes||proximaRes.length===0)return; // Nenhum na fila
+    
+    const res=proximaRes[0];
+    
+    // Promover para aprovada
+    const prazo=new Date();
+    prazo.setDate(prazo.getDate()+3);
+    
+    const{error:updateError}=await sb.from('reservas').update({status:'aprovada',prazo_retirada:prazo.toISOString()}).eq('id',res.id);
+    
+    if(updateError)throw new Error(updateError.message);
+    
+    await logAction('Próximo da fila promovido',{item_id:itemId,reserva_id:res.id});
+    
+    console.log('Promoção automática: usuário',res.user_id,'aprovado para item',itemId);
+  }catch(e){
+    console.error('Erro ao promover próximo da fila:',e);
+    throw e;
+  }
 }
 
 async function desfazerRetirada(id){
@@ -2282,18 +2290,41 @@ async function mostrarBannerAprovacao(screenId){
 
 async function confirmarRetiradaFinal(){
   if(!resAprovadaAtual)return showToast('Erro: informações inválidas');
-  const btn=document.getElementById('btn-conf-ret');btn.disabled=true;btn.textContent='Confirmando...';
-  const{error}=await sb.from('reservas').update({status:'retirada',retirada_em:new Date().toISOString()}).eq('id',resAprovadaAtual.resId);
-  if(error){showToast('Erro: '+error.message);btn.disabled=false;btn.textContent='Confirmar Retirada';return;}
+  const btn=document.getElementById('btn-conf-ret');
+  btn.disabled=true;
+  btn.textContent='Confirmando...';
   
-  // Promover próximo da fila
-  await promoverProximoDaFila(resAprovadaAtual.itemId);
-  
-  await logAction('Retirada confirmada',{reserva_id:resAprovadaAtual.resId});
-  showToast('✅ Retirada confirmada! Próximo da fila foi aprovado automaticamente.');
-  closeModal('m-confirmar-retirada');
-  btn.disabled=false;btn.textContent='Confirmar Retirada';
-  loadPerfil();loadItems();
+  try{
+    // Atualizar status da reserva
+    const{error}=await sb.from('reservas').update({status:'retirada',retirada_em:new Date().toISOString()}).eq('id',resAprovadaAtual.resId);
+    if(error)throw new Error(error.message);
+    
+    // Tentar promover próximo da fila (continua mesmo se falhar)
+    try{
+      await promoverProximoDaFila(resAprovadaAtual.itemId);
+    }catch(e){
+      console.warn('Aviso ao promover próximo:',e);
+      // Continua mesmo se promover falhar
+    }
+    
+    // Registrar ação
+    try{
+      await logAction('Retirada confirmada',{reserva_id:resAprovadaAtual.resId});
+    }catch(e){
+      console.warn('Aviso ao registrar log:',e);
+    }
+    
+    showToast('✅ Retirada confirmada!');
+    resAprovadaAtual=null;
+    closeModal('m-confirmar-retirada');
+    loadPerfil();
+    loadItems();
+  }catch(e){
+    showToast('❌ Erro: '+e.message);
+  }finally{
+    btn.disabled=false;
+    btn.textContent='Confirmar Retirada';
+  }
 }
 
 </script>
