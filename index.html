@@ -2991,9 +2991,7 @@ async function confirmarCienciaRetirada(){
   const prazo=addBusinessDays(new Date(),3);
   const{error}=await sb.from('reservas').update({prazo_retirada:prazo.toISOString()}).eq('id',resAprovadaAtual.resId);
   if(error){showToast('Erro: '+error.message);btn.disabled=false;btn.textContent='Confirmar — iniciar prazo de 3 dias';return;}
-  // Atualiza myRes em memória imediatamente (evita race condition com DB)
-  const idx=myRes.findIndex(r=>r.id===resAprovadaAtual.resId);
-  if(idx!==-1)myRes[idx].prazo_retirada=prazo.toISOString();
+  pendingPrazoLocal={resId:resAprovadaAtual.resId,prazo:prazo.toISOString()};
   showToast('✅ Prazo iniciado! Você tem 3 dias úteis para retirar o item.');
   closeModal('m-confirmar-retirada');
   bloqueiaModalAprovacao=true;
