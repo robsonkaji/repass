@@ -2141,9 +2141,7 @@ async function aprovUsr(id){
       // Usar RPC para confirmar email
       const{data,error}=await sb.rpc('confirm_email',{user_email:user.email});
       if(error){
-        console.warn('Email não confirmado via RPC, tentando outra forma...',error);
-        // Tentar método alternativo
-        await confirmarEmailAlternativo(id);
+        console.warn('Email não confirmado via RPC. Configure a função confirm_email no Supabase.',error);
       }
     }
     
