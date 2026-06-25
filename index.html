@@ -2295,10 +2295,28 @@ function abrirModalNovoUsuario(){
   document.getElementById('novo-usr-nome').value='';
   document.getElementById('novo-usr-email').value='';
   document.getElementById('novo-usr-slack').value='';
-  document.getElementById('novo-usr-escritorio').value='';
+  document.getElementById('novo-usr-escritorio').value='São Paulo';
   document.getElementById('novo-usr-role').value='user';
   document.getElementById('novo-usr-status').value='ativo';
+  const errEl=document.getElementById('novo-usr-err');
+  if(errEl){errEl.style.display='none';errEl.textContent='';}
+  ['novo-usr-nome','novo-usr-email','novo-usr-escritorio'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.borderColor='';
+  });
   openModal('m-novo-usr');
+}
+
+function limparErroNovUsr(id){
+  const el=document.getElementById(id);if(el)el.style.borderColor='';
+  const errEl=document.getElementById('novo-usr-err');
+  if(errEl){errEl.style.display='none';}
+}
+
+function confirmarRoleAdmin(sel){
+  if(sel.value==='admin'){
+    const ok=confirm('Tem certeza que deseja criar um usuário com permissão de ADMIN?\n\nAdmins têm acesso total ao painel de gerenciamento.');
+    if(!ok)sel.value='user';
+  }
 }
 
 async function criarNovoUsuario(){
