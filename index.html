@@ -1686,6 +1686,7 @@ async function loadPerfil(){
   set('#p-slack-txt',CP.slack_name?'💬 '+esc(CP.slack_name):'');
   set('#p-email',esc(CU?.email||''));
   if(CP.termos_aceitos&&CP.termos_aceitos_em){show('#p-termos');set('#p-termos-data',new Date(CP.termos_aceitos_em).toLocaleDateString('pt-BR'));}
+  if(CP.lgpd_aceito_em){show('#p-lgpd');set('#p-lgpd-data',new Date(CP.lgpd_aceito_em).toLocaleDateString('pt-BR'));}else{hide('#p-lgpd');}
   // Admin btn
   if(document.getElementById('p-admin'))document.getElementById('p-admin').style.display=CP.role==='admin'?'':'none';
 
