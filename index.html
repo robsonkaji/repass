@@ -2961,6 +2961,8 @@ async function mostrarBannerAprovacao(screenId){
     document.getElementById('conf-aviso-prazo').style.display='none';
     document.getElementById('conf-foot-confirmar').style.display='';
     document.getElementById('conf-foot-aguardando').style.display='none';
+    const btnRet=document.getElementById('btn-conf-ret');
+    btnRet.disabled=false;btnRet.textContent='Confirmar — iniciar prazo de 3 dias';
   }
 
   openModal('m-confirmar-retirada');
