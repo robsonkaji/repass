@@ -2929,8 +2929,10 @@ async function mostrarBannerAprovacao(screenId){
   const item=res.items;
   const itemId=item?.id||res.item_id;
   const jaConfirmou=!!res.prazo_retirada;
-  const prazoRetirada=jaConfirmou?new Date(res.prazo_retirada):null;
-  const diasRestantes=prazoRetirada?businessDaysRemaining(prazoRetirada):null;
+  if(jaConfirmou)return; // usuário já confirmou, não exibe o popup novamente
+
+  const prazoRetirada=null;
+  const diasRestantes=null;
 
   resAprovadaAtual={resId:res.id,itemId:itemId};
 
