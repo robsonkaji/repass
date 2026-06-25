@@ -1598,9 +1598,46 @@ async function loadAdmRel(){
   
   const el=document.getElementById('adm-rel');
   if(!ret||!ret.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div><div>Nenhum item retirado neste período.</div></div>';return;}
-  const rows=ret.map((r,idx)=>`<tr style="cursor:pointer;transition:background .2s;" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background=''" onclick="abrirDocumentoVenda(${idx})"><td style="font-weight:600;">${r.items?.nome||'—'}</td><td><span class="badge badge-${r.items?.tipo==='doacao'?'doacao':'venda'}">${r.items?.tipo==='doacao'?'Doação':'Venda'}</span></td><td>${r.items?.categoria||'—'}</td><td>${r.users?.nome||'—'}</td><td>${new Date(r.updated_at).toLocaleDateString('pt-BR')}</td><td style="text-align:right;font-weight:600;color:var(--teal-dark);">${r.items?.tipo==='venda'?'R$'+parseFloat(r.items.preco||0).toFixed(2).replace('.',','):'—'}</td></tr>`).join('');
+  const rows=ret.map((r,idx)=>`<tr style="cursor:pointer;transition:background .2s;" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background=''"><td style="font-weight:600;" onclick="abrirDocumentoVenda(${idx})">${r.items?.nome||'—'}</td><td onclick="abrirDocumentoVenda(${idx})"><span class="badge badge-${r.items?.tipo==='doacao'?'doacao':'venda'}">${r.items?.tipo==='doacao'?'Doação':'Venda'}</span></td><td onclick="abrirDocumentoVenda(${idx})">${r.items?.categoria||'—'}</td><td onclick="abrirDocumentoVenda(${idx})">${r.users?.nome||'—'}</td><td onclick="abrirDocumentoVenda(${idx})">${new Date(r.updated_at).toLocaleDateString('pt-BR')}</td><td style="text-align:right;font-weight:600;color:var(--teal-dark);" onclick="abrirDocumentoVenda(${idx})">${r.items?.tipo==='venda'?'R$'+parseFloat(r.items.preco||0).toFixed(2).replace('.',','):'—'}</td><td style="text-align:center;"><button class="btn btn-sm btn-red" onclick="deletarRegistroVenda('${r.id}','${r.items?.nome||'Item'}',event)" style="white-space:nowrap;">🗑️ Deletar</button></td></tr>`).join('');
   window.vendas=ret;
-  el.innerHTML=`<table class="atable"><thead><tr><th>Item</th><th>Tipo</th><th>Categoria</th><th>Quem retirou</th><th>Data</th><th style="text-align:right;">Valor</th></tr></thead><tbody>${rows}</tbody></table>`;
+  el.innerHTML=`<table class="atable"><thead><tr><th>Item</th><th>Tipo</th><th>Categoria</th><th>Quem retirou</th><th>Data</th><th style="text-align:right;">Valor</th><th style="text-align:center;">Ações</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+async function deletarRegistroVenda(vendaId,itemNome,event){
+  event.stopPropagation();
+  const confirmMsg=`⚠️ Tem certeza que deseja deletar\n\n"${itemNome}"?\n\nEssa ação é IRREVERSÍVEL!`;
+  
+  if(!confirm(confirmMsg))return;
+  
+  const confirmMsg2=`🆘 ÚLTIMA CONFIRMAÇÃO!\n\nDeletar PERMANENTEMENTE "${itemNome}"?`;
+  
+  if(!confirm(confirmMsg2))return;
+  
+  try{
+    showToast('⏳ Deletando registro...');
+    
+    // DELETAR DO BANCO DE DADOS
+    const{error}=await sb.from('reservas').delete().eq('id',vendaId);
+    
+    if(error){
+      console.error('Erro ao deletar:',error);
+      throw new Error('Erro: '+error.message);
+    }
+    
+    // Registrar em logs
+    try{
+      await logAction('Registro de venda/doação deletado',{reserva_id:vendaId,item_nome:itemNome});
+    }catch(e){
+      console.warn('Aviso: Não conseguiu registrar em logs',e);
+    }
+    
+    showToast('✅ Registro deletado com sucesso!');
+    await new Promise(resolve=>setTimeout(resolve,1000));
+    loadAdmRel();
+  }catch(e){
+    console.error('Erro:',e);
+    showToast('❌ Erro: '+e.message);
+  }
 }
 
 function exportarRelatorio(){
@@ -1613,7 +1650,8 @@ function exportarRelatorio(){
   const rows=[];
   tabela.querySelectorAll('tbody tr').forEach(tr=>{
     const cells=[];
-    tr.querySelectorAll('td').forEach(td=>{cells.push(td.textContent.trim());});
+    // Pegar só as 6 primeiras colunas (ignorar coluna de Ações)
+    tr.querySelectorAll('td').forEach((td,idx)=>{if(idx<6)cells.push(td.textContent.trim());});
     rows.push(cells.join(','));
   });
   
