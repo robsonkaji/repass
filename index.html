@@ -1198,6 +1198,21 @@ function toggleSenha(id,btnId){
   else{inp.type='password';btn.textContent='👁';}
 }
 
+function gerarSenhaTemp(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  const especiais='!@#$%';
+  const rand=Array.from(crypto.getRandomValues(new Uint8Array(10))).map(b=>chars[b%chars.length]).join('');
+  const senha=rand.slice(0,5)+especiais[Math.floor(Math.random()*especiais.length)]+rand.slice(5);
+  document.getElementById('novo-usr-senha').value=senha;
+  limparErroNovUsr('novo-usr-senha');
+}
+
+function copiarSenhaTemp(){
+  const v=document.getElementById('novo-usr-senha').value;
+  if(!v)return showToast('Gere uma senha primeiro.');
+  navigator.clipboard.writeText(v).then(()=>showToast('Senha copiada!')).catch(()=>showToast('Erro ao copiar.'));
+}
+
 function toggleChk(n){chkS[n]=!chkS[n];const r=document.getElementById('chk-r'+n),b=document.getElementById('chkb'+n);r.classList.toggle('on',chkS[n]);b.classList.toggle('on',chkS[n]);b.textContent=chkS[n]?'✓':'';document.getElementById('btn-aceitar').disabled=!(chkS[1]&&chkS[2]);}
 
 async function doSignup(){
