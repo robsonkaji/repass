@@ -654,7 +654,31 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
         <button class="btn btn-primary" onclick="salvarCapa()">Salvar alterações</button>
       </div>
       <div id="p-usuarios" class="apanel"><div class="atitle">Usuários</div><div class="asub">Gerenciar cadastros e acessos</div><div id="adm-usr"></div></div>
-      <div id="p-compliance" class="apanel"><div class="atitle">Compliance</div><div class="asub">Registro de aceite dos termos</div><div class="alert ai" style="margin-bottom:20px;">Registro automático exportável para auditorias.</div><div id="adm-comp"></div></div>
+      <div id="p-compliance" class="apanel">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div><div class="atitle">Compliance</div><div class="asub">Registro de aceite dos Termos de Uso</div></div>
+          <button class="btn btn-outline btn-sm" onclick="exportarCompliance()">⬇️ Exportar CSV</button>
+        </div>
+        <div id="comp-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;padding:14px;background:var(--surface2);border-radius:var(--r);">
+          <select id="comp-f-esc" onchange="filterComp()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;background:white;">
+            <option value="">📍 Todos os escritórios</option>
+            <option value="São Paulo">São Paulo</option>
+            <option value="Joinville">Joinville</option>
+          </select>
+          <select id="comp-f-status" onchange="filterComp()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;background:white;">
+            <option value="">Todos os status</option>
+            <option value="aceito">Aceitos</option>
+            <option value="pendente">Pendentes</option>
+          </select>
+          <select id="comp-f-versao" onchange="filterComp()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;background:white;">
+            <option value="">Todas as versões</option>
+            <option value="v1.0">v1.0</option>
+          </select>
+          <input type="text" id="comp-f-busca" placeholder="Buscar por nome ou e-mail..." oninput="filterComp()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;flex:1;min-width:180px;background:white;"/>
+        </div>
+        <div id="adm-comp"></div>
+      </div>
       <div id="p-itens" class="apanel"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div><div class="atitle">Itens</div><div class="asub">Cadastrar e gerenciar</div></div><button class="btn btn-primary" onclick="openItemModal()">+ Novo item</button></div><div style="display:flex;gap:12px;margin-bottom:16px;align-items:center;"><label style="font-size:13px;font-weight:600;color:var(--ink-mid);">Filtrar por status:</label><select id="itens-filtro-status" class="fi" style="max-width:200px;" onchange="filtrarItensPorStatus()"><option value="">Todos</option><option value="ativo">Ativos</option><option value="retirado">Retirados</option><option value="arquivado">Arquivados</option><option value="reservado">Reservados</option></select></div><div id="adm-itens"></div></div>
       <div id="p-relatorio" class="apanel">
         <div class="atitle">📊 Relatório de Vendas</div>
