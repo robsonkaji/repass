@@ -1067,6 +1067,7 @@ function abrirTermos(){openModal('m-termos');}
 let resAprovadaAtual=null;
 let vendaAtualPDF=null;
 let allItemsData=[];
+let bloqueiaModalAprovacao=false; // Flag para evitar reabertura do modal
 
 
 const SURL='https://waisdhoqyqflzetkxcts.supabase.co';
@@ -2263,6 +2264,9 @@ async function cancelarReserva(reservaId){
 }
 
 async function mostrarBannerAprovacao(screenId){
+  // Se está bloqueado, não mostra (evita reabertura)
+  if(bloqueiaModalAprovacao)return;
+  
   if(!CU)return;
   const{data:reservas}=await sb.from('reservas').select('*,items(*)').eq('user_id',CU.id).eq('status','aprovada');
   if(!reservas||reservas.length===0)return;
@@ -2290,6 +2294,10 @@ async function mostrarBannerAprovacao(screenId){
 
 async function confirmarRetiradaFinal(){
   if(!resAprovadaAtual)return showToast('Erro: informações inválidas');
+  
+  // BLOQUEIA a reabertura do modal durante processamento
+  bloqueiaModalAprovacao=true;
+  
   const btn=document.getElementById('btn-conf-ret');
   btn.disabled=true;
   btn.textContent='Confirmando...';
@@ -2304,7 +2312,6 @@ async function confirmarRetiradaFinal(){
       await promoverProximoDaFila(resAprovadaAtual.itemId);
     }catch(e){
       console.warn('Aviso ao promover próximo:',e);
-      // Continua mesmo se promover falhar
     }
     
     // Registrar ação
@@ -2318,12 +2325,16 @@ async function confirmarRetiradaFinal(){
     resAprovadaAtual=null;
     closeModal('m-confirmar-retirada');
     
-    // Recarregar após 500ms para garantir que a API atualizou
-    setTimeout(async()=>{
+    // Recarregar itens após delay
+    setTimeout(()=>{
       loadItems();
-    },500);
+      // DESBLOQUEIA após recarregar (5 segundos de segurança)
+      setTimeout(()=>{ bloqueiaModalAprovacao=false; }, 5000);
+    }, 500);
+    
   }catch(e){
     showToast('❌ Erro: '+e.message);
+    bloqueiaModalAprovacao=false; // DESBLOQUEIA em caso de erro
   }finally{
     btn.disabled=false;
     btn.textContent='Confirmar Retirada';
