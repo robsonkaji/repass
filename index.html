@@ -1581,14 +1581,27 @@ function renderItems(items){
   });
 }
 
+let fTipo='',fCat='',fLoc='',fOrd='new';
+function setFilter(group,val,el){
+  if(group==='tipo')fTipo=val;
+  else if(group==='cat')fCat=val;
+  else if(group==='loc')fLoc=val;
+  else if(group==='ord')fOrd=val;
+  document.querySelectorAll(`.fpill[data-group="${group}"]`).forEach(b=>b.classList.remove('act'));
+  el.classList.add('act');
+  filterItems();
+}
 function filterItems(){
-  const q=val('#q-search').toLowerCase(),tipo=val('#q-tipo'),cat=val('#q-cat'),loc=val('#q-loc'),ord=val('#q-ord');
+  const q=val('#q-search').toLowerCase();
   let items=allItems.filter(i=>{
     if(q&&!i.nome.toLowerCase().includes(q)&&!(i.descricao||'').toLowerCase().includes(q))return false;
-    if(tipo&&i.tipo!==tipo)return false;if(cat&&i.categoria!==cat)return false;if(loc&&i.escritorio!==loc)return false;return true;
+    if(fTipo&&i.tipo!==fTipo)return false;
+    if(fCat&&i.categoria!==fCat)return false;
+    if(fLoc&&i.escritorio!==fLoc)return false;
+    return true;
   });
-  if(ord==='pa')items.sort((a,b)=>(a.preco||0)-(b.preco||0));
-  if(ord==='pd')items.sort((a,b)=>(b.preco||0)-(a.preco||0));
+  if(fOrd==='pa')items.sort((a,b)=>(a.preco||0)-(b.preco||0));
+  if(fOrd==='pd')items.sort((a,b)=>(b.preco||0)-(a.preco||0));
   renderItems(items);
 }
 
