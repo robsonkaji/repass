@@ -1167,6 +1167,13 @@ async function boot(){
     setupNav();
     try{await Promise.all([loadItems(),loadBanners(),loadCapa()]);}catch(e){console.error(e);}
     hide('#loading');showScreen('catalogo');
+    if(data.senha_temporaria){
+      document.getElementById('ts-nova').value='';
+      document.getElementById('ts-confirma').value='';
+      document.getElementById('ts-err').style.display='none';
+      document.getElementById('ts-forca').style.display='none';
+      document.getElementById('m-trocar-senha').classList.add('open');
+    }
   }catch(e){hide('#loading');showScreen('login');showToast('Erro: '+e.message);}
 }
 
