@@ -1101,6 +1101,40 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
   </div>
 </div>
 
+<!-- MODAL TROCAR SENHA (primeiro acesso) -->
+<div id="m-trocar-senha" class="modal-ov" style="z-index:600;">
+  <div class="modal" style="max-width:420px;">
+    <div class="mhdr">
+      <div class="mtitle">🔐 Crie sua senha</div>
+    </div>
+    <div class="mbody">
+      <div class="alert ai" style="margin-bottom:16px;">Você está usando uma senha temporária. Crie uma senha pessoal para continuar.</div>
+      <div class="fg">
+        <label class="fl">Nova senha</label>
+        <div style="position:relative;">
+          <input type="password" id="ts-nova" class="fi" placeholder="Mínimo 8 caracteres" style="padding-right:44px;" oninput="atualizarForcaSenha2()">
+          <button type="button" onclick="toggleSenha('ts-nova','ts-eye1')" id="ts-eye1" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;color:var(--ink-soft);font-size:16px;padding:0;">👁</button>
+        </div>
+        <div id="ts-forca" style="margin-top:6px;display:none;">
+          <div style="height:4px;border-radius:2px;background:var(--border);overflow:hidden;"><div id="ts-barra" style="height:100%;width:0;border-radius:2px;transition:all .3s;"></div></div>
+          <span id="ts-texto" style="font-size:11px;margin-top:3px;display:block;"></span>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Confirmar nova senha</label>
+        <div style="position:relative;">
+          <input type="password" id="ts-confirma" class="fi" placeholder="Repita a senha" style="padding-right:44px;">
+          <button type="button" onclick="toggleSenha('ts-confirma','ts-eye2')" id="ts-eye2" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;color:var(--ink-soft);font-size:16px;padding:0;">👁</button>
+        </div>
+      </div>
+      <div id="ts-err" class="ae" style="display:none;"></div>
+    </div>
+    <div class="mfoot">
+      <button onclick="salvarNovaSenha()" class="btn btn-primary btn-block">✓ Salvar minha senha</button>
+    </div>
+  </div>
+</div>
+
 <script>
 function abrirTermos(){openModal('m-termos');}
 
