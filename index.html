@@ -1488,24 +1488,146 @@ async function loadCapa(){
   if(data.imagem_url){if(hero){hero.style.backgroundImage=`url(${data.imagem_url})`;hero.style.backgroundSize='cover';hero.style.backgroundPosition='center';}const ov=document.getElementById('hero-ov');if(ov)ov.style.background=`rgba(0,0,0,${(data.overlay_opacity||0)/100})`;if(data.texto_cor==='light'){const hl=document.getElementById('hero-label');if(hl)hl.style.color='#7ee8ed';const ht=document.getElementById('hero-title');if(ht)ht.style.color='white';const hs=document.getElementById('hero-sub');if(hs)hs.style.color='rgba(255,255,255,.8)';}}
 }
 
+function renderAvatar(el,nome,avatarUrl){
+  if(avatarUrl){
+    el.innerHTML=`<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Avatar">`;
+  } else {
+    const ini=(nome||'?').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+    el.textContent=ini;
+  }
+}
+
+async function uploadAvatar(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>2097152){showToast('❌ Imagem muito grande. Máximo 2MB.');input.value='';return;}
+  showToast('Enviando foto...');
+  const ext=file.name.split('.').pop().toLowerCase();
+  const path=`${CU.id}.${ext}`;
+  const{error}=await sb.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});
+  if(error){showToast('❌ Erro ao enviar: '+error.message);input.value='';return;}
+  const{data:{publicUrl}}=sb.storage.from('avatars').getPublicUrl(path);
+  const url=publicUrl+'?t='+Date.now();
+  await sb.from('users').update({avatar_url:url}).eq('id',CU.id);
+  CP.avatar_url=url;
+  renderAvatar(document.getElementById('p-av'),CP.nome,url);
+  // Atualiza avatar do nav
+  const navAv=document.getElementById('nav-av');
+  if(navAv){navAv.style.backgroundImage=`url('${url}')`;navAv.style.backgroundSize='cover';navAv.style.backgroundPosition='center';navAv.textContent='';}
+  showToast('✅ Foto atualizada!');
+  input.value='';
+}
+
+function entrarEdicao(){
+  document.getElementById('p-ed-nome').value=CP.nome||'';
+  document.getElementById('p-ed-slack').value=CP.slack_name||'';
+  document.getElementById('p-ed-esc').value=CP.escritorio||'São Paulo';
+  document.getElementById('p-ed-err').style.display='none';
+  document.getElementById('p-view').style.display='none';
+  document.getElementById('p-edit').style.display='block';
+}
+
+function cancelarEdicao(){
+  document.getElementById('p-view').style.display='block';
+  document.getElementById('p-edit').style.display='none';
+}
+
+async function salvarPerfil(){
+  const nome=document.getElementById('p-ed-nome').value.trim();
+  const slack=document.getElementById('p-ed-slack').value.trim();
+  const esc=document.getElementById('p-ed-esc').value;
+  const errEl=document.getElementById('p-ed-err');
+  errEl.style.display='none';
+  if(!nome||nome.length<3){errEl.textContent='Nome deve ter pelo menos 3 caracteres.';errEl.style.display='block';return;}
+  const btn=document.querySelector('#p-edit .btn-primary');
+  btn.disabled=true;btn.textContent='Salvando...';
+  const{error}=await sb.from('users').update({nome,slack_name:slack,escritorio:esc}).eq('id',CU.id);
+  btn.disabled=false;btn.textContent='✓ Salvar alterações';
+  if(error){errEl.textContent='Erro: '+error.message;errEl.style.display='block';return;}
+  CP.nome=nome;CP.slack_name=slack;CP.escritorio=esc;
+  set('#p-nome',esc(nome));
+  set('#p-escritorio-txt','📍 '+esc(esc));
+  set('#p-slack-txt',slack?'💬 '+esc(slack):'');
+  set('#nav-nome',nome.split(' ')[0]);
+  const ini=nome.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+  if(!CP.avatar_url){const navAv=document.getElementById('nav-av');if(navAv)navAv.textContent=ini;}
+  cancelarEdicao();
+  showToast('✅ Perfil atualizado!');
+}
+
+function abrirTrocarSenha(){
+  document.getElementById('ts-nova').value='';
+  document.getElementById('ts-confirma').value='';
+  document.getElementById('ts-err').style.display='none';
+  document.getElementById('ts-forca').style.display='none';
+  document.getElementById('m-trocar-senha').classList.add('open');
+}
+
 async function loadPerfil(){
   if(!CP)return;
-  const ini=CP.nome.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
-  set('#p-av',ini);set('#p-nome',CP.nome);set('#p-slack',CP.slack_name+' · '+CP.escritorio);set('#p-email',CU?.email||'');
-  if(CP.termos_aceitos&&CP.termos_aceitos_em){show('#p-termos');set('#p-termos-data',new Date(CP.termos_aceitos_em).toLocaleString('pt-BR'));}
-  const{data:res}=await sb.from('reservas').select('*,items(*)').eq('user_id',CU.id).in('status',['fila','aprovada']).order('created_at',{ascending:false});
-  myRes=res||[];const max=2,at=myRes.length;document.getElementById('p-lbar').style.width=(at/max*100)+'%';set('#p-lim',at+'/'+max);
+  // Avatar
+  const avEl=document.getElementById('p-av');
+  renderAvatar(avEl,CP.nome,CP.avatar_url);
+  // Dados
+  set('#p-nome',esc(CP.nome));
+  set('#p-escritorio-txt',CP.escritorio?'📍 '+esc(CP.escritorio):'');
+  set('#p-slack-txt',CP.slack_name?'💬 '+esc(CP.slack_name):'');
+  set('#p-email',esc(CU?.email||''));
+  if(CP.termos_aceitos&&CP.termos_aceitos_em){show('#p-termos');set('#p-termos-data',new Date(CP.termos_aceitos_em).toLocaleDateString('pt-BR'));}
+  // Admin btn
+  if(document.getElementById('p-admin'))document.getElementById('p-admin').style.display=CP.role==='admin'?'':'none';
+
+  // Busca dados em paralelo
+  const[resData,favsData,histData]=await Promise.all([
+    sb.from('reservas').select('*,items(*)').eq('user_id',CU.id).in('status',['fila','aprovada']).order('created_at',{ascending:false}),
+    sb.from('favoritos').select('*,items(*)').eq('user_id',CU.id),
+    sb.from('reservas').select('*,items(*)').eq('user_id',CU.id).in('status',['retirada','cancelada','recusada']).order('updated_at',{ascending:false}).limit(20)
+  ]);
+  myRes=resData.data||[];
+  const favs=favsData.data||[];
+  const hist=histData.data||[];
+
+  // Stats
+  const max=2,at=myRes.length;
+  document.getElementById('p-lbar').style.width=(at/max*100)+'%';
+  set('#p-lim',at+'/'+max+' reservas');
+  set('#st-ativas',at);
+  set('#st-recebidos',hist.filter(r=>r.status==='retirada').length);
+  set('#st-favs',favs.length);
+  set('#st-hist',hist.length);
+
+  // Reservas ativas
   const resEl=document.getElementById('perfil-reservas');resEl.innerHTML='';
   if(!myRes.length){resEl.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div>Nenhuma reserva ativa.</div></div>';}
-  else myRes.forEach(r=>{const it=r.items;const div=document.createElement('div');div.className='ritem';const th=it?.fotos?.length?`<img src="${it.fotos[0]}" style="width:100%;height:100%;object-fit:cover;" alt="${it?.nome}"/>`:catEmoji(it?.categoria);div.innerHTML=`<div class="rthumb">${th}</div><div class="rinfo"><div class="rname">${it?.nome||'Item'}</div><div class="rmeta">${r.status==='aprovada'?'✅ Aprovada':'⏳ Aguardando'} · ${it?.escritorio||''}</div><div class="pbar-bg"><div class="pbar" style="width:70%;"></div></div></div><div style="display:flex;gap:8px;align-items:center;"><span class="badge badge-${it?.tipo==='doacao'?'doacao':'venda'}">${it?.tipo==='doacao'?'Doação':'Venda'}</span><button class="btn btn-sm btn-red" onclick="cancelarReserva('${r.id}')">Desistir</button></div>`;resEl.appendChild(div);});
-  const{data:favs}=await sb.from('favoritos').select('*,items(*)').eq('user_id',CU.id);
+  else myRes.forEach(r=>{
+    const it=r.items;
+    const th=it?.fotos?.length?`<img src="${esc(it.fotos[0])}" style="width:100%;height:100%;object-fit:cover;" alt="${esc(it?.nome||'')}"/>`:catEmoji(it?.categoria);
+    const div=document.createElement('div');div.className='ritem';
+    div.innerHTML=`<div class="rthumb">${th}</div><div class="rinfo"><div class="rname">${esc(it?.nome||'Item')}</div><div class="rmeta">${r.status==='aprovada'?'✅ Aprovada':'⏳ Aguardando'} · ${esc(it?.escritorio||'')}</div></div><div style="display:flex;gap:8px;align-items:center;"><span class="badge badge-${it?.tipo==='doacao'?'doacao':'venda'}">${it?.tipo==='doacao'?'Doação':'Venda'}</span><button class="btn btn-sm btn-red" onclick="cancelarReserva('${r.id}')">Desistir</button></div>`;
+    resEl.appendChild(div);
+  });
+
+  // Favoritos
   const fEl=document.getElementById('p-favs');fEl.innerHTML='';
-  if(!favs?.length)fEl.innerHTML='<div class="empty"><div class="empty-icon">♡</div><div>Nenhum favorito.</div></div>';
-  else favs.forEach(f=>{const it=f.items;const div=document.createElement('div');div.className='ritem';const th=it?.fotos?.length?`<img src="${it.fotos[0]}" style="width:100%;height:100%;object-fit:cover;" alt="${it?.nome}"/>`:catEmoji(it?.categoria);div.innerHTML=`<div class="rthumb">${th}</div><div class="rinfo"><div class="rname">${it?.nome||'Item'}</div><div class="rmeta">${it?.escritorio||''} · ${fmtPreco(it)||'Doação'}</div></div><button class="btn btn-sm btn-outline" onclick="abrirItemById('${it?.id}')">Ver</button>`;fEl.appendChild(div);});
-  const{data:hist}=await sb.from('reservas').select('*,items(*)').eq('user_id',CU.id).in('status',['retirada','cancelada','recusada']).order('updated_at',{ascending:false}).limit(10);
+  if(!favs.length)fEl.innerHTML='<div class="empty"><div class="empty-icon">♡</div><div>Nenhum favorito.</div></div>';
+  else favs.forEach(f=>{
+    const it=f.items;
+    const th=it?.fotos?.length?`<img src="${esc(it.fotos[0])}" style="width:100%;height:100%;object-fit:cover;" alt="${esc(it?.nome||'')}"/>`:catEmoji(it?.categoria);
+    const div=document.createElement('div');div.className='ritem';
+    div.innerHTML=`<div class="rthumb">${th}</div><div class="rinfo"><div class="rname">${esc(it?.nome||'Item')}</div><div class="rmeta">${esc(it?.escritorio||'')} · ${fmtPreco(it)||'Doação'}</div></div><button class="btn btn-sm btn-outline" onclick="abrirItemById('${it?.id}')">Ver</button>`;
+    fEl.appendChild(div);
+  });
+
+  // Histórico
   const hEl=document.getElementById('p-hist');hEl.innerHTML='';
-  if(!hist?.length)hEl.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div>Nenhum item retirado ainda.</div></div>';
-  else hist.forEach(r=>{const it=r.items;const div=document.createElement('div');div.className='ritem';div.innerHTML=`<div class="rthumb">${catEmoji(it?.categoria)}</div><div class="rinfo"><div class="rname">${it?.nome||'Item'}</div><div class="rmeta">${r.status==='retirada'?'✅ Retirado':'❌ '+r.status} · ${new Date(r.updated_at).toLocaleDateString('pt-BR')}</div></div><span class="badge badge-${r.status==='retirada'?'retirado':'bloqueado'}">${r.status}</span>`;hEl.appendChild(div);});
+  if(!hist.length)hEl.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div>Nenhum item no histórico ainda.</div></div>';
+  else hist.forEach(r=>{
+    const it=r.items;
+    const th=it?.fotos?.length?`<img src="${esc(it.fotos[0])}" style="width:100%;height:100%;object-fit:cover;" alt="${esc(it?.nome||'')}"/>`:catEmoji(it?.categoria);
+    const div=document.createElement('div');div.className='ritem';
+    div.innerHTML=`<div class="rthumb">${th}</div><div class="rinfo"><div class="rname">${esc(it?.nome||'Item')}</div><div class="rmeta">${r.status==='retirada'?'✅ Retirado':'❌ '+r.status} · ${new Date(r.updated_at).toLocaleDateString('pt-BR')}</div></div><span class="badge badge-${r.status==='retirada'?'retirado':'bloqueado'}">${r.status}</span>`;
+    hEl.appendChild(div);
+  });
+
   await mostrarBannerAprovacao('aprovacao-perfil');
 }
 
