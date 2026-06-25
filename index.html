@@ -2077,7 +2077,7 @@ async function loadAdmRel(){
   if(categoria)query1=query1.eq('categoria',categoria);
   const{data:itens}=await query1;
   
-  let query2=sb.from('reservas').select('*,items(nome,tipo,preco,categoria),users(nome)').eq('status','retirada').gte('updated_at',dataInicio.toISOString());
+  let query2=sb.from('reservas').select('*,items(nome,tipo,preco,categoria,condicao,descricao,fotos,escritorio),users(nome,email,escritorio)').eq('status','retirada').gte('updated_at',dataInicio.toISOString());
   if(categoria)query2=query2.eq('items.categoria',categoria);
   const{data:ret}=await query2;
   
