@@ -1189,19 +1189,18 @@ async function doSignup(){
   const{data,error}=await sb.auth.signUp({email,password:senha,options:{data:{nome,slack_name:slack,escritorio:esc,role:'user'}}});
   if(error){showToast('Erro: '+error.message);btn.disabled=false;btn.textContent='Solicitar acesso';return;}
 
+  let preAprovado=false;
   if(data.user){
-    // Verifica se o admin já pré-cadastrou esse email
-    const{data:perfil}=await sb.from('users').select('id').eq('email',email).maybeSingle();
+    const{data:perfil}=await sb.from('users').select('id,status').eq('email',email).maybeSingle();
     if(perfil){
-      // Vincula o ID real do Auth ao perfil existente (preserva role e configurações do admin)
       await sb.from('users').update({
         id:data.user.id,
         termos_aceitos:true,
         termos_aceitos_em:new Date().toISOString(),
         termos_versao:'v1.0'
       }).eq('email',email);
+      preAprovado=perfil.status==='ativo';
     }else{
-      // Cadastro novo sem pré-registro — cria perfil padrão aguardando aprovação
       await sb.from('users').insert({
         id:data.user.id,nome,email,slack_name:slack,escritorio:esc,
         role:'user',status:'pendente',
@@ -1210,7 +1209,11 @@ async function doSignup(){
       });
     }
   }
-  showToast('Cadastro enviado! Aguarde aprovação.');showScreen('login');showVw('pendente');
+  if(preAprovado){
+    showToast('Bem-vindo! Acesso liberado.');
+  }else{
+    showToast('Cadastro enviado! Aguarde aprovação.');showScreen('login');showVw('pendente');
+  }
 }
 
 async function doForgot(){
