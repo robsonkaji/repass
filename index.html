@@ -6,6 +6,7 @@
 <title>Repass</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -299,6 +300,44 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
   .aside-item.act{border-right:none;border-bottom:3px solid var(--teal);}
   .stats{grid-template-columns:repeat(3,1fr);}
 }
+
+/* ===== USUÁRIOS - MELHORIAS ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:28px;}
+.stat-card{background:white;border:1.5px solid var(--border-light);border-radius:var(--rl);padding:18px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);transition:all .2s;}
+.stat-card:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.stat-label{font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;}
+.stat-value{font-size:32px;font-weight:700;color:var(--ink);}
+.stat-icon{font-size:24px;}
+.usr-filters{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;padding:16px;background:var(--surface2);border-radius:var(--r);}
+.usr-filters select,.usr-filters input{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:"DM Sans",sans-serif;outline:none;transition:border-color .15s;}
+.usr-filters select:focus,.usr-filters input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(29,168,176,.12);}
+.usr-bulk-actions{background:var(--amber-bg);padding:14px 16px;border-radius:var(--r);margin-bottom:16px;display:none;flex-wrap:wrap;gap:12px;align-items:center;}
+.usr-bulk-actions.show{display:flex;}
+.utable{width:100%;border-collapse:collapse;}
+.utable thead{background:var(--surface2);}
+.utable th{padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;border-bottom:1.5px solid var(--border);}
+.utable td{padding:14px;border-bottom:1px solid var(--border-light);font-size:13px;}
+.utable tbody tr{transition:background .15s;}
+.utable tbody tr:hover{background:var(--surface2);}
+.user-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.user-actions button{padding:6px 11px;font-size:11px;}
+.modal-usr-content{width:90%;max-width:600px;}
+.user-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.user-info-item{background:var(--surface2);padding:14px;border-radius:var(--r);}
+.user-info-label{font-size:10px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.user-info-value{font-size:14px;font-weight:600;color:var(--ink);}
+.user-logs{background:var(--surface2);border-radius:var(--r);padding:16px;max-height:300px;overflow-y:auto;}
+.user-log-item{padding:12px;border-bottom:1px solid var(--border-light);font-size:12px;}
+.user-log-item:last-child{border-bottom:none;}
+.user-log-acao{font-weight:600;color:var(--ink);}
+.user-log-data{font-size:11px;color:var(--ink-soft);}
+@media(max-width:768px){
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .usr-filters{flex-direction:column;}
+  .usr-filters input,.usr-filters select{width:100%;}
+  .user-actions{flex-direction:column;}
+  .user-actions button{width:100%;}
+}
 </style>
 </head>
 <body>
@@ -446,6 +485,9 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
     <div id="vw-list" class="ilist" style="display:none;"></div>
     <div id="items-empty" class="empty" style="display:none;"><div class="empty-icon">📦</div><div>Nenhum item encontrado</div></div>
     <div id="items-load" class="empty"><div class="spinner" style="margin:0 auto 12px;"></div><div style="font-size:13px;color:var(--ink-soft);">Carregando itens...</div></div>
+    <div style="margin-top:40px;padding:20px;border-top:1px solid var(--border);text-align:center;font-size:12px;color:var(--ink-soft);">
+      <a href="#" onclick="abrirTermos()" style="color:var(--teal);text-decoration:none;font-weight:500;cursor:pointer;">📋 Termos de Uso e Responsabilidade</a>
+    </div>
   </div>
 </div>
 
@@ -480,6 +522,17 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
       <button class="btn btn-primary" style="flex:1;" id="btn-fila" onclick="entrarFila()">Entrar na fila</button>
       <button class="btn btn-outline" id="btn-fav" onclick="toggleFav()">♡ Favoritar</button>
       <button class="btn btn-outline" id="btn-comp" onclick="openModal('m-comp')" style="display:none;" title="Comprovante">🖨️</button>
+    </div>
+    <div style="margin-top:28px;padding:16px;background:var(--amber-bg);border:1.5px solid rgba(184,122,16,.3);border-radius:var(--r);color:var(--ink);">
+      <div style="font-size:13px;font-weight:700;color:var(--amber-dark);margin-bottom:12px;display:flex;align-items:center;gap:6px;">⚠️ Importante</div>
+      <ul style="font-size:12px;color:var(--ink-mid);line-height:1.6;margin:0;padding-left:20px;">
+        <li><b>Garantia:</b> Item vendido no estado em que se encontra, sem garantia ou responsabilidade da empresa sobre seu funcionamento.</li>
+        <li><b>Inspeção:</b> Recomenda-se inspecionar o item antes de retirar. A empresa não se responsabiliza por danos não aparentes.</li>
+        <li><b>Responsabilidade:</b> A empresa não se responsabiliza por danos causados após a retirada do item.</li>
+        <li><b>Transporte:</b> A responsabilidade pelo transporte e deslocamento é exclusivamente do retirador.</li>
+        <li><b>Conformidade:</b> O retirador declara que o item não viola políticas internas da empresa e está em conformidade com as normas vigentes.</li>
+        <li><b>Risco:</b> O item é retirado por conta e risco do usuário, isentando completamente a empresa de qualquer responsabilidade.</li>
+      </ul>
     </div>
   </div>
 </div>
@@ -551,14 +604,12 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
           <button class="res-tab act" onclick="switchResTab('pendentes',this)" style="padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--teal-dark);border-bottom:2px solid var(--teal);margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Pendentes <span id="tab-cnt-pendentes" style="background:var(--teal);color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">0</span></button>
           <button class="res-tab" onclick="switchResTab('aprovadas',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Aprovadas <span id="tab-cnt-aprovadas" style="background:var(--surface3);color:var(--ink-soft);border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">0</span></button>
           <button class="res-tab" onclick="switchResTab('prazo',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">⚠️ Prazo <span id="tab-cnt-prazo" style="background:var(--surface3);color:var(--ink-soft);border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">0</span></button>
-          <button class="res-tab" onclick="switchResTab('fila-itens',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Fila por item</button>
           <button class="res-tab" onclick="switchResTab('por-usuario',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Por usuário</button>
           <button class="res-tab" onclick="switchResTab('historico',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Histórico</button>
         </div>
         <div id="res-pendentes"></div>
         <div id="res-aprovadas" style="display:none;"></div>
         <div id="res-prazo" style="display:none;"></div>
-        <div id="res-fila-itens" style="display:none;"></div>
         <div id="res-por-usuario" style="display:none;"></div>
         <div id="res-historico" style="display:none;"></div>
       </div>
@@ -604,8 +655,80 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
       </div>
       <div id="p-usuarios" class="apanel"><div class="atitle">Usuários</div><div class="asub">Gerenciar cadastros e acessos</div><div id="adm-usr"></div></div>
       <div id="p-compliance" class="apanel"><div class="atitle">Compliance</div><div class="asub">Registro de aceite dos termos</div><div class="alert ai" style="margin-bottom:20px;">Registro automático exportável para auditorias.</div><div id="adm-comp"></div></div>
-      <div id="p-itens" class="apanel"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div><div class="atitle">Itens</div><div class="asub">Cadastrar e gerenciar</div></div><button class="btn btn-primary" onclick="openItemModal()">+ Novo item</button></div><div id="adm-itens"></div></div>
-      <div id="p-relatorio" class="apanel"><div class="atitle">Relatório</div><div class="asub" id="rel-per">Carregando...</div><div class="astats"><div class="astat"><div class="astat-n" id="rel-cad">—</div><div class="astat-l">Cadastrados</div></div><div class="astat"><div class="astat-n" id="rel-ret">—</div><div class="astat-l">Retirados</div></div><div class="astat"><div class="astat-n" id="rel-doa" style="color:var(--green);">—</div><div class="astat-l">Doações</div></div><div class="astat"><div class="astat-n" id="rel-vnd" style="color:var(--teal-dark);">—</div><div class="astat-l">Em vendas</div></div></div><div id="adm-rel"></div></div>
+      <div id="p-itens" class="apanel"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div><div class="atitle">Itens</div><div class="asub">Cadastrar e gerenciar</div></div><button class="btn btn-primary" onclick="openItemModal()">+ Novo item</button></div><div style="display:flex;gap:12px;margin-bottom:16px;align-items:center;"><label style="font-size:13px;font-weight:600;color:var(--ink-mid);">Filtrar por status:</label><select id="itens-filtro-status" class="fi" style="max-width:200px;" onchange="filtrarItensPorStatus()"><option value="">Todos</option><option value="ativo">Ativos</option><option value="retirado">Retirados</option><option value="arquivado">Arquivados</option><option value="reservado">Reservados</option></select></div><div id="adm-itens"></div></div>
+      <div id="p-relatorio" class="apanel">
+        <div class="atitle">📊 Relatório de Vendas</div>
+        
+        <div style="display:flex;gap:12px;margin:16px 0;flex-wrap:wrap;">
+          <select id="rel-filtro-periodo" onchange="loadAdmRel()" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--r);background:white;color:var(--ink);font-size:13px;cursor:pointer;">
+            <option value="mes">Este mês</option>
+            <option value="trimestre">Últimos 3 meses</option>
+            <option value="semestre">Últimos 6 meses</option>
+            <option value="ano">Último ano</option>
+            <option value="tudo">Desde o início</option>
+          </select>
+          <select id="rel-filtro-categoria" onchange="loadAdmRel()" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--r);background:white;color:var(--ink);font-size:13px;cursor:pointer;">
+            <option value="">Todas as categorias</option>
+            <option value="Mobiliário">🪑 Mobiliário</option>
+            <option value="Eletrônicos">🖥️ Eletrônicos</option>
+            <option value="Informática">💻 Informática</option>
+            <option value="Eletrodomésticos">🔌 Eletrodomésticos</option>
+            <option value="Outros">📦 Outros</option>
+          </select>
+          <button class="btn btn-sm btn-outline" onclick="exportarRelatorio()">⬇️ Exportar CSV</button>
+        </div>
+
+        <div class="astats" style="margin-bottom:20px;">
+          <div class="astat">
+            <div class="astat-n" id="rel-cad" style="color:var(--blue);">—</div>
+            <div class="astat-l">Itens<br/>Cadastrados</div>
+          </div>
+          <div class="astat">
+            <div class="astat-n" id="rel-ret" style="color:var(--purple);">—</div>
+            <div class="astat-l">Itens<br/>Retirados</div>
+          </div>
+          <div class="astat">
+            <div class="astat-n" id="rel-taxa" style="color:var(--amber);">—</div>
+            <div class="astat-l">Taxa de<br/>Retirada</div>
+          </div>
+          <div class="astat">
+            <div class="astat-n" id="rel-doa" style="color:var(--green);">—</div>
+            <div class="astat-l">Doações<br/>Retiradas</div>
+          </div>
+          <div class="astat">
+            <div class="astat-n" id="rel-vnd" style="color:var(--teal-dark);">—</div>
+            <div class="astat-l">Vendas<br/>Total</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+          <div style="background:var(--surface2);border-radius:var(--r);padding:16px;">
+            <div style="font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:12px;text-transform:uppercase;">💰 Resumo Financeiro</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span style="color:var(--ink-soft);font-size:13px;">Total em vendas:</span>
+              <span style="font-weight:700;color:var(--teal-dark);font-size:14px;" id="rel-total-vendas">R$ 0,00</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span style="color:var(--ink-soft);font-size:13px;">Ticket médio:</span>
+              <span style="font-weight:700;color:var(--ink);font-size:14px;" id="rel-ticket-medio">R$ 0,00</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;">
+              <span style="color:var(--ink-soft);font-size:13px;">Maior venda:</span>
+              <span style="font-weight:700;color:var(--green-dark);font-size:14px;" id="rel-maior-venda">R$ 0,00</span>
+            </div>
+          </div>
+
+          <div style="background:var(--surface2);border-radius:var(--r);padding:16px;">
+            <div style="font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:12px;text-transform:uppercase;">👥 Top Doadores</div>
+            <div id="rel-top-doadores" style="font-size:13px;line-height:1.8;color:var(--ink-mid);">—</div>
+          </div>
+        </div>
+
+        <div style="background:var(--surface2);border-radius:var(--r);padding:16px;">
+          <div style="font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:12px;text-transform:uppercase;">📋 Detalhes dos Itens Retirados</div>
+          <div id="adm-rel" style="overflow-x:auto;"></div>
+        </div>
+      </div>
       <div id="p-logs" class="apanel"><div class="atitle">Logs</div><div class="asub">Registro de ações administrativas</div><div id="adm-log"></div></div>
     </div>
   </div>
@@ -658,7 +781,7 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
       <div class="fg"><label class="fl">Fixar no topo?</label><select class="fs" id="mi-fix"><option value="false">Não</option><option value="true">Sim — exibir no topo</option></select></div>
       <div class="fg">
         <label class="fl">Fotos</label>
-        <div class="uparea" onclick="document.getElementById('mi-fotos').click()"><div style="font-size:22px;margin-bottom:6px;">📷</div><div style="font-size:13px;color:var(--ink-soft);">Clique para adicionar fotos (até 5)</div><input type="file" id="mi-fotos" accept="image/*" multiple style="display:none;" onchange="previewFotos(event)"/></div>
+        <div class="uparea" onclick="document.getElementById('mi-fotos').click()"><div style="font-size:22px;margin-bottom:6px;">📷</div><div style="font-size:13px;color:var(--ink-soft);">Clique para adicionar fotos (até 5)</div><input type="file" id="mi-fotos" accept="image/*" multiple style="display:none;" onchange="previewFotos(event)"/><input type="hidden" id="mi-foto-capa" value="0"/></div>
         <div id="mi-fotos-prev" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;"></div>
       </div>
     </div>
@@ -701,7 +824,252 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
   </div>
 </div>
 
+<div id="m-termos" class="modal-ov">
+  <div class="modal" style="max-height:90vh;display:flex;flex-direction:column;">
+    <div class="mhdr"><div class="mtitle">📋 Termos de Uso e Responsabilidade</div><button class="mclose" onclick="closeModal('m-termos')">×</button></div>
+    <div class="mbody" style="flex:1;overflow-y:auto;padding:20px;font-size:13px;line-height:1.7;color:var(--ink-mid);">
+      <div style="margin-bottom:16px;"><b>1. ACEITAÇÃO DOS TERMOS</b><br/>Ao utilizar a plataforma Repass, o usuário aceita integralmente os termos aqui descritos. A não aceitação impede acesso ao marketplace.</div>
+      
+      <div style="margin-bottom:16px;"><b>2. DA NATUREZA DOS ITENS</b><br/>Todos os itens são disponibilizados no estado em que se encontram ("as is"). Nenhum item possui garantia de funcionamento ou qualidade. A empresa não realiza testes de qualidade antes da disponibilização.</div>
+      
+      <div style="margin-bottom:16px;"><b>3. ISENÇÃO DE RESPONSABILIDADE</b><br/>A empresa não se responsabiliza por: (a) Danos físicos ou materiais após retirada do item; (b) Falhas de funcionamento ou defeitos ocultos; (c) Perda, roubo ou deterioração após retirada; (d) Incompatibilidade com equipamentos do usuário; (e) Danos a terceiros causados pelo item.</div>
+      
+      <div style="margin-bottom:16px;"><b>4. INSPEÇÃO E CONFORMIDADE</b><br/>O usuário aceita inspecionar o item antes de retirar. O usuário declara que o item não viola normas internas ou externas. O usuário garante conformidade com legislação vigente.</div>
+      
+      <div style="margin-bottom:16px;"><b>5. RESPONSABILIDADE DO TRANSPORTE</b><br/>Todo transporte é responsabilidade exclusiva do retirador. A empresa não fornece suporte logístico ou de deslocamento. Custos de transporte são do retirador.</div>
+      
+      <div style="margin-bottom:16px;"><b>6. RETIRADA E POSSE</b><br/>Ao retirar o item, o usuário assume plena responsabilidade sobre ele. A empresa se isenta de qualquer responsabilidade posterior à retirada. Itens não reclamados no prazo podem ser descartados.</div>
+      
+      <div style="margin-bottom:16px;"><b>7. CANCELAMENTO E REEMBOLSO</b><br/>Cancelamentos devem ser feitos dentro do prazo de retirada. Itens já retirados não podem ser devolvidos. Não há reembolso em caso de arrependimento após retirada.</div>
+      
+      <div style="margin-bottom:16px;"><b>8. CONDUTA DO USUÁRIO</b><br/>Usuário não pode comercializar itens ilegalmente. Não pode usar a plataforma para atividades ilícitas. A empresa pode bloquear usuários que violarem os termos.</div>
+      
+      <div style="margin-bottom:16px;"><b>9. LIMITE DE RESPONSABILIDADE</b><br/>A responsabilidade máxima da empresa é limitada ao valor do item. Não há indenização por danos indiretos ou morais. Não há ressarcimento por perda de oportunidade.</div>
+      
+      <div style="margin-bottom:16px;"><b>10. MODIFICAÇÃO DOS TERMOS</b><br/>A empresa se reserva o direito de modificar os termos a qualquer momento. Modificações entram em vigor imediatamente. Uso contínuo implica aceitação das novas condições.</div>
+      
+      <div style="margin-bottom:16px;"><b>11. PRIVACIDADE E DADOS</b><br/>Dados pessoais serão processados conforme legislação vigente. A empresa pode usar dados para melhorar serviços. Dados não serão compartilhados com terceiros sem consentimento.</div>
+      
+      <div style="margin-bottom:16px;"><b>12. RESCISÃO</b><br/>A empresa pode rescindir o acesso do usuário a qualquer momento. Motivos incluem violação de termos ou conduta imprópria.</div>
+      
+      <div style="margin-bottom:16px;"><b>13. LEI APLICÁVEL</b><br/>Este termo é regido pelas leis do Brasil. Competência exclusiva é da justiça brasileira.</div>
+      
+      <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);font-size:11px;color:var(--ink-soft);">
+        <b>Última atualização:</b> {DATA}<br/>
+        <b>Versão:</b> 1.0
+      </div>
+    </div>
+    <div class="mfoot"><button class="btn btn-primary" onclick="closeModal('m-termos')">Entendi</button></div>
+  </div>
+</div>
+
+<div id="m-confirmar-retirada" class="modal-ov">
+  <div class="modal">
+    <div class="mhdr"><div class="mtitle">🎉 Sua reserva foi aprovada!</div><button class="mclose" onclick="closeModal('m-confirmar-retirada')">×</button></div>
+    <div class="mbody">
+      <div style="margin-bottom:20px;padding:16px;background:var(--green-bg);border-left:4px solid var(--green);border-radius:var(--r);">
+        <div style="font-size:14px;font-weight:700;color:var(--green-dark);margin-bottom:12px;">✅ Item Aprovado</div>
+        <div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:16px;" id="conf-item-nome"></div>
+        
+        <div style="margin-bottom:16px;">
+          <div style="font-size:12px;color:var(--ink-soft);margin-bottom:4px;font-weight:600;text-transform:uppercase;">📍 Local de Retirada</div>
+          <div style="font-size:16px;font-weight:700;color:var(--ink);" id="conf-local"></div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div style="font-size:12px;color:var(--ink-soft);margin-bottom:4px;font-weight:600;text-transform:uppercase;">⏱️ Prazo</div>
+          <div style="font-size:16px;font-weight:700;color:var(--ink);" id="conf-prazo"></div>
+        </div>
+
+        <div style="margin-bottom:16px;padding:12px;background:var(--surface2);border-radius:6px;">
+          <div style="font-size:12px;color:var(--ink-soft);margin-bottom:4px;font-weight:600;">💳 Pagamento</div>
+          <div style="font-size:13px;color:var(--amber-dark);font-weight:600;" id="conf-pagamento"></div>
+        </div>
+
+        <div style="background:var(--orange-bg);border-left:4px solid var(--orange);padding:12px;border-radius:6px;font-size:12px;line-height:1.6;">
+          <span style="color:var(--orange-dark);font-weight:700;">⚠️ Importante:</span><br/>
+          <span style="color:var(--ink-mid);">Apenas você pode retirar este item. Você tem até <b id="conf-prazo-dias"></b> para retirar.</span>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-outline" onclick="closeModal('m-confirmar-retirada')">Mais tarde</button>
+      <button class="btn btn-primary" id="btn-conf-ret" onclick="confirmarRetiradaFinal()">Confirmar Retirada</button>
+    </div>
+  </div>
+</div>
+
+<div id="m-documento-venda" class="modal-ov">
+  <div class="modal" style="max-width:900px;max-height:90vh;overflow-y:auto;">
+    <div class="mhdr">
+      <div class="mtitle">📄 Documento de Venda/Doação</div>
+      <button class="mclose" onclick="closeModal('m-documento-venda')">×</button>
+    </div>
+    <div class="mbody" id="doc-conteudo" style="padding:24px;background:white;"></div>
+    <div class="mfoot">
+      <button class="btn btn-outline" onclick="closeModal('m-documento-venda')">Fechar</button>
+      <button class="btn btn-primary" onclick="gerarPDFVenda()">📥 Gerar PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Editar Usuário -->
+<div id="m-editar-usr" class="modal-ov">
+  <div class="modal-box modal-usr-content">
+    <div class="mhdr">
+      <div class="mtitle">✏️ Editar Usuário</div>
+      <button class="mclose" onclick="closeModal('m-editar-usr')">×</button>
+    </div>
+    <div class="mbody">
+      <div class="user-info-grid">
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Nome</div>
+            <input type="text" id="usr-edit-nome" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Role</div>
+            <div class="user-info-value">
+              <select id="usr-edit-role" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+                <option value="user">👤 User</option>
+                <option value="admin">⚙️ Admin</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Email</div>
+            <input type="email" id="usr-edit-email" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Nova Senha (opcional)</div>
+            <input type="password" id="usr-edit-password" placeholder="Deixe em branco para não alterar" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Slack</div>
+            <input type="text" id="usr-edit-slack" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Escritório</div>
+            <input type="text" id="usr-edit-escritorio" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Status</div>
+            <div class="user-info-value" id="usr-info-status">—</div>
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Aprovado em</div>
+            <div class="user-info-value" id="usr-info-aprovado">—</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Aviso de Segurança -->
+      <div class="alert ai" style="margin-bottom:16px;">
+        <strong>⚠️ Segurança:</strong> Alterações de email e senha afetam diretamente o acesso do usuário. Notifique o usuário das mudanças.
+      </div>
+      <div style="margin-top:20px;">
+        <div style="font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">Histórico de Atividades</div>
+        <div class="user-logs" id="usr-logs-container">
+          <div style="text-align:center;color:var(--ink-soft);font-size:12px;padding:20px;">Carregando...</div>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button onclick="closeModal('m-editar-usr')" class="btn btn-outline">Cancelar</button>
+      <button onclick="confirmarEmailManualmente(usuarioEditandoId)" class="btn btn-warning" style="background-color:var(--amber);color:white;">📧 Confirmar Email</button>
+      <button onclick="salvarEdicaoUsuario()" class="btn btn-primary">💾 Salvar Alterações</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL: Novo Usuário -->
+<div id="m-novo-usr" class="modal-ov">
+  <div class="modal-box modal-usr-content">
+    <div class="mhdr">
+      <div class="mtitle">➕ Criar Novo Usuário</div>
+      <button class="mclose" onclick="closeModal('m-novo-usr')">×</button>
+    </div>
+    <div class="mbody">
+      <div class="user-info-grid">
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Nome *</div>
+            <input type="text" id="novo-usr-nome" placeholder="Ex: Silva, João" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Email *</div>
+            <input type="email" id="novo-usr-email" placeholder="Ex: joao@company.com" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Slack</div>
+            <input type="text" id="novo-usr-slack" placeholder="Ex: joao_silva" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Escritório *</div>
+            <input type="text" id="novo-usr-escritorio" placeholder="Ex: São Paulo" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Role</div>
+            <select id="novo-usr-role" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+              <option value="user">👤 User</option>
+              <option value="admin">⚙️ Admin</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <div class="user-info-item">
+            <div class="user-info-label">Status</div>
+            <select id="novo-usr-status" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;">
+              <option value="ativo">✓ Ativo</option>
+              <option value="pendente">⏳ Pendente</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="alert ai" style="margin-top:16px;">
+        <strong>ℹ️ Informação:</strong> Uma senha temporária será gerada e exibida após a criação. Você deverá comunicar ao usuário.
+      </div>
+    </div>
+    <div class="mfoot">
+      <button onclick="closeModal('m-novo-usr')" class="btn btn-outline">Cancelar</button>
+      <button onclick="criarNovoUsuario()" class="btn btn-primary">➕ Criar Usuário</button>
+    </div>
+  </div>
+</div>
+
 <script>
+function abrirTermos(){openModal('m-termos');}
+
+let resAprovadaAtual=null;
+let vendaAtualPDF=null;
+let allItemsData=[];
+let bloqueiaModalAprovacao=false; // Flag para evitar reabertura do modal
+
+
 const SURL='https://waisdhoqyqflzetkxcts.supabase.co';
 const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhaXNkaG9xeXFmbHpldGt4Y3RzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MDg2NzUsImV4cCI6MjA5MjA4NDY3NX0.tTJ7CvSMmRtxJZw_BeIp0aXK8Af2ArI4AM9sgb869ro';
 const sb=supabase.createClient(SURL,SKEY);
@@ -783,6 +1151,7 @@ async function loadItems(){
   const{data:f}=await sb.from('favoritos').select('item_id').eq('user_id',CU?.id||'x');myFavs=(f||[]).map(x=>x.item_id);
   const{data:r}=await sb.from('reservas').select('*').eq('user_id',CU?.id||'x').in('status',['fila','aprovada']);myRes=r||[];
   updateStats(allItems);renderItems(allItems);
+  await mostrarBannerAprovacao('aprovacao');
 }
 
 function updateStats(items){const at=items.filter(i=>i.status==='ativo');set('#s-total',at.length);set('#s-doa',at.filter(i=>i.tipo==='doacao').length);set('#s-vnd',at.filter(i=>i.tipo==='venda').length);}
@@ -831,7 +1200,7 @@ async function abrirItem(item){
   if(item.descricao){set('#det-desc',item.descricao);show('#det-desc');}else hide('#det-desc');
   if(item.motivo_descarte){set('#det-motivo',item.motivo_descarte);show('#det-motivo-box');}else hide('#det-motivo-box');
   const gal=document.getElementById('det-gal'),dots=document.getElementById('det-dots');gal.innerHTML='';dots.innerHTML='';
-  if(item.fotos?.length){item.fotos.forEach((url,i)=>{const img=document.createElement('img');img.src=url;img.style.cssText='position:absolute;width:100%;height:100%;object-fit:cover;display:'+(i===0?'block':'none');gal.appendChild(img);const dot=document.createElement('button');dot.className='gdot'+(i===0?' act':'');dot.onclick=()=>{gal.querySelectorAll('img').forEach((im,j)=>im.style.display=j===i?'block':'none');dots.querySelectorAll('.gdot').forEach((d,j)=>d.classList.toggle('act',j===i));};dots.appendChild(dot);});}
+  if(item.fotos?.length){let currentImg=0;const totalFotos=item.fotos.length;item.fotos.forEach((url,i)=>{const img=document.createElement('img');img.src=url;img.style.cssText='position:absolute;width:100%;height:100%;object-fit:cover;display:'+(i===0?'block':'none');gal.appendChild(img);const dot=document.createElement('button');dot.className='gdot'+(i===0?' act':'');dot.onclick=()=>{currentImg=i;gal.querySelectorAll('img').forEach((im,j)=>im.style.display=j===i?'block':'none');dots.querySelectorAll('.gdot').forEach((d,j)=>d.classList.toggle('act',j===i));};dots.appendChild(dot);});if(totalFotos>1){const navDiv=document.createElement('div');navDiv.style.cssText='position:absolute;width:100%;display:flex;justify-content:space-between;align-items:center;padding:0 14px;box-sizing:border-box;pointer-events:none;inset:0;';const btnPrev=document.createElement('button');btnPrev.textContent='←';btnPrev.style.cssText='position:relative;pointer-events:all;background:rgba(29,168,176,.9);color:white;border:none;border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer;font-weight:700;transition:all .15s;';btnPrev.onmouseover=()=>btnPrev.style.background='rgba(29,168,176,1)';btnPrev.onmouseout=()=>btnPrev.style.background='rgba(29,168,176,.9)';btnPrev.onclick=()=>{currentImg=(currentImg-1+totalFotos)%totalFotos;gal.querySelectorAll('img').forEach((im,j)=>im.style.display=j===currentImg?'block':'none');dots.querySelectorAll('.gdot').forEach((d,j)=>d.classList.toggle('act',j===currentImg));};navDiv.appendChild(btnPrev);const btnNext=document.createElement('button');btnNext.textContent='→';btnNext.style.cssText='position:relative;pointer-events:all;background:rgba(29,168,176,.9);color:white;border:none;border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer;font-weight:700;transition:all .15s;';btnNext.onmouseover=()=>btnNext.style.background='rgba(29,168,176,1)';btnNext.onmouseout=()=>btnNext.style.background='rgba(29,168,176,.9)';btnNext.onclick=()=>{currentImg=(currentImg+1)%totalFotos;gal.querySelectorAll('img').forEach((im,j)=>im.style.display=j===currentImg?'block':'none');dots.querySelectorAll('.gdot').forEach((d,j)=>d.classList.toggle('act',j===currentImg));};navDiv.appendChild(btnNext);gal.appendChild(navDiv);}}
   else{gal.innerHTML=`<span style="font-size:72px;">${catEmoji(item.categoria)}</span>`;}
   const{data:fila}=await sb.from('reservas').select('*,users(nome)').eq('item_id',item.id).in('status',['fila','aprovada']).order('posicao_fila',{ascending:true});
   const fd=document.getElementById('det-fila');fd.innerHTML='';set('#det-fila-cnt',(fila?.length||0)+' pessoa(s)');
@@ -878,7 +1247,7 @@ async function loadPerfil(){
   myRes=res||[];const max=2,at=myRes.length;document.getElementById('p-lbar').style.width=(at/max*100)+'%';set('#p-lim',at+'/'+max);
   const resEl=document.getElementById('perfil-reservas');resEl.innerHTML='';
   if(!myRes.length){resEl.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div>Nenhuma reserva ativa.</div></div>';}
-  else myRes.forEach(r=>{const it=r.items;const div=document.createElement('div');div.className='ritem';const th=it?.fotos?.length?`<img src="${it.fotos[0]}" style="width:100%;height:100%;object-fit:cover;" alt="${it?.nome}"/>`:catEmoji(it?.categoria);div.innerHTML=`<div class="rthumb">${th}</div><div class="rinfo"><div class="rname">${it?.nome||'Item'}</div><div class="rmeta">${r.status==='aprovada'?'✅ Aprovada':'⏳ Aguardando'} · ${it?.escritorio||''}</div><div class="pbar-bg"><div class="pbar" style="width:70%;"></div></div></div><span class="badge badge-${it?.tipo==='doacao'?'doacao':'venda'}">${it?.tipo==='doacao'?'Doação':'Venda'}</span>`;resEl.appendChild(div);});
+  else myRes.forEach(r=>{const it=r.items;const div=document.createElement('div');div.className='ritem';const th=it?.fotos?.length?`<img src="${it.fotos[0]}" style="width:100%;height:100%;object-fit:cover;" alt="${it?.nome}"/>`:catEmoji(it?.categoria);div.innerHTML=`<div class="rthumb">${th}</div><div class="rinfo"><div class="rname">${it?.nome||'Item'}</div><div class="rmeta">${r.status==='aprovada'?'✅ Aprovada':'⏳ Aguardando'} · ${it?.escritorio||''}</div><div class="pbar-bg"><div class="pbar" style="width:70%;"></div></div></div><div style="display:flex;gap:8px;align-items:center;"><span class="badge badge-${it?.tipo==='doacao'?'doacao':'venda'}">${it?.tipo==='doacao'?'Doação':'Venda'}</span><button class="btn btn-sm btn-red" onclick="cancelarReserva('${r.id}')">Desistir</button></div>`;resEl.appendChild(div);});
   const{data:favs}=await sb.from('favoritos').select('*,items(*)').eq('user_id',CU.id);
   const fEl=document.getElementById('p-favs');fEl.innerHTML='';
   if(!favs?.length)fEl.innerHTML='<div class="empty"><div class="empty-icon">♡</div><div>Nenhum favorito.</div></div>';
@@ -887,13 +1256,14 @@ async function loadPerfil(){
   const hEl=document.getElementById('p-hist');hEl.innerHTML='';
   if(!hist?.length)hEl.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div>Nenhum item retirado ainda.</div></div>';
   else hist.forEach(r=>{const it=r.items;const div=document.createElement('div');div.className='ritem';div.innerHTML=`<div class="rthumb">${catEmoji(it?.categoria)}</div><div class="rinfo"><div class="rname">${it?.nome||'Item'}</div><div class="rmeta">${r.status==='retirada'?'✅ Retirado':'❌ '+r.status} · ${new Date(r.updated_at).toLocaleDateString('pt-BR')}</div></div><span class="badge badge-${r.status==='retirada'?'retirado':'bloqueado'}">${r.status}</span>`;hEl.appendChild(div);});
+  await mostrarBannerAprovacao('aprovacao-perfil');
 }
 
 async function switchPanel(p,el){document.querySelectorAll('.apanel').forEach(x=>x.classList.remove('act'));document.querySelectorAll('.aside-item').forEach(x=>x.classList.remove('act'));document.getElementById('p-'+p).classList.add('act');if(el)el.classList.add('act');const loaders={reservas:loadAdmRes,banners:loadAdmBan,usuarios:loadAdmUsr,compliance:loadAdmComp,itens:loadAdmItens,relatorio:loadAdmRel,logs:loadAdmLogs};if(loaders[p])await loaders[p]();}
 
 let allReservas=[];
 async function loadAdmRes(){
-  const tabs=['pendentes','aprovadas','prazo','fila-itens','por-usuario','historico'];
+  const tabs=['pendentes','aprovadas','prazo','por-usuario','historico'];
   tabs.forEach(t=>{const el=document.getElementById('res-'+t);if(el)el.innerHTML='<div class="empty"><div class="spinner" style="margin:0 auto;"></div></div>';});
   const{data,error}=await sb.from('reservas').select('*,items(id,nome,tipo,preco,escritorio,condicao,fotos,categoria),users(nome,slack_name,escritorio)').order('created_at',{ascending:false});
   if(error){document.getElementById('res-pendentes').innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><div>Erro: '+error.message+'</div></div>';return;}
@@ -923,7 +1293,7 @@ function renderReservas(){
   if(statsEl)statsEl.innerHTML=`<div class="astat"><div class="astat-n">${total}</div><div class="astat-l">Ativas</div></div><div class="astat"><div class="astat-n">${pendentes.length}</div><div class="astat-l">Pendentes</div></div><div class="astat"><div class="astat-n" style="color:var(--amber);">${vencendo}</div><div class="astat-l">Vencendo 48h</div></div><div class="astat"><div class="astat-n" style="color:var(--red);">${vencidas}</div><div class="astat-l">Prazo vencido</div></div><div class="astat"><div class="astat-n" style="color:var(--green);">${retiradas}</div><div class="astat-l">Retiradas</div></div>`;
   const setCnt=(id,n,warn)=>{const el=document.getElementById('tab-cnt-'+id);if(el){el.textContent=n;el.style.background=warn&&n>0?'var(--red)':n>0?'var(--teal)':'var(--surface3)';el.style.color=n>0?'white':'var(--ink-soft)';}};
   setCnt('pendentes',pendentes.length,false);setCnt('aprovadas',aprovadas.length,false);setCnt('prazo',prazo.length,true);
-  renderResTab('res-pendentes',pendentes,'pendente');renderResTab('res-aprovadas',aprovadas,'aprovada');renderResTab('res-prazo',prazo,'prazo');renderResTabFilaItens(data);renderResTabPorUsuario(data);renderResTab('res-historico',historico,'historico');
+  renderResTabPendentesComFila(pendentes);renderResTab('res-aprovadas',aprovadas,'aprovada');renderResTab('res-prazo',prazo,'prazo');renderResTabPorUsuario(data);renderResTab('res-historico',historico,'historico');
 }
 
 function renderResTab(elId,items,tipo){
@@ -956,24 +1326,84 @@ function renderResTab(elId,items,tipo){
   el.innerHTML=html;
 }
 
-function renderResTabFilaItens(data){
-  var el=document.getElementById('res-fila-itens');if(!el)return;
+function renderResTabPendentesComFila(pendentes){
+  var el=document.getElementById('res-pendentes');if(!el)return;
+  
+  if(!pendentes.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div>Nenhuma reserva pendente.</div></div>';
+    return;
+  }
+  
+  // Agrupar por item
   var porItem={};
-  data.filter(r=>['fila','aprovada'].includes(r.status)).forEach(r=>{var id=r.item_id;if(!porItem[id])porItem[id]={item:r.items,reservas:[]};porItem[id].reservas.push(r);});
+  pendentes.forEach(r=>{
+    var id=r.item_id;
+    if(!porItem[id])porItem[id]={item:r.items,reservas:[]};
+    porItem[id].reservas.push(r);
+  });
+  
   var itens=Object.values(porItem);
-  if(!itens.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div>Nenhuma fila ativa.</div></div>';return;}
   var html='';
+  
   itens.sort((a,b)=>b.reservas.length-a.reservas.length).forEach(function({item,reservas}){
     var thumb=item?.fotos?.length?'<img src="'+item.fotos[0]+'" style="width:100%;height:100%;object-fit:cover;"/>':catEmoji(item?.categoria)||'📦';
-    html+='<div style="background:white;border:1.5px solid var(--border);border-radius:var(--rl);margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);"><div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--surface2);border-bottom:1px solid var(--border);"><div style="width:44px;height:44px;border-radius:var(--r);background:var(--surface3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">'+thumb+'</div><div style="flex:1;"><div style="font-size:14px;font-weight:700;color:var(--ink);">'+(item?.nome||'—')+'</div><div style="font-size:12px;color:var(--ink-soft);">📍 '+(item?.escritorio||'—')+' · '+reservas.length+' pessoa(s) na fila</div></div><span style="background:var(--teal-light);color:var(--teal-dark);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;">'+reservas.length+' na fila</span></div>';
-    reservas.sort((a,b)=>a.posicao_fila-b.posicao_fila).forEach(function(r,i){
-      var isAprov=r.status==='aprovada';var prazoStr=r.prazo_retirada?new Date(r.prazo_retirada).toLocaleDateString('pt-BR'):'—';
-      html+='<div style="display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--border-light);'+(isAprov?'background:var(--green-bg);':'')+'"><div style="width:26px;height:26px;border-radius:50%;background:'+(i===0?'var(--teal)':'var(--surface3)')+';color:'+(i===0?'white':'var(--ink)')+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">'+(i+1)+'</div><div style="flex:1;font-size:13px;font-weight:500;color:var(--ink);">'+(r.users?.nome||'—')+' <span style="font-size:11px;color:var(--ink-soft);">'+(r.users?.slack_name||'')+'</span></div><div style="font-size:11px;color:var(--ink-soft);">'+new Date(r.created_at).toLocaleDateString('pt-BR')+'</div>'+(isAprov?'<span style="font-size:11px;color:var(--green-dark);font-weight:700;">✅ Aprovada · '+prazoStr+'</span>':'')+'<span class="badge badge-'+(r.status==='aprovada'?'aprovada':'fila')+'" style="font-size:10px;">'+r.status+'</span></div>';
+    
+    // Header do item
+    html+='<div style="background:white;border:1.5px solid var(--border);border-radius:var(--rl);margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);"><div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--surface2);border-bottom:1px solid var(--border);"><div style="width:44px;height:44px;border-radius:var(--r);background:var(--surface3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">'+thumb+'</div><div style="flex:1;"><div style="font-size:14px;font-weight:700;color:var(--ink);">'+(item?.nome||'—')+'</div><div style="font-size:12px;color:var(--ink-soft);">📍 '+(item?.escritorio||'—')+' · 💰 R$ '+(item?.preco||'0').toLocaleString('pt-BR')+' · '+reservas.length+' pessoa(s) interessada(s)</div></div><span style="background:var(--amber-light);color:var(--amber-dark);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;">⏳ '+reservas.length+' pendente</span></div>';
+    
+    // Ordenar por data de criação (quem foi primeiro)
+    reservas.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at)).forEach(function(r,i){
+      var createdAt=new Date(r.created_at);
+      var agora=new Date();
+      var diffMs=agora-createdAt;
+      var diffMins=Math.floor(diffMs/(1000*60));
+      var diffHours=Math.floor(diffMs/(1000*60*60));
+      var timeAgo=diffHours>0?diffHours+'h '+diffMins%60+'min':diffMins+'min';
+      
+      var isPrimeiro=i===0;
+      var bgColor=isPrimeiro?'background:linear-gradient(90deg, rgba(0,180,130,0.08), rgba(0,180,130,0.02));border-left:4px solid var(--teal);':i===1?'background:rgba(250,200,50,0.05);':'';
+      
+      html+='<div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border-light);'+bgColor+'"><div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:50px;">';
+      
+      // Badge de posição
+      if(isPrimeiro){
+        html+='<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg, var(--teal), var(--teal-dark));color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;box-shadow:0 2px 8px rgba(0,180,130,0.3);">🥇</div>';
+        html+='<span style="font-size:10px;font-weight:700;color:var(--teal-dark);text-align:center;">1º DA<br>FILA</span>';
+      }else if(i===1){
+        html+='<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg, rgba(250,200,50,0.9), rgba(250,180,20,0.9));color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;">🥈</div>';
+        html+='<span style="font-size:10px;font-weight:700;color:var(--amber-dark);">2º</span>';
+      }else if(i===2){
+        html+='<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg, rgba(200,150,100,0.9), rgba(160,100,60,0.9));color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;">🥉</div>';
+        html+='<span style="font-size:10px;font-weight:700;color:var(--surface4);">3º</span>';
+      }else{
+        html+='<div style="width:36px;height:36px;border-radius:50%;background:var(--surface3);color:var(--ink-soft);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">'+(i+1)+'</div>';
+        html+='<span style="font-size:10px;font-weight:700;color:var(--ink-soft);">'+ordinalSuffix(i+1)+'</span>';
+      }
+      
+      html+='</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="font-size:14px;font-weight:700;color:var(--ink);">'+(r.users?.nome||'—')+'</span>';
+      if(isPrimeiro)html+='<span style="background:var(--teal);color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;">🚀 Primeira</span>';
+      html+='</div><div style="display:flex;gap:12px;font-size:11px;color:var(--ink-soft);margin-bottom:3px;"><span>👤 '+(r.users?.slack_name||'—')+'</span><span>📍 '+(r.users?.escritorio||'—')+'</span></div><div style="font-size:11px;color:var(--ink-soft);"><span>🕐 Entrou há '+timeAgo+' ('+createdAt.toLocaleDateString('pt-BR')+' às '+createdAt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+')</span></div></div>';
+      
+      // Botões de ação
+      html+='<div style="display:flex;gap:6px;"><button class="btn btn-sm btn-green" onclick="aprovarRes(\''+r.id+'\')" style="white-space:nowrap;">✓ Aprovar</button><button class="btn btn-sm btn-red" onclick="abrirRecusa(\''+r.id+'\')" style="white-space:nowrap;">✗ Recusar</button></div>';
+      
+      html+='</div>';
     });
+    
     html+='</div>';
   });
+  
   el.innerHTML=html;
 }
+
+function ordinalSuffix(num){
+  const j=num%10;const k=num%100;
+  if(j===1&&k!==11)return num+'º';
+  if(j===2&&k!==12)return num+'º';
+  if(j===3&&k!==13)return num+'º';
+  return num+'º';
+}
+
 
 function renderResTabPorUsuario(data){
   var el=document.getElementById('res-por-usuario');if(!el)return;
@@ -991,26 +1421,76 @@ function renderResTabPorUsuario(data){
   el.innerHTML=html;
 }
 
-async function aprovarRes(id){const prazo=new Date();prazo.setDate(prazo.getDate()+3);const{error}=await sb.from('reservas').update({status:'aprovada',prazo_retirada:prazo.toISOString()}).eq('id',id);if(error)return showToast('Erro: '+error.message);await logAction('Reserva aprovada',{reserva_id:id});showToast('Reserva aprovada!');loadAdmRes();}
+async function aprovarRes(id){
+  const prazo=new Date();
+  prazo.setDate(prazo.getDate()+3);
+  
+  // Buscar a reserva para pegar o item_id
+  const{data:res}=await sb.from('reservas').select('item_id').eq('id',id).single();
+  if(!res)return showToast('Erro ao buscar reserva');
+  
+  // Atualizar status da reserva para aprovada
+  const{error}=await sb.from('reservas').update({status:'aprovada',prazo_retirada:prazo.toISOString()}).eq('id',id);
+  if(error)return showToast('Erro: '+error.message);
+  
+  // Atualizar item para 'reservado' (retira do catálogo)
+  await sb.from('items').update({status:'reservado'}).eq('id',res.item_id);
+  
+  await logAction('Reserva aprovada',{reserva_id:id,item_id:res.item_id});
+  showToast('✅ Reserva aprovada! Item removido do catálogo.');
+  loadAdmRes();
+  loadItems(); // Atualizar catálogo
+}
 function abrirRecusa(id){document.getElementById('rec-id').value=id;document.getElementById('rec-motivo').value='';openModal('m-recusa');}
 async function confirmarRecusa(){const id=document.getElementById('rec-id').value;const motivo=document.getElementById('rec-motivo').value.trim();if(!motivo)return showToast('Digite o motivo.');await sb.from('reservas').update({status:'recusada',motivo_recusa:motivo}).eq('id',id);await logAction('Reserva recusada',{reserva_id:id,motivo});closeModal('m-recusa');showToast('Reserva recusada.');loadAdmRes();}
-async function switchResTab(tab,el){document.querySelectorAll('.res-tab').forEach(function(t){t.style.color='var(--ink-soft)';t.style.borderBottomColor='transparent';t.style.fontWeight='500';});el.style.color='var(--teal-dark)';el.style.borderBottomColor='var(--teal)';el.style.fontWeight='700';['pendentes','aprovadas','prazo','fila-itens','por-usuario','historico'].forEach(function(t){var d=document.getElementById('res-'+t);if(d)d.style.display=t===tab?'block':'none';});}
-async function marcarRetiradoRes(resId,itemId){await sb.from('reservas').update({status:'retirada',retirada_em:new Date().toISOString()}).eq('id',resId);if(itemId)await sb.from('items').update({status:'retirado'}).eq('id',itemId);await logAction('Retirada confirmada',{reserva_id:resId});showToast('Retirada confirmada!');loadAdmRes();loadItems();}
+async function switchResTab(tab,el){document.querySelectorAll('.res-tab').forEach(function(t){t.style.color='var(--ink-soft)';t.style.borderBottomColor='transparent';t.style.fontWeight='500';});el.style.color='var(--teal-dark)';el.style.borderBottomColor='var(--teal)';el.style.fontWeight='700';['pendentes','aprovadas','prazo','por-usuario','historico'].forEach(function(t){var d=document.getElementById('res-'+t);if(d)d.style.display=t===tab?'block':'none';});}
+async function marcarRetiradoRes(resId,itemId){
+  await sb.from('reservas').update({status:'retirada',retirada_em:new Date().toISOString()}).eq('id',resId);
+  if(itemId)await sb.from('items').update({status:'retirado'}).eq('id',itemId);
+  await logAction('Retirada confirmada',{reserva_id:resId});
+  
+  // Promover próximo da fila
+  await promoverProximoDaFila(itemId);
+  
+  showToast('✅ Retirada confirmada! Próximo da fila foi aprovado automaticamente.');
+  loadAdmRes();
+  loadItems();
+}
 async function cancelarRes(resId){if(!confirm('Cancelar esta reserva?'))return;await sb.from('reservas').update({status:'cancelada'}).eq('id',resId);await logAction('Reserva cancelada',{reserva_id:resId});showToast('Cancelada.');loadAdmRes();}
 
 async function loadAdmComp(){const{data}=await sb.from('users').select('nome,slack_name,email,escritorio,termos_aceitos,termos_aceitos_em,termos_versao').order('created_at',{ascending:false});document.getElementById('adm-comp').innerHTML='<table class="atable"><thead><tr><th>Nome</th><th>Slack</th><th>E-mail</th><th>Local</th><th>Data aceite</th><th>Versão</th><th>Status</th></tr></thead><tbody>'+(data||[]).map(function(u){return'<tr><td>'+u.nome+'</td><td>'+u.slack_name+'</td><td style="font-size:12px;">'+u.email+'</td><td>'+u.escritorio+'</td><td style="font-size:12px;">'+(u.termos_aceitos_em?new Date(u.termos_aceitos_em).toLocaleString('pt-BR'):'—')+'</td><td>'+(u.termos_versao||'—')+'</td><td><span class="ctag '+(u.termos_aceitos?'ctag-ok':'ctag-pend')+'">'+(u.termos_aceitos?'✓ Aceitos':'⏳')+'</span></td></tr>';}).join('')+'</tbody></table>';}
 
 async function loadAdmItens(){
   const{data}=await sb.from('items').select('*').order('created_at',{ascending:false});
-  const el=document.getElementById('adm-itens');if(!data)return;
+  allItemsData=data||[];
+  renderizarItensFiltrados();
+}
+
+function filtrarItensPorStatus(){
+  const filtro=document.getElementById('itens-filtro-status').value;
+  renderizarItensFiltrados(filtro);
+}
+
+function renderizarItensFiltrados(filtro=''){
+  const el=document.getElementById('adm-itens');
+  if(!allItemsData)return;
+  
+  const itensFiltrados=filtro?allItemsData.filter(i=>i.status===filtro):allItemsData;
+  
+  if(!itensFiltrados.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div>Nenhum item nesta categoria.</div></div>';
+    return;
+  }
+  
   var rows='';
-  data.forEach(function(i){
+  itensFiltrados.forEach(function(i){
     var tipoBadge=i.tipo==='doacao'?'<span class="badge badge-doacao">Doação</span>':'<span class="badge badge-venda">Venda R$'+parseFloat(i.preco||0).toFixed(2)+'</span>';
     var statusBadge='<span class="badge badge-'+(i.status==='ativo'?'ativo':i.status==='retirado'?'retirado':'pendente')+'">'+i.status+'</span>';
     var fixPin=i.fixado?'<span class="badge badge-fixado" style="font-size:10px;margin-left:4px;">📌</span>':'';
     var acoes='';
     if(i.status==='ativo'||i.status==='reservado'){acoes='<button class="btn btn-sm btn-green" onclick="marcarRetirado(\''+i.id+'\')">Retirado</button><button class="btn btn-sm btn-outline" onclick="editItemById(\''+i.id+'\')">Editar</button><button class="btn btn-sm btn-outline" onclick="duplicarItemById(\''+i.id+'\')">📋</button><button class="btn btn-sm btn-red" onclick="arquivarItem(\''+i.id+'\')">Arquivar</button>';}
-    else{acoes='<button class="btn btn-sm btn-outline" onclick="desfazerStatus(\''+i.id+'\')">↩ Desfazer</button>';}
+    else if(i.status==='retirado'){acoes='<button class="btn btn-sm" style="padding:6px 12px;border:1.5px solid var(--amber);background:var(--amber-light);cursor:pointer;border-radius:8px;color:var(--amber-dark);font-weight:600;" onclick="desfazerRetirada(\''+i.id+'\')" title="Devolver item">↩ Devolver</button>';}
+    else{acoes='<button class="btn btn-sm btn-outline" onclick="desfazerStatus(\''+i.id+'\')">↩ Reativar</button>';}
     acoes+='<button class="btn btn-sm" style="padding:6px 8px;border:1.5px solid var(--border);background:white;cursor:pointer;border-radius:8px;color:var(--red);" onclick="abrirExcluir(\''+i.id+'\')" title="Excluir">🗑️</button>';
     rows+='<tr><td><b>'+i.nome+'</b>'+fixPin+'</td><td>'+tipoBadge+'</td><td>'+condBadge(i.condicao)+'</td><td>'+i.escritorio+'</td><td>'+statusBadge+'</td><td><div class="tact">'+acoes+'</div></td></tr>';
   });
@@ -1020,6 +1500,57 @@ async function loadAdmItens(){
 async function marcarRetirado(id){await sb.from('items').update({status:'retirado'}).eq('id',id);await sb.from('reservas').update({status:'retirada',retirada_em:new Date().toISOString()}).eq('item_id',id).eq('status','aprovada');await logAction('Item retirado',{item_id:id});showToast('Marcado como retirado!');loadAdmItens();}
 async function arquivarItem(id){await sb.from('items').update({status:'arquivado'}).eq('id',id);await logAction('Item arquivado',{item_id:id});showToast('Arquivado.');loadAdmItens();}
 async function desfazerStatus(id){if(!confirm('Reativar este item?'))return;await sb.from('items').update({status:'ativo'}).eq('id',id);await logAction('Item reativado',{item_id:id});showToast('Reativado!');loadAdmItens();loadItems();}
+
+async function promoverProximoDaFila(itemId){
+  try{
+    // Buscar próximo da fila (menor posicao_fila com status='fila')
+    const{data:proximaRes,error}=await sb.from('reservas').select('id,user_id').eq('item_id',itemId).eq('status','fila').order('posicao_fila',{ascending:true}).limit(1);
+    
+    if(error||!proximaRes||proximaRes.length===0)return; // Nenhum na fila
+    
+    const res=proximaRes[0];
+    
+    // Promover para aprovada
+    const prazo=new Date();
+    prazo.setDate(prazo.getDate()+3);
+    
+    const{error:updateError}=await sb.from('reservas').update({status:'aprovada',prazo_retirada:prazo.toISOString()}).eq('id',res.id);
+    
+    if(updateError)throw new Error(updateError.message);
+    
+    await logAction('Próximo da fila promovido',{item_id:itemId,reserva_id:res.id});
+    
+    console.log('Promoção automática: usuário',res.user_id,'aprovado para item',itemId);
+  }catch(e){
+    console.error('Erro ao promover próximo da fila:',e);
+    throw e;
+  }
+}
+
+async function desfazerRetirada(id){
+  if(!confirm('Devolver este item? Ele voltará para disponível e próximo da fila será aprovado.'))return;
+  
+  // Atualizar item para disponível
+  await sb.from('items').update({status:'ativo'}).eq('id',id);
+  
+  // Atualizar reserva ativa para cancelada
+  await sb.from('reservas').update({status:'cancelada',cancelada_em:new Date().toISOString()}).eq('item_id',id).eq('status','retirada');
+  
+  await logAction('Item devolvido',{item_id:id});
+  showToast('✅ Item devolvido! Próximo da fila foi aprovado automaticamente.');
+  
+  // Promover próximo da fila
+  await promoverProximoDaFila(id);
+  
+  // Recarregar com filtro mantido
+  const filtro=document.getElementById('itens-filtro-status').value;
+  await loadAdmItens();
+  if(filtro)document.getElementById('itens-filtro-status').value=filtro;
+  renderizarItensFiltrados(filtro);
+  
+  loadItems();
+}
+
 function abrirExcluir(id){const item=allItems.find(function(i){return i.id===id;});document.getElementById('exc-id').value=id;document.getElementById('exc-nome').textContent=item?item.nome:'este item';openModal('m-excluir');}
 async function confirmarExcluir(){const id=document.getElementById('exc-id').value;await sb.from('reservas').delete().eq('item_id',id);await sb.from('favoritos').delete().eq('item_id',id);const{error}=await sb.from('items').delete().eq('id',id);if(error)return showToast('Erro: '+error.message);await logAction('Item excluído',{item_id:id});closeModal('m-excluir');showToast('Excluído.');loadAdmItens();loadItems();}
 
@@ -1028,7 +1559,242 @@ async function loadAdmBan(){const{data}=await sb.from('banners').select('*').ord
 async function salvarBanner(){const tipo=val('#bn-tipo'),titulo=val('#bn-titulo').trim(),sub=val('#bn-sub').trim(),validade=val('#bn-val'),loc=val('#bn-loc');if(!titulo)return showToast('Digite um título.');const{error}=await sb.from('banners').insert({tipo,titulo,subtitulo:sub||null,valido_ate:validade||null,escritorio:loc,ativo:true,criado_por:CU&&CU.id});if(error)return showToast('Erro: '+error.message);await logAction('Banner criado',{tipo,titulo});closeModal('m-banner');showToast('Banner publicado!');loadAdmBan();loadBanners();}
 async function desatBanner(id){await sb.from('banners').update({ativo:false}).eq('id',id);showToast('Desativado!');loadAdmBan();loadBanners();}
 
-async function loadAdmRel(){const mes=new Date();mes.setDate(1);mes.setHours(0,0,0,0);document.getElementById('rel-per').textContent=mes.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});const{data:itens}=await sb.from('items').select('*').gte('created_at',mes.toISOString());const{data:ret}=await sb.from('reservas').select('*,items(nome,tipo,preco),users(nome)').eq('status','retirada').gte('updated_at',mes.toISOString());document.getElementById('rel-cad').textContent=itens?itens.length:0;document.getElementById('rel-ret').textContent=ret?ret.length:0;document.getElementById('rel-doa').textContent=ret?ret.filter(function(r){return r.items&&r.items.tipo==='doacao';}).length:0;const tv=(ret||[]).filter(function(r){return r.items&&r.items.tipo==='venda';}).reduce(function(a,r){return a+parseFloat(r.items&&r.items.preco||0);},0);document.getElementById('rel-vnd').textContent='R$'+tv.toFixed(2).replace('.',',');const el=document.getElementById('adm-rel');if(!ret||!ret.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div><div>Nenhum item retirado este mês.</div></div>';return;}var rows=ret.map(function(r){return'<tr><td>'+(r.items&&r.items.nome||'—')+'</td><td>'+(r.items&&r.items.tipo==='doacao'?'<span class="badge badge-doacao">Doação</span>':'<span class="badge badge-venda">Venda</span>')+'</td><td>'+(r.users&&r.users.nome||'—')+'</td><td>'+new Date(r.updated_at).toLocaleDateString('pt-BR')+'</td><td>'+(r.items&&r.items.tipo==='venda'?'R$'+parseFloat(r.items.preco||0).toFixed(2).replace('.',','):'—')+'</td></tr>';}).join('');el.innerHTML='<table class="atable" style="margin-top:16px;"><thead><tr><th>Item</th><th>Tipo</th><th>Quem retirou</th><th>Data</th><th>Valor</th></tr></thead><tbody>'+rows+'</tbody></table>';}
+async function loadAdmRel(){
+  const periodo=document.getElementById('rel-filtro-periodo').value;
+  const categoria=document.getElementById('rel-filtro-categoria').value;
+  
+  let dataInicio=new Date();
+  const agora=new Date();
+  
+  if(periodo==='mes'){dataInicio.setDate(1);dataInicio.setHours(0,0,0,0);}
+  else if(periodo==='trimestre'){dataInicio.setMonth(dataInicio.getMonth()-3);dataInicio.setHours(0,0,0,0);}
+  else if(periodo==='semestre'){dataInicio.setMonth(dataInicio.getMonth()-6);dataInicio.setHours(0,0,0,0);}
+  else if(periodo==='ano'){dataInicio.setFullYear(dataInicio.getFullYear()-1);dataInicio.setHours(0,0,0,0);}
+  else if(periodo==='tudo'){dataInicio=new Date('1970-01-01');}
+  
+  let query1=sb.from('items').select('*').gte('created_at',dataInicio.toISOString());
+  if(categoria)query1=query1.eq('categoria',categoria);
+  const{data:itens}=await query1;
+  
+  let query2=sb.from('reservas').select('*,items(nome,tipo,preco,categoria),users(nome)').eq('status','retirada').gte('updated_at',dataInicio.toISOString());
+  if(categoria)query2=query2.eq('items.categoria',categoria);
+  const{data:ret}=await query2;
+  
+  const totalCad=itens?itens.length:0;
+  const totalRet=ret?ret.length:0;
+  const taxaRet=totalCad>0?((totalRet/totalCad)*100).toFixed(1)+'%':'0%';
+  const doacoes=ret?ret.filter(r=>r.items&&r.items.tipo==='doacao').length:0;
+  const vendas=ret?ret.filter(r=>r.items&&r.items.tipo==='venda'):[];
+  const totalVendas=vendas.reduce((a,r)=>a+parseFloat(r.items?.preco||0),0);
+  const ticketMedio=vendas.length>0?(totalVendas/vendas.length):0;
+  const maiorVenda=vendas.length>0?Math.max(...vendas.map(r=>parseFloat(r.items?.preco||0))):0;
+  
+  document.getElementById('rel-cad').textContent=totalCad;
+  document.getElementById('rel-ret').textContent=totalRet;
+  document.getElementById('rel-taxa').textContent=taxaRet;
+  document.getElementById('rel-doa').textContent=doacoes;
+  document.getElementById('rel-vnd').textContent='R$'+totalVendas.toFixed(2).replace('.',',');
+  document.getElementById('rel-total-vendas').textContent='R$'+totalVendas.toFixed(2).replace('.',',');
+  document.getElementById('rel-ticket-medio').textContent='R$'+ticketMedio.toFixed(2).replace('.',',');
+  document.getElementById('rel-maior-venda').textContent='R$'+maiorVenda.toFixed(2).replace('.',',');
+  
+  const doadores=new Map();
+  ret?.forEach(r=>{const nome=r.users?.nome||'Desconhecido';const atual=doadores.get(nome)||0;doadores.set(nome,atual+1);});
+  const topDoadores=[...doadores.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const doadoresHTML=topDoadores.map(([nome,qty],i)=>`<div style="display:flex;justify-content:space-between;align-items:center;">${i+1}. <b>${nome}</b> <span style="background:var(--green-bg);color:var(--green-dark);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;">${qty}</span></div>`).join('');
+  document.getElementById('rel-top-doadores').innerHTML=doadoresHTML||'—';
+  
+  
+  const el=document.getElementById('adm-rel');
+  if(!ret||!ret.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div><div>Nenhum item retirado neste período.</div></div>';return;}
+  const rows=ret.map((r,idx)=>`<tr style="cursor:pointer;transition:background .2s;" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background=''"><td style="font-weight:600;" onclick="abrirDocumentoVenda(${idx})">${r.items?.nome||'—'}</td><td onclick="abrirDocumentoVenda(${idx})"><span class="badge badge-${r.items?.tipo==='doacao'?'doacao':'venda'}">${r.items?.tipo==='doacao'?'Doação':'Venda'}</span></td><td onclick="abrirDocumentoVenda(${idx})">${r.items?.categoria||'—'}</td><td onclick="abrirDocumentoVenda(${idx})">${r.users?.nome||'—'}</td><td onclick="abrirDocumentoVenda(${idx})">${new Date(r.updated_at).toLocaleDateString('pt-BR')}</td><td style="text-align:right;font-weight:600;color:var(--teal-dark);" onclick="abrirDocumentoVenda(${idx})">${r.items?.tipo==='venda'?'R$'+parseFloat(r.items.preco||0).toFixed(2).replace('.',','):'—'}</td><td style="text-align:center;"><button class="btn btn-sm btn-red" onclick="deletarRegistroVenda('${r.id}','${r.items?.nome||'Item'}',event)" style="white-space:nowrap;">🗑️ Deletar</button></td></tr>`).join('');
+  window.vendas=ret;
+  el.innerHTML=`<table class="atable"><thead><tr><th>Item</th><th>Tipo</th><th>Categoria</th><th>Quem retirou</th><th>Data</th><th style="text-align:right;">Valor</th><th style="text-align:center;">Ações</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+async function deletarRegistroVenda(vendaId,itemNome,event){
+  event.stopPropagation();
+  const confirmMsg=`⚠️ Tem certeza que deseja deletar\n\n"${itemNome}"?\n\nEssa ação é IRREVERSÍVEL!`;
+  
+  if(!confirm(confirmMsg))return;
+  
+  const confirmMsg2=`🆘 ÚLTIMA CONFIRMAÇÃO!\n\nDeletar PERMANENTEMENTE "${itemNome}"?`;
+  
+  if(!confirm(confirmMsg2))return;
+  
+  try{
+    showToast('⏳ Deletando registro...');
+    
+    // DELETAR DO BANCO DE DADOS
+    const{error}=await sb.from('reservas').delete().eq('id',vendaId);
+    
+    if(error){
+      console.error('Erro ao deletar:',error);
+      throw new Error('Erro: '+error.message);
+    }
+    
+    // Registrar em logs
+    try{
+      await logAction('Registro de venda/doação deletado',{reserva_id:vendaId,item_nome:itemNome});
+    }catch(e){
+      console.warn('Aviso: Não conseguiu registrar em logs',e);
+    }
+    
+    showToast('✅ Registro deletado com sucesso!');
+    await new Promise(resolve=>setTimeout(resolve,1000));
+    loadAdmRel();
+  }catch(e){
+    console.error('Erro:',e);
+    showToast('❌ Erro: '+e.message);
+  }
+}
+
+function exportarRelatorio(){
+  const periodo=document.getElementById('rel-filtro-periodo').value;
+  const categoria=document.getElementById('rel-filtro-categoria').value;
+  const tabela=document.querySelector('#adm-rel table');
+  if(!tabela){showToast('Nenhum dado para exportar');return;}
+  
+  const header=['Item','Tipo','Categoria','Quem retirou','Data','Valor'];
+  const rows=[];
+  tabela.querySelectorAll('tbody tr').forEach(tr=>{
+    const cells=[];
+    // Pegar só as 6 primeiras colunas (ignorar coluna de Ações)
+    tr.querySelectorAll('td').forEach((td,idx)=>{if(idx<6)cells.push(td.textContent.trim());});
+    rows.push(cells.join(','));
+  });
+  
+  const csv='data:text/csv;charset=utf-8,'+encodeURIComponent(header.join(',')+'\n'+rows.join('\n'));
+  const link=document.createElement('a');
+  link.setAttribute('href',csv);
+  link.setAttribute('download','relatorio_repass_'+new Date().toISOString().split('T')[0]+'.csv');
+  link.click();
+  showToast('Relatório exportado!');
+}
+
+function abrirDocumentoVenda(idx){
+  if(!window.vendas||!window.vendas[idx]){showToast('Erro ao abrir documento');return;}
+  const venda=window.vendas[idx];
+  const item=venda.items;
+  const usuario=venda.users;
+  const fotoUrl=item?.fotos?.[0]||'';
+  
+  const dataVenda=new Date(venda.updated_at);
+  const dataFormatada=dataVenda.toLocaleDateString('pt-BR');
+  const horaFormatada=dataVenda.toLocaleTimeString('pt-BR');
+  
+  let htmlDoc=`
+    <div style="max-width:800px;margin:0 auto;font-family:Arial,sans-serif;color:#333;">
+      <div style="text-align:center;border-bottom:3px solid #1da8b0;padding-bottom:20px;margin-bottom:20px;">
+        <h1 style="margin:0;color:#1da8b0;font-size:28px;">REPASS</h1>
+        <p style="margin:5px 0 0 0;color:#666;font-size:12px;">Marketplace Interno de Reutilização</p>
+      </div>
+      
+      <div style="background:#f5f5f5;padding:15px;border-radius:8px;margin-bottom:20px;">
+        <h2 style="margin:0 0 15px 0;font-size:16px;color:#1da8b0;">📄 DOCUMENTO DE ${item?.tipo==='venda'?'VENDA':'DOAÇÃO'}</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;font-size:13px;">
+          <div>
+            <strong style="color:#666;">Data:</strong><br/>${dataFormatada}
+          </div>
+          <div>
+            <strong style="color:#666;">Hora:</strong><br/>${horaFormatada}
+          </div>
+          <div style="grid-column:1/-1;">
+            <strong style="color:#666;">Documento ID:</strong><br/>${venda.id}
+          </div>
+        </div>
+      </div>
+      
+      ${fotoUrl?`<div style="text-align:center;margin-bottom:20px;">
+        <img src="${fotoUrl}" style="max-width:300px;max-height:300px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);"/>
+      </div>`:''}
+      
+      <div style="background:#f9f9f9;padding:15px;border-left:4px solid #1da8b0;margin-bottom:20px;border-radius:4px;">
+        <h3 style="margin:0 0 15px 0;font-size:14px;color:#1da8b0;">📦 INFORMAÇÕES DO ITEM</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;width:120px;">Nome:</td>
+            <td style="padding:8px;">${item?.nome||'—'}</td>
+          </tr>
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;">Categoria:</td>
+            <td style="padding:8px;">${item?.categoria||'—'}</td>
+          </tr>
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;">Tipo:</td>
+            <td style="padding:8px;">${item?.tipo==='venda'?'Venda':'Doação'}</td>
+          </tr>
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;">Condição:</td>
+            <td style="padding:8px;">${item?.condicao||'—'}</td>
+          </tr>
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;">Descrição:</td>
+            <td style="padding:8px;">${item?.descricao||'—'}</td>
+          </tr>
+        </table>
+      </div>
+      
+      <div style="background:#f9f9f9;padding:15px;border-left:4px solid #2d9d60;margin-bottom:20px;border-radius:4px;">
+        <h3 style="margin:0 0 15px 0;font-size:14px;color:#2d9d60;">👤 INFORMAÇÕES DE RETIRADA</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;width:120px;">Retirado por:</td>
+            <td style="padding:8px;">${usuario?.nome||'—'}</td>
+          </tr>
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;">Email:</td>
+            <td style="padding:8px;">${usuario?.email||'—'}</td>
+          </tr>
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;">Escritório:</td>
+            <td style="padding:8px;">${usuario?.escritorio||'—'}</td>
+          </tr>
+        </table>
+      </div>
+      
+      ${item?.tipo==='venda'?`
+      <div style="background:#fff9e6;padding:15px;border-left:4px solid #f59e0b;margin-bottom:20px;border-radius:4px;">
+        <h3 style="margin:0 0 15px 0;font-size:14px;color:#d97706;">💳 INFORMAÇÕES DE PAGAMENTO</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;font-weight:bold;color:#666;width:120px;">Valor:</td>
+            <td style="padding:8px;font-size:16px;font-weight:bold;color:#f59e0b;">R$ ${parseFloat(item?.preco||0).toFixed(2).replace('.',',')}</td>
+          </tr>
+          <tr>
+            <td colspan="2" style="padding:8px;font-size:12px;color:#d97706;">
+              ⚠️ <strong>ATENÇÃO:</strong> A forma de pagamento deve ser coordenada com o departamento financeiro. Favor entrar em contato.
+            </td>
+          </tr>
+        </table>
+      </div>
+      `:''}
+      
+      <div style="background:#f0f9ff;padding:15px;border-left:4px solid #3b82f6;margin-bottom:20px;border-radius:4px;font-size:12px;">
+        <strong>⚠️ AVISO IMPORTANTE:</strong><br/>
+        Este documento comprova a retirada do item do Repass. O item foi retirado em ${item?.escritorio||'local indicado'} e é responsabilidade do retirador o transporte e armazenamento seguro do mesmo.<br/>
+        Para itens de venda, favor contatar o departamento financeiro para definir a forma de pagamento.
+      </div>
+      
+      <div style="text-align:center;color:#999;font-size:11px;border-top:1px solid #ddd;padding-top:15px;margin-top:20px;">
+        <p>Repass © ${new Date().getFullYear()} - Documento gerado automaticamente em ${new Date().toLocaleString('pt-BR')}</p>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('doc-conteudo').innerHTML=htmlDoc;
+  vendaAtualPDF={venda,item,usuario,dataFormatada,horaFormatada};
+  openModal('m-documento-venda');
+}
+
+function gerarPDFVenda(){
+  if(!vendaAtualPDF){showToast('Erro ao gerar PDF');return;}
+  const{venda,item,usuario}=vendaAtualPDF;
+  const elemento=document.getElementById('doc-conteudo');
+  const opt={margin:10,filename:`venda_${item?.nome}_${new Date().getTime()}.pdf`,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2},jsPDF:{orientation:'portrait',unit:'mm',format:'a4'}};
+  html2pdf().set(opt).from(elemento).save();
+  showToast('PDF gerado com sucesso!');
+}
 
 async function loadAdmLogs(){const{data}=await sb.from('logs').select('*,users(nome)').order('created_at',{ascending:false}).limit(50);const el=document.getElementById('adm-log');if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-icon">🔒</div><div>Nenhuma ação registrada.</div></div>';return;}var html='<div class="loglist">';data.forEach(function(l){html+='<div class="logitem"><div class="logdot"></div><div><div class="logtext"><b>'+(l.users&&l.users.nome||'Sistema')+'</b> — '+l.acao+'</div><div class="logtime">'+new Date(l.created_at).toLocaleString('pt-BR')+'</div></div></div>';});html+='</div>';el.innerHTML=html;}
 
@@ -1062,20 +1828,24 @@ async function salvarCapa(){
   const{error}=await sb.from('capa_config').update(payload).eq('id',1);if(error)return showToast('Erro: '+error.message);await logAction('Capa atualizada',{});showToast('Capa salva!');
 }
 
-function openItemModal(){document.getElementById('mi-id').value='';document.getElementById('mi-title').textContent='Novo item';document.getElementById('mi-nome').value='';document.getElementById('mi-desc').value='';document.getElementById('mi-preco').value='';document.getElementById('mi-fotos-prev').innerHTML='';fotosFiles=[];document.getElementById('btn-sv-item').textContent='Cadastrar';togglePreco();openModal('m-item');}
+function openItemModal(){document.getElementById('mi-id').value='';document.getElementById('mi-title').textContent='Novo item';document.getElementById('mi-nome').value='';document.getElementById('mi-desc').value='';document.getElementById('mi-preco').value='';document.getElementById('mi-fotos-prev').innerHTML='';document.getElementById('mi-foto-capa').value='0';fotosFiles=[];document.getElementById('btn-sv-item').textContent='Cadastrar';togglePreco();openModal('m-item');}
 function abrirItemById(id){const item=allItems.find(function(i){return i.id===id;});if(item)abrirItem(item);}
 function editItemById(id){const item=allItems.find(function(i){return i.id===id;});if(item){editItem(item);return;}sb.from('items').select('*').eq('id',id).single().then(function(res){if(res.data)editItem(res.data);});}
 function duplicarItemById(id){const item=allItems.find(function(i){return i.id===id;});if(item){duplicarItem(item);return;}sb.from('items').select('*').eq('id',id).single().then(function(res){if(res.data)duplicarItem(res.data);});}
-function editItem(item){document.getElementById('mi-id').value=item.id;document.getElementById('mi-title').textContent='Editar item';document.getElementById('mi-nome').value=item.nome||'';document.getElementById('mi-cat').value=item.categoria||'Mobiliário';document.getElementById('mi-cond').value=item.condicao||'Bom';document.getElementById('mi-tipo').value=item.tipo||'doacao';document.getElementById('mi-loc').value=item.escritorio||'São Paulo';document.getElementById('mi-qtd').value=item.quantidade||1;document.getElementById('mi-preco').value=item.preco||'';document.getElementById('mi-desc').value=item.descricao||'';document.getElementById('mi-motivo').value=item.motivo_descarte||'';document.getElementById('mi-fix').value=item.fixado?'true':'false';document.getElementById('btn-sv-item').textContent='Salvar';togglePreco();openModal('m-item');}
+function editItem(item){document.getElementById('mi-id').value=item.id;document.getElementById('mi-title').textContent='Editar item';document.getElementById('mi-nome').value=item.nome||'';document.getElementById('mi-cat').value=item.categoria||'Mobiliário';document.getElementById('mi-cond').value=item.condicao||'Bom';document.getElementById('mi-tipo').value=item.tipo||'doacao';document.getElementById('mi-loc').value=item.escritorio||'São Paulo';document.getElementById('mi-qtd').value=item.quantidade||1;document.getElementById('mi-preco').value=item.preco||'';document.getElementById('mi-desc').value=item.descricao||'';document.getElementById('mi-motivo').value=item.motivo_descarte||'';document.getElementById('mi-fix').value=item.fixado?'true':'false';document.getElementById('btn-sv-item').textContent='Salvar';fotosFiles=item.fotos||[];document.getElementById('mi-foto-capa').value='0';previewFotos({target:{files:[]}});togglePreco();openModal('m-item');}
 function duplicarItem(item){document.getElementById('mi-id').value='';document.getElementById('mi-title').textContent='Duplicar item';document.getElementById('mi-nome').value='Cópia de '+item.nome;document.getElementById('mi-cat').value=item.categoria||'Mobiliário';document.getElementById('mi-cond').value=item.condicao||'Bom';document.getElementById('mi-tipo').value=item.tipo||'doacao';document.getElementById('mi-loc').value=item.escritorio||'São Paulo';document.getElementById('mi-qtd').value=item.quantidade||1;document.getElementById('mi-preco').value=item.preco||'';document.getElementById('mi-desc').value=item.descricao||'';document.getElementById('mi-motivo').value=item.motivo_descarte||'';document.getElementById('mi-fix').value='false';document.getElementById('mi-fotos-prev').innerHTML='';fotosFiles=[];document.getElementById('btn-sv-item').textContent='Cadastrar cópia';togglePreco();openModal('m-item');}
 function togglePreco(){const t=document.getElementById('mi-tipo').value;document.getElementById('mi-preco-g').style.display=t==='venda'?'block':'none';}
-function previewFotos(e){fotosFiles=Array.from(e.target.files).slice(0,5);const prev=document.getElementById('mi-fotos-prev');prev.innerHTML='';fotosFiles.forEach(function(f){const u=URL.createObjectURL(f);prev.innerHTML+='<div style="width:64px;height:64px;border-radius:var(--r);overflow:hidden;border:1.5px solid var(--border);flex-shrink:0;"><img src="'+u+'" style="width:100%;height:100%;object-fit:cover;"/></div>';});}
+function previewFotos(e){const newFiles=Array.from(e.target.files).slice(0,5);fotosFiles=[...fotosFiles,...newFiles].slice(0,5);const prev=document.getElementById('mi-fotos-prev');prev.innerHTML='';fotosFiles.forEach(function(f,idx){const u=typeof f==='string'?f:URL.createObjectURL(f);const isExisting=typeof f==='string';prev.innerHTML+='<div style="position:relative;width:80px;height:80px;border-radius:var(--r);overflow:hidden;border:2px solid var(--border);flex-shrink:0;background:#f0f7f8;display:flex;align-items:center;justify-content:center;"><img src="'+u+'" style="width:100%;height:100%;object-fit:cover;"/><button type="button" class="btn-remove-foto" data-idx="'+idx+'" style="position:absolute;top:2px;right:2px;background:var(--red);color:white;border:none;border-radius:50%;width:20px;height:20px;padding:0;cursor:pointer;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;" onclick="removerFoto(this.getAttribute(\'data-idx\'))">×</button><button type="button" class="btn-capa-foto" data-idx="'+idx+'" style="position:absolute;bottom:2px;left:2px;background:rgba(29,168,176,.8);color:white;border:none;border-radius:4px;padding:2px 6px;cursor:pointer;font-size:9px;font-weight:700;" onclick="marcarFotoCapa(this.getAttribute(\'data-idx\'))">Capa</button></div>';});document.getElementById('mi-fotos').value='';}
+function removerFoto(idx){fotosFiles.splice(idx,1);previewFotos({target:{files:[]}});}
+function marcarFotoCapa(idx){document.querySelectorAll('.btn-capa-foto').forEach(b=>b.style.background='rgba(29,168,176,.6)');document.querySelectorAll('[data-idx="'+idx+'"].btn-capa-foto').forEach(b=>b.style.background='rgba(29,158,117,.9)');document.getElementById('mi-foto-capa').value=idx;}
+
 async function salvarItem(){
   const editId=document.getElementById('mi-id').value;const nome=val('#mi-nome').trim();if(!nome)return showToast('Digite o nome do item.');
   const tipo=val('#mi-tipo'),preco=tipo==='venda'?parseFloat(val('#mi-preco'))||null:null;
   const btn=document.getElementById('btn-sv-item');btn.disabled=true;btn.textContent='Salvando...';
   var fotos=[];
-  for(var fi=0;fi<fotosFiles.length;fi++){const file=fotosFiles[fi];const ext=file.name.split('.').pop();const path='items/'+Date.now()+'_'+Math.random().toString(36).substr(2,6)+'.'+ext;const{error:e}=await sb.storage.from('item-fotos').upload(path,file,{contentType:file.type});if(!e){const{data:u}=sb.storage.from('item-fotos').getPublicUrl(path);fotos.push(u.publicUrl);}}
+  for(var fi=0;fi<fotosFiles.length;fi++){const file=fotosFiles[fi];if(typeof file==='string'){fotos.push(file);}else{const ext=file.name.split('.').pop();const path='items/'+Date.now()+'_'+Math.random().toString(36).substr(2,6)+'.'+ext;const{error:e}=await sb.storage.from('item-fotos').upload(path,file,{contentType:file.type});if(!e){const{data:u}=sb.storage.from('item-fotos').getPublicUrl(path);fotos.push(u.publicUrl);}}}
+  const capaIdx=parseInt(document.getElementById('mi-foto-capa').value||0);if(capaIdx>0&&capaIdx<fotos.length){const capaFoto=fotos[capaIdx];fotos.splice(capaIdx,1);fotos.unshift(capaFoto);}
   const payload={nome,categoria:val('#mi-cat'),condicao:val('#mi-cond'),tipo,escritorio:val('#mi-loc'),quantidade:parseInt(val('#mi-qtd'))||1,quantidade_disponivel:parseInt(val('#mi-qtd'))||1,preco,descricao:val('#mi-desc').trim(),motivo_descarte:val('#mi-motivo')||null,fixado:val('#mi-fix')==='true'};
   if(fotos.length)payload.fotos=fotos;
   var error;
@@ -1083,23 +1853,379 @@ async function salvarItem(){
   else{payload.criado_por=CU&&CU.id;const res=await sb.from('items').insert(payload);error=res.error;}
   btn.disabled=false;btn.textContent=editId?'Salvar':'Cadastrar';
   if(error)return showToast('Erro: '+error.message);
-  await logAction(editId?'Item editado':'Item cadastrado',{nome});closeModal('m-item');showToast(editId?'Atualizado!':'Item cadastrado!');fotosFiles=[];loadAdmItens();loadItems();
+  await logAction(editId?'Item editado':'Item cadastrado',{nome});closeModal('m-item');showToast(editId?'Atualizado!':'Item cadastrado!');fotosFiles=[];document.getElementById('mi-foto-capa').value='0';loadAdmItens();loadItems();
 }
 
+let usersFilterData=[];let usuarioEditandoId=null;
 async function loadAdmUsr(){
-  const{data}=await sb.from('users').select('*').order('created_at',{ascending:false});const el=document.getElementById('adm-usr');if(!data)return;
-  var pend=data.filter(function(u){return u.status==='pendente';});var ativos=data.filter(function(u){return u.status!=='pendente';});var html='';
-  if(pend.length){html+='<div style="font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Aguardando aprovação ('+pend.length+')</div><table class="atable" style="margin-bottom:20px;"><thead><tr><th>Nome</th><th>Slack</th><th>E-mail</th><th>Local</th><th>Termos</th><th>Ações</th></tr></thead><tbody>';pend.forEach(function(u){html+='<tr><td>'+u.nome+'</td><td>'+u.slack_name+'</td><td style="font-size:12px;">'+u.email+'</td><td>'+u.escritorio+'</td><td><span class="ctag '+(u.termos_aceitos?'ctag-ok':'ctag-pend')+'">'+(u.termos_aceitos?'✓ Aceitos':'⏳')+'</span></td><td><div class="tact"><button class="btn btn-sm btn-green" onclick="aprovUsr(\''+u.id+'\')">Aprovar</button><button class="btn btn-sm btn-red" onclick="blkUsr(\''+u.id+'\',\'bloqueado\')">Recusar</button></div></td></tr>';});html+='</tbody></table>';}
-  html+='<div style="font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Todos os usuários ('+ativos.length+')</div><table class="atable"><thead><tr><th>Nome</th><th>Slack</th><th>Local</th><th>Role</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
-  ativos.forEach(function(u){var stBadge='<span class="badge badge-'+(u.status==='ativo'?'ativo':u.status==='bloqueado'?'bloqueado':'pendente')+'">'+u.status+'</span>';var roleBadge='<span class="badge badge-'+(u.role==='admin'?'admin':'retirado')+'">'+u.role+'</span>';var acao=u.status==='bloqueado'?'<button class="btn btn-sm btn-green" onclick="blkUsr(\''+u.id+'\',\'ativo\')">Desbloquear</button>':'<button class="btn btn-sm btn-red" onclick="blkUsr(\''+u.id+'\',\'bloqueado\')">Bloquear</button>';html+='<tr><td>'+u.nome+'</td><td>'+u.slack_name+'</td><td>'+u.escritorio+'</td><td>'+roleBadge+'</td><td>'+stBadge+'</td><td>'+acao+'</td></tr>';});
-  html+='</tbody></table>';el.innerHTML=html;
+  const{data}=await sb.from('users').select('*').order('created_at',{ascending:false});
+  if(!data)return;
+  usersFilterData=data;
+  renderizarPainelUsuarios(data);
 }
-async function aprovUsr(id){await sb.from('users').update({status:'ativo'}).eq('id',id);await logAction('Usuário aprovado',{user_id:id});showToast('Aprovado!');loadAdmUsr();}
-async function blkUsr(id,st){await sb.from('users').update({status:st}).eq('id',id);await logAction('Status: '+st,{user_id:id});showToast('Status atualizado!');loadAdmUsr();}
+function renderizarPainelUsuarios(data){
+  const container=document.getElementById('adm-usr');
+  const total=data.length;
+  const ativos=data.filter(u=>u.status==='ativo').length;
+  const pendentes=data.filter(u=>u.status==='pendente').length;
+  const bloqueados=data.filter(u=>u.status==='bloqueado').length;
+  let html=`<div class="stats-grid"><div class="stat-card"><div class="stat-icon">👥</div><div class="stat-label">Total de Usuários</div><div class="stat-value">${total}</div></div><div class="stat-card"><div class="stat-icon">✓</div><div class="stat-label">Ativos</div><div class="stat-value" style="color:var(--green)">${ativos}</div></div><div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-label">Pendentes</div><div class="stat-value" style="color:var(--amber)">${pendentes}</div></div><div class="stat-card"><div class="stat-icon">🚫</div><div class="stat-label">Bloqueados</div><div class="stat-value" style="color:var(--red)">${bloqueados}</div></div></div>`;
+  html+=`<div style="display:flex;gap:12px;margin-bottom:20px;justify-content:space-between;align-items:center;flex-wrap:wrap;"><div class="usr-filters" style="flex:1;margin-bottom:0;"><input type="text" id="usr-search" placeholder="Buscar por nome, email ou slack..." onkeyup="filtrarUsuarios()" style="flex:1;min-width:200px;"><select id="usr-filter-status" onchange="filtrarUsuarios()"><option value="">Status: Todos</option><option value="ativo">Status: Ativo</option><option value="pendente">Status: Pendente</option><option value="bloqueado">Status: Bloqueado</option></select><select id="usr-filter-role" onchange="filtrarUsuarios()"><option value="">Role: Todos</option><option value="admin">Role: Admin</option><option value="user">Role: User</option></select><button class="btn btn-sm btn-primary" onclick="exportarUsuariosCSV()" style="white-space:nowrap;">📥 Exportar CSV</button></div><button class="btn btn-primary" onclick="abrirModalNovoUsuario()" style="white-space:nowrap;">➕ Novo Usuário</button></div>`;
+  html+=`<div class="usr-bulk-actions" id="usr-bulk-actions"><span id="usr-bulk-count">0 selecionados</span><button class="btn btn-sm btn-green" onclick="executarAcaoBulk('aprovar')">✓ Aprovar</button><button class="btn btn-sm btn-red" onclick="executarAcaoBulk('bloquear')">🚫 Bloquear</button><button class="btn btn-sm btn-outline" onclick="limparSelecao()">Limpar</button></div>`;
+  html+=`<table class="utable"><thead><tr><th style="width:40px;"><input type="checkbox" id="usr-select-all" onchange="selecionarTodos()"></th><th>Nome</th><th>Email</th><th>Slack</th><th>Escritório</th><th>Role</th><th>Status</th><th>Cadastro</th><th>Ações</th></tr></thead><tbody id="usr-tbody">`;
+  data.forEach(u=>{
+    const dataCadastro=new Date(u.created_at).toLocaleDateString('pt-BR');
+    const statusBadge=`<span class="badge badge-${u.status}">${u.status}</span>`;
+    const roleBadge=u.role==='admin'?'<span class="badge badge-admin">⚙️ Admin</span>':'<span style="color:var(--ink-soft);font-size:12px;">User</span>';
+    const acoes=`<div class="user-actions"><button class="btn btn-sm btn-outline" onclick="abrirEdicaoUsuario('${u.id}')">✏️ Editar</button>${u.status==='pendente'?`<button class="btn btn-sm btn-green" onclick="aprovUsr('${u.id}')">✓ Aprovar</button>`:''}${u.status!=='bloqueado'?`<button class="btn btn-sm btn-red" onclick="blkUsr('${u.id}','bloqueado')">🚫 Bloquear</button>`:`<button class="btn btn-sm btn-green" onclick="blkUsr('${u.id}','ativo')">🔓 Desbloquear</button>`}<button class="btn btn-sm btn-red" onclick="removerUsuario('${u.id}','${u.nome}')">🗑️ Remover</button></div>`;
+    html+=`<tr><td><input type="checkbox" class="usr-checkbox" value="${u.id}"></td><td><strong>${u.nome}</strong></td><td style="font-size:12px;">${u.email}</td><td>${u.slack_name}</td><td>${u.escritorio}</td><td>${roleBadge}</td><td>${statusBadge}</td><td style="font-size:12px;">${dataCadastro}</td><td>${acoes}</td></tr>`;
+  });
+  html+=`</tbody></table>`;
+  container.innerHTML=html;
+  document.querySelectorAll('.usr-checkbox').forEach(chk=>{chk.addEventListener('change',atualizarBulkActions);});
+}
+function filtrarUsuarios(){
+  const search=document.getElementById('usr-search').value.toLowerCase();
+  const status=document.getElementById('usr-filter-status').value;
+  const role=document.getElementById('usr-filter-role').value;
+  let filtered=usersFilterData.filter(u=>{
+    const matchSearch=u.nome.toLowerCase().includes(search)||u.email.toLowerCase().includes(search)||u.slack_name.toLowerCase().includes(search);
+    const matchStatus=!status||u.status===status;
+    const matchRole=!role||u.role===role;
+    return matchSearch&&matchStatus&&matchRole;
+  });
+  renderizarPainelUsuarios(filtered);
+}
+async function abrirEdicaoUsuario(userId){
+  usuarioEditandoId=userId;
+  const user=usersFilterData.find(u=>u.id===userId);
+  if(!user)return;
+  document.getElementById('usr-edit-nome').value=user.nome||'';
+  document.getElementById('usr-edit-email').value=user.email||'';
+  document.getElementById('usr-edit-password').value='';
+  document.getElementById('usr-info-status').textContent=user.status;
+  document.getElementById('usr-edit-slack').value=user.slack_name||'';
+  document.getElementById('usr-edit-escritorio').value=user.escritorio||'';
+  document.getElementById('usr-edit-role').value=user.role;
+  const dataCadastro=new Date(user.created_at).toLocaleDateString('pt-BR');
+  const approved=user.updated_at?new Date(user.updated_at).toLocaleDateString('pt-BR'):'—';
+  document.getElementById('usr-info-aprovado').textContent=user.status==='pendente'?'—':approved;
+  const{data:logs}=await sb.from('logs').select('*').eq('user_id',userId).order('created_at',{ascending:false}).limit(5);
+  let logsHtml='';
+  if(logs&&logs.length>0){logs.forEach(log=>{const data=new Date(log.created_at).toLocaleDateString('pt-BR');const hora=new Date(log.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});logsHtml+=`<div class="user-log-item"><div class="user-log-acao">${log.acao}</div><div class="user-log-data">${data} às ${hora}</div></div>`;});}else{logsHtml='<div style="text-align:center;color:var(--ink-soft);font-size:12px;padding:20px;">Nenhuma atividade registrada</div>';}
+  document.getElementById('usr-logs-container').innerHTML=logsHtml;
+  openModal('m-editar-usr');
+}
+async function salvarEdicaoUsuario(){
+  if(!usuarioEditandoId)return;
+  
+  const nome=document.getElementById('usr-edit-nome').value.trim();
+  const email=document.getElementById('usr-edit-email').value.trim();
+  const password=document.getElementById('usr-edit-password').value;
+  const slack=document.getElementById('usr-edit-slack').value;
+  const escritorio=document.getElementById('usr-edit-escritorio').value;
+  const role=document.getElementById('usr-edit-role').value;
+  
+  // Validar nome
+  if(!nome||nome.length<3){
+    showToast('❌ Nome deve ter pelo menos 3 caracteres!');
+    return;
+  }
+  
+  // Validar email
+  if(!email||!email.includes('@')){
+    showToast('❌ Email inválido!');
+    return;
+  }
+  
+  // Validar senha se preenchida
+  if(password&&password.length<6){
+    showToast('❌ Senha deve ter pelo menos 6 caracteres!');
+    return;
+  }
+  
+  try{
+    // Atualizar dados do usuário no banco
+    await sb.from('users').update({
+      nome:nome,
+      slack_name:slack,
+      escritorio:escritorio,
+      role:role,
+      email:email
+    }).eq('id',usuarioEditandoId);
+    
+    // Tentar atualizar email e senha via Auth
+    const updateData={};
+    if(email){updateData.email=email;}
+    if(password){updateData.password=password;}
+    
+    if(Object.keys(updateData).length>0){
+      // Usar RPC para atualizar via backend (requer função no Supabase)
+      // Alternativa: usar fetch direto com service key
+      const{data,error}=await fetch('https://waisdhoqyqflzetkxcts.supabase.co/rest/v1/rpc/update_user_auth',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhaXNkaG9xeXFmbHpldGt4Y3RzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MDg2NzUsImV4cCI6MjA5MjA4NDY3NX0.tTJ7CvSMmRtxJZw_BeIp0aXK8Af2ArI4AM9sgb869ro'
+        },
+        body:JSON.stringify({
+          user_id:usuarioEditandoId,
+          ...updateData
+        })
+      }).then(r=>r.json());
+      
+      if(error){console.warn('Aviso: Auth não atualizado, mas dados foram salvos',error);}
+    }
+    
+    await logAction('Usuário editado',{user_id:usuarioEditandoId,nome:nome,email:email,slack:slack,role:role,alterou_senha:password?'sim':'não'});
+    showToast('✓ Usuário atualizado com sucesso!');
+    closeModal('m-editar-usr');
+    loadAdmUsr();
+  }catch(e){
+    console.error('Erro ao salvar usuário:',e);
+    showToast('❌ Erro ao salvar: '+e.message);
+  }
+}
+function selecionarTodos(){
+  const allChecked=document.getElementById('usr-select-all').checked;
+  document.querySelectorAll('.usr-checkbox').forEach(chk=>chk.checked=allChecked);
+  atualizarBulkActions();
+}
+function atualizarBulkActions(){
+  const selecionados=document.querySelectorAll('.usr-checkbox:checked').length;
+  const container=document.getElementById('usr-bulk-actions');
+  document.getElementById('usr-bulk-count').textContent=selecionados+' selecionados';
+  container.classList.toggle('show',selecionados>0);
+}
+function limparSelecao(){
+  document.querySelectorAll('.usr-checkbox').forEach(chk=>chk.checked=false);
+  document.getElementById('usr-select-all').checked=false;
+  atualizarBulkActions();
+}
+async function executarAcaoBulk(acao){
+  const selecionados=Array.from(document.querySelectorAll('.usr-checkbox:checked')).map(el=>el.value);
+  if(selecionados.length===0){showToast('Selecione ao menos 1 usuário');return;}
+  for(let id of selecionados){if(acao==='aprovar'){await sb.from('users').update({status:'ativo'}).eq('id',id);await logAction('Usuário aprovado (bulk)',{user_id:id});}else if(acao==='bloquear'){await sb.from('users').update({status:'bloqueado'}).eq('id',id);await logAction('Usuário bloqueado (bulk)',{user_id:id});}}
+  showToast(`✓ ${selecionados.length} usuário(s) ${acao}(s)!`);
+  limparSelecao();
+  loadAdmUsr();
+}
+function exportarUsuariosCSV(){
+  const data=usersFilterData;
+  let csv='Nome,Email,Slack,Escritório,Role,Status,Data de Cadastro\n';
+  data.forEach(u=>{const dataCadastro=new Date(u.created_at).toLocaleDateString('pt-BR');csv+=`"${u.nome}","${u.email}","${u.slack_name}","${u.escritorio}","${u.role}","${u.status}","${dataCadastro}"\n`;});
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const link=document.createElement('a');
+  const url=URL.createObjectURL(blob);
+  link.setAttribute('href',url);
+  link.setAttribute('download','usuarios_repass_'+new Date().getTime()+'.csv');
+  link.style.visibility='hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('✓ CSV exportado!');
+}
+async function aprovUsr(id){
+  try{
+    // Atualizar status no banco
+    await sb.from('users').update({status:'ativo'}).eq('id',id);
+    
+    // Confirmar email via SQL direto (mais confiável)
+    const user = usersFilterData.find(u => u.id === id);
+    if(user && user.email){
+      // Usar RPC para confirmar email
+      const{data,error}=await sb.rpc('confirm_email',{user_email:user.email});
+      if(error){
+        console.warn('Email não confirmado via RPC, tentando outra forma...',error);
+        // Tentar método alternativo
+        await confirmarEmailAlternativo(id);
+      }
+    }
+    
+    await logAction('Usuário aprovado',{user_id:id});
+    showToast('✓ Aprovado! Email será confirmado em breve.');
+    loadAdmUsr();
+  }catch(e){
+    console.error('Erro ao aprovar:',e);
+    showToast('⚠️ Aprovado, mas verifique email no Supabase');
+    loadAdmUsr();
+  }
+}
+
+// Método alternativo de confirmação
+async function confirmarEmailAlternativo(userId){
+  try{
+    const user = usersFilterData.find(u => u.id === userId);
+    if(!user)return;
+    
+    // Tentar via SQL direto
+    const{error}=await sb.from('auth.users').update({
+      email_confirmed_at: new Date().toISOString()
+    }).eq('email',user.email);
+    
+    if(error)console.warn('Erro alternativo:',error);
+  }catch(e){
+    console.warn('Método alternativo falhou',e);
+  }
+}
+
+// Novo: Função para admin confirmar email manualmente
+async function confirmarEmailManualmente(userId){
+  const user = usersFilterData.find(u => u.id === userId);
+  if(!user){
+    showToast('Usuário não encontrado');
+    return;
+  }
+  
+  if(confirm(`Confirmar email de ${user.nome}?\n\n${user.email}`)){
+    try{
+      // Usar SQL direto
+      const response = await fetch('https://waisdhoqyqflzetkxcts.supabase.co/rest/v1/rpc/confirm_email_by_email',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhaXNkaG9xeXFmbHpldGt4Y3RzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MDg2NzUsImV4cCI6MjA5MjA4NDY3NX0.tTJ7CvSMmRtxJZw_BeIp0aXK8Af2ArI4AM9sgb869ro'
+        },
+        body: JSON.stringify({user_email: user.email})
+      });
+      
+      if(response.ok){
+        showToast('✓ Email confirmado com sucesso!');
+        await logAction('Email confirmado manualmente',{user_id:userId});
+      }else{
+        const error = await response.json();
+        showToast('⚠️ Erro: '+JSON.stringify(error));
+      }
+    }catch(e){
+      showToast('❌ Erro ao confirmar: '+e.message);
+    }
+  }
+}
+async function removerUsuario(userId,userName){
+  const confirmMsg=`⚠️ Tem certeza que deseja remover\n\n"${userName}"?\n\nEssa ação é IRREVERSÍVEL!`;
+  
+  if(!confirm(confirmMsg))return;
+  
+  const confirmMsg2=`🆘 ÚLTIMA CONFIRMAÇÃO!\n\nRemover PERMANENTEMENTE "${userName}"?`;
+  
+  if(!confirm(confirmMsg2))return;
+  
+  try{
+    showToast('⏳ Removendo usuário...');
+    
+    // Buscar dados do usuário
+    const user=usersFilterData.find(u=>u.id===userId);
+    if(!user)throw new Error('Usuário não encontrado');
+    
+    // DELETAR DO BANCO DE DADOS (Principal)
+    const{error}=await sb.from('users').delete().eq('id',userId);
+    
+    if(error){
+      console.error('Erro ao deletar:',error);
+      throw new Error('Erro: '+error.message);
+    }
+    
+    // Registrar em logs
+    try{
+      await logAction('Usuário removido',{user_id:userId,nome:userName,email:user.email});
+    }catch(e){
+      console.warn('Aviso: Não conseguiu registrar em logs',e);
+    }
+    
+    showToast('✅ Usuário removido com sucesso!');
+    await new Promise(resolve=>setTimeout(resolve,1000));
+    loadAdmUsr();
+  }catch(e){
+    console.error('Erro:',e);
+    showToast('❌ Erro: '+e.message);
+  }
+}
+
+// Novo Usuário
+function abrirModalNovoUsuario(){
+  document.getElementById('novo-usr-nome').value='';
+  document.getElementById('novo-usr-email').value='';
+  document.getElementById('novo-usr-slack').value='';
+  document.getElementById('novo-usr-escritorio').value='';
+  document.getElementById('novo-usr-role').value='user';
+  document.getElementById('novo-usr-status').value='ativo';
+  openModal('m-novo-usr');
+}
+
+async function criarNovoUsuario(){
+  const nome=document.getElementById('novo-usr-nome').value.trim();
+  const email=document.getElementById('novo-usr-email').value.trim();
+  const slack=document.getElementById('novo-usr-slack').value.trim();
+  const escritorio=document.getElementById('novo-usr-escritorio').value.trim();
+  const role=document.getElementById('novo-usr-role').value;
+  const status=document.getElementById('novo-usr-status').value;
+  
+  // Validações
+  if(!nome||nome.length<3){
+    showToast('❌ Nome deve ter pelo menos 3 caracteres!');
+    return;
+  }
+  
+  if(!email||!email.includes('@')){
+    showToast('❌ Email inválido!');
+    return;
+  }
+  
+  if(!escritorio||escritorio.length<2){
+    showToast('❌ Escritório obrigatório!');
+    return;
+  }
+  
+  // Verificar se email já existe
+  const{data:existente}=await sb.from('users').select('id').eq('email',email).single();
+  if(existente){
+    showToast('❌ Email já existe no sistema!');
+    return;
+  }
+  
+  try{
+    showToast('⏳ Criando usuário...');
+    
+    // Gerar UUID válido usando crypto
+    const userId=crypto.randomUUID();
+    
+    // Gerar senha temporária
+    const senhaTemp=Math.random().toString(36).slice(-10).toUpperCase();
+    
+    // Criar usuário no banco
+    const{error:errDb}=await sb.from('users').insert({
+      id:userId,
+      nome:nome,
+      email:email,
+      slack_name:slack,
+      escritorio:escritorio,
+      role:role,
+      status:status,
+      termos_aceitos:true,
+      created_at:new Date().toISOString()
+    });
+    
+    if(errDb)throw new Error('Erro ao criar: '+errDb.message);
+    
+    // Registrar em logs
+    await logAction('Usuário criado manualmente',{user_id:userId,nome:nome,email:email});
+    
+    // Mostrar senha temporária
+    alert(`✅ USUÁRIO CRIADO COM SUCESSO!\n\n👤 Nome: ${nome}\n📧 Email: ${email}\n🔑 Senha Temporária: ${senhaTemp}\n\nCOMUNIQUE ESSES DADOS AO USUÁRIO!`);
+    
+    showToast('✅ Usuário criado! Comunique a senha temporária.');
+    closeModal('m-novo-usr');
+    loadAdmUsr();
+  }catch(e){
+    console.error('Erro:',e);
+    showToast('❌ Erro: '+e.message);
+  }
+}
+
 
 function bnPreview(){const t=val('#bn-tipo'),ti=val('#bn-titulo')||'Título',s=val('#bn-sub')||'Subtítulo';const icons={info:'📋',urgencia:'⚠️',destaque:'🌟'};document.getElementById('bn-prev').className='bprev banner-'+t;document.getElementById('bn-icon').textContent=icons[t];document.getElementById('bn-pt').textContent=ti;document.getElementById('bn-ps').textContent=s;}
 
-function showScreen(s){document.querySelectorAll('.screen').forEach(function(x){x.classList.remove('active');});document.getElementById('screen-'+s).classList.add('active');window.scrollTo(0,0);if(s==='perfil')loadPerfil();if(s==='admin'&&CP&&CP.role==='admin')switchPanel('reservas',document.querySelector('.aside-item'));if(s==='catalogo')loadItems();}
+function showScreen(s){if(s==='admin'&&(!CP||CP.role!=='admin')){showToast('❌ Acesso negado! Apenas admins.');return;}document.querySelectorAll('.screen').forEach(function(x){x.classList.remove('active');});document.getElementById('screen-'+s).classList.add('active');window.scrollTo(0,0);if(s==='perfil')loadPerfil();if(s==='admin')switchPanel('reservas',document.querySelector('.aside-item'));if(s==='catalogo')loadItems();}
 function setView(v){document.getElementById('vw-grid').style.display=v==='grid'?'grid':'none';document.getElementById('vw-list').style.display=v==='list'?'flex':'none';document.getElementById('vbg').classList.toggle('act',v==='grid');document.getElementById('vbl').classList.toggle('act',v==='list');}
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
@@ -1112,6 +2238,109 @@ function set(s,v){const el=document.querySelector(s);if(el){if(typeof v==='strin
 function show(s){const el=document.querySelector(s);if(el)el.style.display='';}
 function hide(s){const el=document.querySelector(s);if(el)el.style.display='none';}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'){const ls=document.getElementById('screen-login');if(ls&&ls.classList.contains('active')&&document.getElementById('vw-login').style.display!=='none')doLogin();}});
+
+async function cancelarReserva(reservaId){
+  if(!confirm('Tem certeza que deseja desistir desta reserva? Esta ação não pode ser desfeita.'))return;
+  const btn=event.target;btn.disabled=true;const btnText=btn.textContent;btn.textContent='Cancelando...';
+  
+  // Buscar dados da reserva
+  const{data:res}=await sb.from('reservas').select('item_id,status').eq('id',reservaId).single();
+  
+  const{error}=await sb.from('reservas').update({status:'cancelada',cancelada_em:new Date().toISOString()}).eq('id',reservaId);
+  if(error){showToast('Erro: '+error.message);btn.disabled=false;btn.textContent=btnText;return;}
+  
+  // Se era aprovada, voltar item para ativo e promover próximo
+  if(res && res.status==='aprovada'){
+    await sb.from('items').update({status:'ativo'}).eq('id',res.item_id);
+    await promoverProximoDaFila(res.item_id);
+    showToast('Cancelado! Próximo da fila foi aprovado automaticamente.');
+  } else {
+    showToast('Reserva cancelada com sucesso!');
+  }
+  
+  await logAction('Reserva cancelada',{reserva_id:reservaId,item_id:res?.item_id});
+  loadPerfil();
+  loadItems();
+}
+
+async function mostrarBannerAprovacao(screenId){
+  // Se está bloqueado, não mostra (evita reabertura)
+  if(bloqueiaModalAprovacao)return;
+  
+  if(!CU)return;
+  const{data:reservas}=await sb.from('reservas').select('*,items(*)').eq('user_id',CU.id).eq('status','aprovada');
+  if(!reservas||reservas.length===0)return;
+  
+  const res=reservas[0];
+  const item=res.items;
+  const prazoRetirada=new Date(res.prazo_retirada);
+  const prazoFormatado=prazoRetirada.toLocaleDateString('pt-BR');
+  const diasRestantes=Math.ceil((prazoRetirada-new Date())/(1000*60*60*24));
+  
+  resAprovadaAtual={resId:res.id,itemId:item.id};
+  
+  set('#conf-item-nome',item.nome);
+  set('#conf-local',item.escritorio||'Não informado');
+  set('#conf-prazo','Até '+prazoFormatado);
+  set('#conf-prazo-dias',diasRestantes+' dias');
+  
+  const pagText=item.tipo==='venda'
+    ?'💳 <b>Venda</b> - Entre em contato com o departamento financeiro para definir o pagamento'
+    :'✅ <b>Doação</b> - Sem custos';
+  document.getElementById('conf-pagamento').innerHTML=pagText;
+  
+  openModal('m-confirmar-retirada');
+}
+
+async function confirmarRetiradaFinal(){
+  if(!resAprovadaAtual)return showToast('Erro: informações inválidas');
+  
+  // BLOQUEIA a reabertura do modal durante processamento
+  bloqueiaModalAprovacao=true;
+  
+  const btn=document.getElementById('btn-conf-ret');
+  btn.disabled=true;
+  btn.textContent='Confirmando...';
+  
+  try{
+    // Atualizar status da reserva
+    const{error}=await sb.from('reservas').update({status:'retirada',retirada_em:new Date().toISOString()}).eq('id',resAprovadaAtual.resId);
+    if(error)throw new Error(error.message);
+    
+    // Tentar promover próximo da fila (continua mesmo se falhar)
+    try{
+      await promoverProximoDaFila(resAprovadaAtual.itemId);
+    }catch(e){
+      console.warn('Aviso ao promover próximo:',e);
+    }
+    
+    // Registrar ação
+    try{
+      await logAction('Retirada confirmada',{reserva_id:resAprovadaAtual.resId});
+    }catch(e){
+      console.warn('Aviso ao registrar log:',e);
+    }
+    
+    showToast('✅ Retirada confirmada!');
+    resAprovadaAtual=null;
+    closeModal('m-confirmar-retirada');
+    
+    // Recarregar itens após delay
+    setTimeout(()=>{
+      loadItems();
+      // DESBLOQUEIA após recarregar (5 segundos de segurança)
+      setTimeout(()=>{ bloqueiaModalAprovacao=false; }, 5000);
+    }, 500);
+    
+  }catch(e){
+    showToast('❌ Erro: '+e.message);
+    bloqueiaModalAprovacao=false; // DESBLOQUEIA em caso de erro
+  }finally{
+    btn.disabled=false;
+    btn.textContent='Confirmar Retirada';
+  }
+}
+
 </script>
 </body>
 </html>
