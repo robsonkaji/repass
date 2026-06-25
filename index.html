@@ -1247,6 +1247,38 @@ function copiarSenhaTemp(){
   navigator.clipboard.writeText(v).then(()=>showToast('Senha copiada!')).catch(()=>showToast('Erro ao copiar.'));
 }
 
+function atualizarForcaSenha2(){
+  const s=document.getElementById('ts-nova').value;
+  const wrap=document.getElementById('ts-forca');
+  if(!s){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  const f=forcaSenha(s);
+  const cores=['#ef4444','#f97316','#eab308','#22c55e'];
+  const labels=['Muito fraca','Fraca','Boa','Forte'];
+  document.getElementById('ts-barra').style.width=(f*25)+'%';
+  document.getElementById('ts-barra').style.background=cores[f-1]||'#ef4444';
+  document.getElementById('ts-texto').textContent=labels[f-1]||'Muito fraca';
+  document.getElementById('ts-texto').style.color=cores[f-1]||'#ef4444';
+}
+
+async function salvarNovaSenha(){
+  const nova=document.getElementById('ts-nova').value;
+  const confirma=document.getElementById('ts-confirma').value;
+  const errEl=document.getElementById('ts-err');
+  errEl.style.display='none';
+  if(nova.length<8){errEl.textContent='Senha deve ter pelo menos 8 caracteres.';errEl.style.display='block';return;}
+  if(forcaSenha(nova)<2){errEl.textContent='Senha muito fraca. Use letras e números.';errEl.style.display='block';return;}
+  if(nova!==confirma){errEl.textContent='As senhas não coincidem.';errEl.style.display='block';return;}
+  const btn=document.querySelector('#m-trocar-senha .btn-primary');
+  btn.disabled=true;btn.textContent='Salvando...';
+  const{error}=await sb.auth.updateUser({password:nova});
+  if(error){errEl.textContent='Erro: '+error.message;errEl.style.display='block';btn.disabled=false;btn.textContent='✓ Salvar minha senha';return;}
+  await sb.from('users').update({senha_temporaria:false}).eq('id',CU.id);
+  if(CP)CP.senha_temporaria=false;
+  document.getElementById('m-trocar-senha').classList.remove('open');
+  showToast('Senha atualizada com sucesso!');
+}
+
 function toggleChk(n){chkS[n]=!chkS[n];const r=document.getElementById('chk-r'+n),b=document.getElementById('chkb'+n);r.classList.toggle('on',chkS[n]);b.classList.toggle('on',chkS[n]);b.textContent=chkS[n]?'✓':'';document.getElementById('btn-aceitar').disabled=!(chkS[1]&&chkS[2]);}
 
 async function doSignup(){
