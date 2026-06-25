@@ -2883,18 +2883,19 @@ async function mostrarBannerAprovacao(screenId){
   
   const res=reservas[0];
   const item=res.items;
-  const prazoRetirada=new Date(res.prazo_retirada);
-  const prazoFormatado=prazoRetirada.toLocaleDateString('pt-BR');
-  const diasRestantes=Math.ceil((prazoRetirada-new Date())/(1000*60*60*24));
-  
-  resAprovadaAtual={resId:res.id,itemId:item.id};
-  
-  set('#conf-item-nome',item.nome);
-  set('#conf-local',item.escritorio||'Não informado');
-  set('#conf-prazo','Até '+prazoFormatado);
-  set('#conf-prazo-dias',diasRestantes+' dias');
-  
-  const pagText=item.tipo==='venda'
+  const itemId=item?.id||res.item_id;
+  const prazoRetirada=res.prazo_retirada?new Date(res.prazo_retirada):null;
+  const prazoFormatado=prazoRetirada?prazoRetirada.toLocaleDateString('pt-BR'):'—';
+  const diasRestantes=prazoRetirada?Math.ceil((prazoRetirada-new Date())/(1000*60*60*24)):null;
+
+  resAprovadaAtual={resId:res.id,itemId:itemId};
+
+  set('#conf-item-nome',item?.nome||'Item');
+  set('#conf-local',item?.escritorio||'Não informado');
+  set('#conf-prazo',prazoRetirada?'Até '+prazoFormatado:'Sem prazo definido');
+  set('#conf-prazo-dias',diasRestantes!=null?diasRestantes+' dias':'—');
+
+  const pagText=item?.tipo==='venda'
     ?'💳 <b>Venda</b> - Entre em contato com o departamento financeiro para definir o pagamento'
     :'✅ <b>Doação</b> - Sem custos';
   document.getElementById('conf-pagamento').innerHTML=pagText;
