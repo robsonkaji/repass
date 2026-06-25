@@ -2294,17 +2294,14 @@ async function removerUsuario(userId){
 
 // Novo Usuário
 function abrirModalNovoUsuario(){
-  document.getElementById('novo-usr-nome').value='';
-  document.getElementById('novo-usr-email').value='';
-  document.getElementById('novo-usr-slack').value='';
+  ['novo-usr-nome','novo-usr-email','novo-usr-senha','novo-usr-slack'].forEach(id=>{
+    const el=document.getElementById(id);if(el){el.value='';el.style.borderColor='';}
+  });
   document.getElementById('novo-usr-escritorio').value='São Paulo';
   document.getElementById('novo-usr-role').value='user';
   document.getElementById('novo-usr-status').value='ativo';
   const errEl=document.getElementById('novo-usr-err');
   if(errEl){errEl.style.display='none';errEl.textContent='';}
-  ['novo-usr-nome','novo-usr-email','novo-usr-escritorio'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.style.borderColor='';
-  });
   openModal('m-novo-usr');
 }
 
