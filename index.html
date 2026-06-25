@@ -2849,9 +2849,9 @@ function hide(s){const el=document.querySelector(s);if(el)el.style.display='none
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'){const ls=document.getElementById('screen-login');if(ls&&ls.classList.contains('active')&&document.getElementById('vw-login').style.display!=='none')doLogin();}});
 
-async function cancelarReserva(reservaId){
+async function cancelarReserva(reservaId,btnEl){
   if(!confirm('Tem certeza que deseja desistir desta reserva? Esta ação não pode ser desfeita.'))return;
-  const btn=event.target;btn.disabled=true;const btnText=btn.textContent;btn.textContent='Cancelando...';
+  const btn=btnEl||event?.target;if(btn){btn.disabled=true;}const btnText=btn?.textContent;if(btn)btn.textContent='Cancelando...';
   
   // Buscar dados da reserva
   const{data:res}=await sb.from('reservas').select('item_id,status').eq('id',reservaId).single();
