@@ -1958,7 +1958,7 @@ async function aprovarRes(id){
   if(!res)return showToast('Erro ao buscar reserva');
   
   // Atualizar status da reserva para aprovada
-  const{error}=await sb.from('reservas').update({status:'aprovada',prazo_retirada:prazo.toISOString()}).eq('id',id);
+  const{error}=await sb.from('reservas').update({status:'aprovada',prazo_retirada:null}).eq('id',id);
   if(error)return showToast('Erro: '+error.message);
   
   // Atualizar item para 'reservado' (retira do catálogo)
