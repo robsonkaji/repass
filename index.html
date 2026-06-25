@@ -1243,7 +1243,19 @@ async function boot(){
 function setupNav(){
   if(!CP)return;
   const ini=CP.nome.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
-  set('#nav-av',ini);set('#det-av',ini);
+  ['#nav-av','#det-av'].forEach(sel=>{
+    const el=document.querySelector(sel);
+    if(!el)return;
+    if(CP.avatar_url){
+      el.textContent='';
+      el.style.backgroundImage=`url('${CP.avatar_url}')`;
+      el.style.backgroundSize='cover';
+      el.style.backgroundPosition='center';
+    } else {
+      el.textContent=ini;
+      el.style.backgroundImage='';
+    }
+  });
   set('#nav-nome','Olá, '+CP.nome.split(' ')[0]);
   set('#adm-nome',CP.nome.split(' ')[0]);
   if(CP.role==='admin'){show('#nav-admin');show('#p-admin');}
