@@ -1534,18 +1534,18 @@ function cancelarEdicao(){
 async function salvarPerfil(){
   const nome=document.getElementById('p-ed-nome').value.trim();
   const slack=document.getElementById('p-ed-slack').value.trim();
-  const esc=document.getElementById('p-ed-esc').value;
+  const escritorio=document.getElementById('p-ed-esc').value;
   const errEl=document.getElementById('p-ed-err');
   errEl.style.display='none';
   if(!nome||nome.length<3){errEl.textContent='Nome deve ter pelo menos 3 caracteres.';errEl.style.display='block';return;}
   const btn=document.querySelector('#p-edit .btn-primary');
   btn.disabled=true;btn.textContent='Salvando...';
-  const{error}=await sb.from('users').update({nome,slack_name:slack,escritorio:esc}).eq('id',CU.id);
+  const{error}=await sb.from('users').update({nome,slack_name:slack,escritorio}).eq('id',CU.id);
   btn.disabled=false;btn.textContent='✓ Salvar alterações';
   if(error){errEl.textContent='Erro: '+error.message;errEl.style.display='block';return;}
-  CP.nome=nome;CP.slack_name=slack;CP.escritorio=esc;
+  CP.nome=nome;CP.slack_name=slack;CP.escritorio=escritorio;
   set('#p-nome',esc(nome));
-  set('#p-escritorio-txt','📍 '+esc(esc));
+  set('#p-escritorio-txt','📍 '+esc(escritorio));
   set('#p-slack-txt',slack?'💬 '+esc(slack):'');
   set('#nav-nome',nome.split(' ')[0]);
   const ini=nome.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
