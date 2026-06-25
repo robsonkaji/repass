@@ -36,19 +36,19 @@ body{font-family:"DM Sans",sans-serif;background:var(--surface);color:var(--ink)
 .screen{display:none;min-height:100vh;flex-direction:column;animation:fadeIn .25s ease;}
 .screen.active{display:flex;}
 
-/* NAV — teal */
-nav{background:var(--teal);border-bottom:none;padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(29,168,176,.35);}
+/* NAV — dark */
+nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(13,27,42,.4);}
 .logo{display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px 10px;border-radius:var(--r);transition:background .15s;}
-.logo:hover{background:rgba(255,255,255,.12);}
-.logo-mark{width:34px;height:34px;border-radius:var(--r);background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;color:white;}
-.logo-text{font-family:"DM Serif Display",serif;font-size:22px;color:white;font-style:italic;letter-spacing:-.01em;}
-.nav-r{display:flex;align-items:center;gap:8px;}
-.avatar{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.22);color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;border:1.5px solid rgba(255,255,255,.35);}
-.avatar:hover{background:rgba(255,255,255,.35);transform:scale(1.06);}
-.nbtn{padding:7px 15px;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:white;font-family:"DM Sans",sans-serif;transition:all .15s;}
-.nbtn:hover{background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.5);}
-.nbtn.pri{background:white;color:var(--teal-dark);border-color:white;font-weight:700;}
-.nbtn.pri:hover{background:rgba(255,255,255,.92);}
+.logo:hover{background:rgba(255,255,255,.08);}
+.logo-mark{width:36px;height:36px;border-radius:var(--r);background:var(--teal);display:flex;align-items:center;justify-content:center;color:white;box-shadow:var(--shadow-teal);}
+.logo-text{font-family:"DM Serif Display",serif;font-size:22px;color:white;font-style:italic;}
+.nav-r{display:flex;align-items:center;gap:10px;}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#0e6b70);color:white;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:var(--shadow-teal);transition:transform .15s;}
+.avatar:hover{transform:scale(1.08);}
+.nbtn{padding:8px 16px;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:rgba(255,255,255,.9);font-family:"DM Sans",sans-serif;transition:all .15s;}
+.nbtn:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4);}
+.nbtn.pri{background:var(--teal);color:white;border-color:var(--teal);box-shadow:var(--shadow-teal);}
+.nbtn.pri:hover{background:var(--teal-dark);}
 
 /* BUTTONS */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 22px;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:"DM Sans",sans-serif;transition:all .18s ease;letter-spacing:.01em;}
@@ -113,61 +113,49 @@ nav{background:var(--teal);border-bottom:none;padding:0 28px;height:60px;display
 .banner-destaque{background:var(--green-bg);color:var(--green-dark);}
 
 /* HERO */
-#hero{border-bottom:1px solid var(--border-light);position:relative;min-height:180px;background:linear-gradient(160deg,#0D1B2A 0%,#0e4f54 60%,#0e6b70 100%);background-size:cover;background-position:center;overflow:hidden;}
+#hero{border-bottom:1px solid var(--border);position:relative;min-height:200px;background:linear-gradient(135deg,#e6f7f8 0%,#f0fafb 60%,#e0f5f0 100%);background-size:cover;background-position:center;overflow:hidden;}
 
 /* STATS */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;}
-.stat{background:white;border:1.5px solid var(--border);border-radius:var(--rxl);padding:22px 20px 20px;text-align:center;transition:all .2s ease;position:relative;overflow:hidden;}
-.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--teal);}
-.stat:hover{box-shadow:0 8px 32px rgba(29,168,176,.18);transform:translateY(-4px);border-color:var(--teal-mid);}
-.stat-ico{font-size:22px;margin-bottom:6px;display:block;line-height:1;}
-.stat-n{font-family:"DM Serif Display",serif;font-size:44px;color:var(--teal);line-height:1;}
-.stat-l{font-size:10px;color:var(--ink-soft);margin-top:6px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;}
+.stat{background:white;border:1.5px solid var(--border);border-radius:var(--rxl);padding:24px 20px;text-align:center;transition:all .2s ease;position:relative;overflow:hidden;}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--teal),var(--green));}
+.stat:hover{box-shadow:0 8px 32px rgba(29,168,176,.15);transform:translateY(-3px);border-color:var(--teal-mid);}
+.stat-n{font-family:"DM Serif Display",serif;font-size:40px;color:var(--teal);line-height:1;}
+.stat-l{font-size:11px;color:var(--ink-soft);margin-top:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
 
 /* TOOLBAR */
-.toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
-.sbox{flex:1;min-width:180px;position:relative;}
-.sbox input{width:100%;padding:10px 14px 10px 40px;border:1.5px solid var(--border);border-radius:var(--rxl);font-size:14px;font-family:"DM Sans",sans-serif;outline:none;background:white;transition:border-color .15s,box-shadow .15s;box-shadow:0 1px 3px rgba(13,27,42,.05);}
+.toolbar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center;}
+.sbox{flex:1;min-width:200px;position:relative;}
+.sbox input{width:100%;padding:10px 14px 10px 40px;border:1.5px solid var(--border);border-radius:var(--r);font-size:14px;font-family:"DM Sans",sans-serif;outline:none;background:white;transition:border-color .15s,box-shadow .15s;}
 .sbox input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(29,168,176,.1);}
-.sicon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink-soft);font-size:15px;}
-.vt{display:flex;gap:3px;flex-shrink:0;background:white;border:1.5px solid var(--border);border-radius:var(--rxl);padding:3px;box-shadow:0 1px 3px rgba(13,27,42,.05);}
-.vi{padding:6px 12px;border-radius:20px;border:none;background:transparent;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;color:var(--ink-soft);}
-.vi:hover{color:var(--ink);}
-.vi.act{background:var(--teal);color:white;}
-
-/* FILTER PILLS */
-.filter-bar{display:flex;gap:6px;margin-bottom:22px;flex-wrap:wrap;align-items:center;}
-.filter-sep{width:1px;height:20px;background:var(--border);margin:0 4px;flex-shrink:0;}
-.fpill{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:white;font-size:12px;font-weight:500;cursor:pointer;color:var(--ink-mid);transition:all .15s;font-family:"DM Sans",sans-serif;white-space:nowrap;line-height:1;}
-.fpill:hover{border-color:var(--teal-mid);background:var(--teal-light);color:var(--teal-dark);}
-.fpill.act{background:var(--teal);color:white;border-color:var(--teal);}
-.fpill-ord{border-style:dashed;}
-.fpill-ord.act{border-style:solid;}
+.sicon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--ink-soft);}
+.fsel{padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r);font-size:13px;font-family:"DM Sans",sans-serif;background:white;color:var(--ink-mid);cursor:pointer;outline:none;transition:border-color .15s;}
+.fsel:focus{border-color:var(--teal);}
+.vt{display:flex;gap:4px;flex-shrink:0;}
+.vi{padding:8px;border-radius:var(--r);border:1.5px solid var(--border);background:white;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;}
+.vi:hover{background:var(--surface2);border-color:var(--teal-mid);}
+.vi.act{background:var(--teal-light);border-color:var(--teal);color:var(--teal-dark);}
 
 /* ITEMS */
-.igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px;}
-.icard{background:white;border:1px solid var(--border);border-radius:var(--rxl);overflow:hidden;cursor:pointer;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;box-shadow:0 2px 8px rgba(13,27,42,.07),0 1px 2px rgba(13,27,42,.04);}
-.icard:hover{transform:translateY(-8px);box-shadow:0 20px 56px rgba(13,27,42,.14),0 4px 12px rgba(13,27,42,.06);border-color:var(--teal-mid);}
+.igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;}
+.icard{background:white;border:1.5px solid var(--border);border-radius:var(--rxl);overflow:hidden;cursor:pointer;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;box-shadow:var(--shadow);}
+.icard:hover{transform:translateY(-6px);box-shadow:0 16px 48px rgba(13,27,42,.14);border-color:var(--teal);}
 .icard:active{transform:translateY(-3px);}
 .icard.fixado{border-color:#a855f7;border-width:2px;}
-.ithumb{height:200px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:64px;position:relative;overflow:hidden;}
-.ithumb::after{content:'';position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(to top,rgba(13,27,42,.28),transparent);pointer-events:none;z-index:1;}
-.ithumb img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease;}
-.icard:hover .ithumb img{transform:scale(1.07);}
-.icard:hover .ithumb::after{background:linear-gradient(to top,rgba(13,27,42,.38),transparent);}
-.ibody{padding:16px 18px 18px;}
-.iname{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.01em;}
-.imeta{font-size:12px;color:var(--ink-soft);margin-bottom:14px;}
-.ifoot{display:flex;align-items:center;justify-content:space-between;gap:6px;padding-top:12px;border-top:1px solid var(--border-light);}
-.icode{position:absolute;bottom:10px;left:10px;z-index:2;font-size:9px;font-family:monospace;font-weight:700;letter-spacing:.04em;background:rgba(13,27,42,.72);color:rgba(255,255,255,.92);padding:3px 7px;border-radius:5px;backdrop-filter:blur(4px);}
-.iqty{position:absolute;bottom:10px;right:10px;z-index:2;font-size:10px;font-weight:600;background:rgba(255,255,255,.88);color:var(--ink-mid);padding:3px 8px;border-radius:20px;display:flex;align-items:center;gap:3px;}
+.ithumb{height:180px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;overflow:hidden;}
+.ithumb img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease;}
+.icard:hover .ithumb img{transform:scale(1.06);}
+.ibody{padding:16px;}
+.iname{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.imeta{font-size:12px;color:var(--ink-soft);margin-bottom:12px;}
+.ifoot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;padding-top:12px;border-top:1px solid var(--border-light);}
 .ilist{display:flex;flex-direction:column;gap:10px;}
-.irow{background:white;border:1px solid var(--border);border-radius:var(--rl);padding:14px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .18s ease;box-shadow:0 1px 3px rgba(13,27,42,.05);}
-.irow:hover{border-color:var(--teal-mid);box-shadow:0 4px 20px rgba(29,168,176,.12);transform:translateX(4px);}
-.irow-thumb{width:58px;height:58px;border-radius:var(--r);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;overflow:hidden;}
+.irow{background:white;border:1.5px solid var(--border);border-radius:var(--rl);padding:14px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .18s ease;box-shadow:var(--shadow);}
+.irow:hover{border-color:var(--teal);box-shadow:0 4px 20px rgba(29,168,176,.15);transform:translateX(3px);}
+.irow-thumb{width:54px;height:54px;border-radius:var(--r);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;overflow:hidden;}
 .irow-thumb img{width:100%;height:100%;object-fit:cover;}
 .irow-info{flex:1;min-width:0;}
-.irow-name{font-size:14px;font-weight:700;color:var(--ink);letter-spacing:-.01em;}
+.irow-name{font-size:14px;font-weight:700;color:var(--ink);}
 .irow-meta{font-size:12px;color:var(--ink-soft);margin-top:3px;}
 
 /* PAGE */
@@ -451,66 +439,50 @@ nav{background:var(--teal);border-bottom:none;padding:0 28px;height:60px;display
   <div class="banners" id="banners-stack"></div>
   <div id="hero">
     <div id="hero-ov" style="position:absolute;inset:0;background:transparent;"></div>
-    <div id="hero-svg" style="position:absolute;right:0;top:0;bottom:0;display:flex;align-items:center;pointer-events:none;opacity:.45;">
+    <div id="hero-svg" style="position:absolute;right:0;top:0;bottom:0;display:flex;align-items:center;pointer-events:none;opacity:.6;">
       <svg width="360" height="200" viewBox="0 0 420 200" fill="none">
-        <rect x="60" y="138" width="180" height="10" rx="3" fill="#1DA8B0" opacity=".4"/>
-        <rect x="104" y="84" width="92" height="56" rx="3" fill="white" opacity=".08" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
-        <rect x="108" y="88" width="84" height="46" rx="2" fill="rgba(255,255,255,.06)"/>
-        <rect x="114" y="96" width="40" height="4" rx="2" fill="#1DA8B0" opacity=".7"/>
-        <rect x="114" y="106" width="60" height="3" rx="1.5" fill="white" opacity=".2"/>
-        <rect x="114" y="114" width="50" height="3" rx="1.5" fill="white" opacity=".15"/>
-        <rect x="250" y="92" width="80" height="48" rx="6" fill="rgba(29,168,176,.3)"/>
-        <rect x="256" y="98" width="68" height="36" rx="4" fill="rgba(29,168,176,.25)"/>
-        <rect x="246" y="136" width="88" height="10" rx="4" fill="#1DA8B0" opacity=".5"/>
-        <rect x="264" y="106" width="52" height="3" rx="1.5" fill="white" opacity=".45"/>
-        <rect x="264" y="116" width="52" height="3" rx="1.5" fill="white" opacity=".35"/>
-        <rect x="346" y="110" width="58" height="36" rx="5" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
-        <ellipse cx="356" cy="136" rx="10" ry="8" fill="#1D9E75" opacity=".5"/>
+        <rect x="60" y="138" width="180" height="10" rx="3" fill="#1DA8B0" opacity=".2"/>
+        <rect x="104" y="84" width="92" height="56" rx="3" fill="white" stroke="#1DA8B0" stroke-width="1.5" opacity=".7"/>
+        <rect x="108" y="88" width="84" height="46" rx="2" fill="#e6f7f8"/>
+        <rect x="114" y="96" width="40" height="4" rx="2" fill="#1DA8B0" opacity=".5"/>
+        <rect x="114" y="106" width="60" height="3" rx="1.5" fill="#0D1B2A" opacity=".15"/>
+        <rect x="114" y="114" width="50" height="3" rx="1.5" fill="#0D1B2A" opacity=".12"/>
+        <rect x="250" y="92" width="80" height="48" rx="6" fill="#1DA8B0" opacity=".18"/>
+        <rect x="256" y="98" width="68" height="36" rx="4" fill="#1DA8B0" opacity=".25"/>
+        <rect x="246" y="136" width="88" height="10" rx="4" fill="#1DA8B0" opacity=".3"/>
+        <rect x="264" y="106" width="52" height="3" rx="1.5" fill="white" opacity=".5"/>
+        <rect x="264" y="116" width="52" height="3" rx="1.5" fill="white" opacity=".4"/>
+        <rect x="346" y="110" width="58" height="36" rx="5" fill="#e6f7f8" stroke="#1DA8B0" stroke-width="1.5" opacity=".8"/>
+        <ellipse cx="356" cy="136" rx="10" ry="8" fill="#1D9E75" opacity=".3"/>
       </svg>
     </div>
     <div style="position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:36px 28px;">
-      <div id="hero-label" style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:8px;">Marketplace interno</div>
-      <div id="hero-title" style="font-family:'DM Serif Display',serif;font-size:32px;color:white;margin-bottom:8px;line-height:1.2;">Dar nova vida aos<br/><span style="color:var(--teal-mid);font-style:italic;">itens da empresa</span></div>
-      <div id="hero-sub" style="font-size:14px;color:rgba(255,255,255,.6);">Itens para doação e venda — São Paulo e Joinville</div>
+      <div id="hero-label" style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:8px;">Marketplace interno</div>
+      <div id="hero-title" style="font-family:'DM Serif Display',serif;font-size:30px;color:var(--ink);margin-bottom:8px;line-height:1.2;">Dar nova vida aos<br/><span style="color:var(--teal-dark);font-style:italic;">itens da empresa</span></div>
+      <div id="hero-sub" style="font-size:14px;color:var(--ink-soft);">Itens para doação e venda — São Paulo e Joinville</div>
     </div>
   </div>
   <div class="pc">
-    <div style="margin-bottom:24px;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:8px;"><div><div class="ptitle">Itens disponíveis</div><div class="psub">Retirada presencial em São Paulo ou Joinville</div></div><div id="nav-nome-cat" style="font-size:13px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;padding-bottom:4px;"></div></div>
+    <div style="margin-bottom:24px;"><div class="ptitle">Itens disponíveis</div><div class="psub">Retirada presencial em São Paulo ou Joinville</div></div>
     <div class="stats">
-      <div class="stat"><span class="stat-ico">📦</span><div class="stat-n" id="s-total">—</div><div class="stat-l">Disponíveis</div></div>
-      <div class="stat"><span class="stat-ico">🎁</span><div class="stat-n" id="s-doa">—</div><div class="stat-l">Doações</div></div>
-      <div class="stat"><span class="stat-ico">💰</span><div class="stat-n" id="s-vnd">—</div><div class="stat-l">Vendas</div></div>
+      <div class="stat"><div class="stat-n" id="s-total">—</div><div class="stat-l">Disponíveis</div></div>
+      <div class="stat"><div class="stat-n" id="s-doa">—</div><div class="stat-l">Doações</div></div>
+      <div class="stat"><div class="stat-n" id="s-vnd">—</div><div class="stat-l">Vendas</div></div>
     </div>
     <div class="toolbar">
       <div class="sbox"><span class="sicon">🔍</span><input type="text" id="q-search" placeholder="Buscar itens..." oninput="filterItems()"/></div>
+      <select class="fsel" id="q-tipo" onchange="filterItems()"><option value="">Todos os tipos</option><option value="doacao">Doação</option><option value="venda">Venda</option></select>
+      <select class="fsel" id="q-cat" onchange="filterItems()"><option value="">Todas as categorias</option><option>Mobiliário</option><option>Eletrônicos</option><option>Informática</option><option>Eletrodomésticos</option><option>Outros</option></select>
+      <select class="fsel" id="q-loc" onchange="filterItems()"><option value="">Todos os locais</option><option value="São Paulo">São Paulo</option><option value="Joinville">Joinville</option></select>
+      <select class="fsel" id="q-ord" onchange="filterItems()"><option value="new">Mais recentes</option><option value="pa">Menor preço</option><option value="pd">Maior preço</option></select>
       <div class="vt">
         <button class="vi act" id="vbg" onclick="setView('grid')" title="Grade">⊞</button>
         <button class="vi" id="vbl" onclick="setView('list')" title="Lista">☰</button>
       </div>
     </div>
-    <div class="filter-bar">
-      <button class="fpill act" data-group="tipo" data-val="" onclick="setFilter('tipo','',this)">Todos</button>
-      <button class="fpill" data-group="tipo" data-val="doacao" onclick="setFilter('tipo','doacao',this)">🎁 Doação</button>
-      <button class="fpill" data-group="tipo" data-val="venda" onclick="setFilter('tipo','venda',this)">💰 Venda</button>
-      <div class="filter-sep"></div>
-      <button class="fpill act" data-group="cat" data-val="" onclick="setFilter('cat','',this)">Todas categorias</button>
-      <button class="fpill" data-group="cat" data-val="Mobiliário" onclick="setFilter('cat','Mobiliário',this)">🪑 Mobiliário</button>
-      <button class="fpill" data-group="cat" data-val="Eletrônicos" onclick="setFilter('cat','Eletrônicos',this)">🖥 Eletrônicos</button>
-      <button class="fpill" data-group="cat" data-val="Informática" onclick="setFilter('cat','Informática',this)">💻 Informática</button>
-      <button class="fpill" data-group="cat" data-val="Eletrodomésticos" onclick="setFilter('cat','Eletrodomésticos',this)">🏠 Eletrodomésticos</button>
-      <button class="fpill" data-group="cat" data-val="Outros" onclick="setFilter('cat','Outros',this)">📦 Outros</button>
-      <div class="filter-sep"></div>
-      <button class="fpill act" data-group="loc" data-val="" onclick="setFilter('loc','',this)">Todos locais</button>
-      <button class="fpill" data-group="loc" data-val="São Paulo" onclick="setFilter('loc','São Paulo',this)">📍 São Paulo</button>
-      <button class="fpill" data-group="loc" data-val="Joinville" onclick="setFilter('loc','Joinville',this)">📍 Joinville</button>
-      <div class="filter-sep"></div>
-      <button class="fpill fpill-ord act" data-group="ord" data-val="new" onclick="setFilter('ord','new',this)">↕ Recentes</button>
-      <button class="fpill fpill-ord" data-group="ord" data-val="pa" onclick="setFilter('ord','pa',this)">↑ Menor preço</button>
-      <button class="fpill fpill-ord" data-group="ord" data-val="pd" onclick="setFilter('ord','pd',this)">↓ Maior preço</button>
-    </div>
     <div id="vw-grid" class="igrid"></div>
     <div id="vw-list" class="ilist" style="display:none;"></div>
-    <div id="items-empty" class="empty" style="display:none;"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" style="margin:0 auto 16px;display:block;opacity:.35;"><rect x="8" y="24" width="48" height="32" rx="5" stroke="#1DA8B0" stroke-width="2.5"/><path d="M24 24v-4a8 8 0 0 1 16 0v4" stroke="#1DA8B0" stroke-width="2.5" stroke-linecap="round"/><circle cx="32" cy="40" r="4" fill="#1DA8B0"/></svg><div style="font-size:15px;font-weight:600;color:var(--ink-mid);margin-bottom:4px;">Nenhum item encontrado</div><div style="font-size:13px;color:var(--ink-soft);">Tente ajustar os filtros de busca</div></div>
+    <div id="items-empty" class="empty" style="display:none;"><div class="empty-icon">📦</div><div>Nenhum item encontrado</div></div>
     <div id="items-load" class="empty"><div class="spinner" style="margin:0 auto 12px;"></div><div style="font-size:13px;color:var(--ink-soft);">Carregando itens...</div></div>
     <div style="margin-top:40px;padding:20px;border-top:1px solid var(--border);text-align:center;font-size:12px;color:var(--ink-soft);display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
       <a href="#" onclick="abrirTermos()" style="color:var(--teal);text-decoration:none;font-weight:500;">📋 Termos de Uso</a>
@@ -1571,8 +1543,8 @@ function renderItems(items){
     const corner=`${item.fixado?'<span class="badge badge-fixado" style="font-size:10px;">📌</span>':''}${isNew?'<span class="badge badge-novo" style="font-size:10px;">Novo</span>':''}`;
     const card=document.createElement('div');
     card.className='icard'+(item.fixado?' fixado':'');
-    const codigoOverlay=item.codigo?`<div class="icode">${esc(item.codigo)}</div>`:'';
-    card.innerHTML=`<div class="ithumb">${thumb}<div style="position:absolute;top:10px;left:10px;display:flex;gap:4px;z-index:2;">${corner}</div><div style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.18);cursor:pointer;z-index:2;transition:transform .15s;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform=''" onclick="event.stopPropagation();favClick(this,'${item.id}')" class="fav-btn" style="color:${isFav?'#e74c3c':'#bbb'};font-size:17px;">${isFav?'♥':'♡'}</div>${codigoOverlay}<div class="iqty" id="fc-${item.id}">👥 ...</div></div><div class="ibody"><div class="iname">${esc(item.nome)}</div><div class="imeta">📍 ${esc(item.escritorio)} &nbsp;·&nbsp; ${esc(item.categoria)}</div><div class="ifoot">${bt}${condBadge(item.condicao)}${pr?`<span style="font-size:15px;font-weight:800;color:var(--teal-dark);letter-spacing:-.02em;">${fmtPreco(item)}</span>`:''}</div></div>`;
+    const codigoTag=item.codigo?`<span style="font-size:10px;font-family:monospace;color:var(--ink-soft);background:var(--surface3);padding:1px 6px;border-radius:4px;">${esc(item.codigo)}</span>`:'';
+    card.innerHTML=`<div class="ithumb">${thumb}<div style="position:absolute;top:10px;left:10px;display:flex;gap:4px;">${corner}</div><div style="position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer;" onclick="event.stopPropagation();favClick(this,'${item.id}')" class="fav-btn" style="color:${isFav?'#e74c3c':'#aaa'};font-size:16px;">${isFav?'♥':'♡'}</div></div><div class="ibody"><div class="iname">${esc(item.nome)}</div><div class="imeta">📍 ${esc(item.escritorio)} · ${esc(item.categoria)}</div><div class="ifoot">${bt}${condBadge(item.condicao)}${codigoTag}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">${pr}<span style="font-size:11px;color:var(--ink-soft);" id="fc-${item.id}">👥 ...</span></div></div>`;
     card.onclick=()=>abrirItem(item);grid.appendChild(card);
     const row=document.createElement('div');row.className='irow';
     row.innerHTML=`<div class="irow-thumb">${thumbSm}</div><div class="irow-info"><div class="irow-name">${esc(item.nome)}${isNew?'<span class="badge badge-novo" style="font-size:10px;margin-left:6px;">Novo</span>':''} ${codigoTag}</div><div class="irow-meta">📍 ${esc(item.escritorio)} · ${esc(item.categoria)} · ${esc(item.condicao)}</div></div><div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">${bt}${pr}</div>`;
@@ -1581,27 +1553,14 @@ function renderItems(items){
   });
 }
 
-let fTipo='',fCat='',fLoc='',fOrd='new';
-function setFilter(group,val,el){
-  if(group==='tipo')fTipo=val;
-  else if(group==='cat')fCat=val;
-  else if(group==='loc')fLoc=val;
-  else if(group==='ord')fOrd=val;
-  document.querySelectorAll(`.fpill[data-group="${group}"]`).forEach(b=>b.classList.remove('act'));
-  el.classList.add('act');
-  filterItems();
-}
 function filterItems(){
-  const q=val('#q-search').toLowerCase();
+  const q=val('#q-search').toLowerCase(),tipo=val('#q-tipo'),cat=val('#q-cat'),loc=val('#q-loc'),ord=val('#q-ord');
   let items=allItems.filter(i=>{
     if(q&&!i.nome.toLowerCase().includes(q)&&!(i.descricao||'').toLowerCase().includes(q))return false;
-    if(fTipo&&i.tipo!==fTipo)return false;
-    if(fCat&&i.categoria!==fCat)return false;
-    if(fLoc&&i.escritorio!==fLoc)return false;
-    return true;
+    if(tipo&&i.tipo!==tipo)return false;if(cat&&i.categoria!==cat)return false;if(loc&&i.escritorio!==loc)return false;return true;
   });
-  if(fOrd==='pa')items.sort((a,b)=>(a.preco||0)-(b.preco||0));
-  if(fOrd==='pd')items.sort((a,b)=>(b.preco||0)-(a.preco||0));
+  if(ord==='pa')items.sort((a,b)=>(a.preco||0)-(b.preco||0));
+  if(ord==='pd')items.sort((a,b)=>(b.preco||0)-(a.preco||0));
   renderItems(items);
 }
 
