@@ -1053,18 +1053,18 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
 
 <div id="m-confirmar-retirada" class="modal-ov">
   <div class="modal">
-    <div class="mhdr"><div class="mtitle">🎉 Sua reserva foi aprovada!</div><button class="mclose" onclick="closeModal('m-confirmar-retirada')">×</button></div>
+    <div class="mhdr"><div class="mtitle" id="conf-titulo">🎉 Sua reserva foi aprovada!</div><button class="mclose" onclick="closeModal('m-confirmar-retirada')">×</button></div>
     <div class="mbody">
       <div style="margin-bottom:20px;padding:16px;background:var(--green-bg);border-left:4px solid var(--green);border-radius:var(--r);">
-        <div style="font-size:14px;font-weight:700;color:var(--green-dark);margin-bottom:12px;">✅ Item Aprovado</div>
+        <div style="font-size:14px;font-weight:700;color:var(--green-dark);margin-bottom:12px;" id="conf-subtitulo">✅ Item disponível para retirada</div>
         <div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:16px;" id="conf-item-nome"></div>
-        
+
         <div style="margin-bottom:16px;">
           <div style="font-size:12px;color:var(--ink-soft);margin-bottom:4px;font-weight:600;text-transform:uppercase;">📍 Local de Retirada</div>
           <div style="font-size:16px;font-weight:700;color:var(--ink);" id="conf-local"></div>
         </div>
 
-        <div style="margin-bottom:16px;">
+        <div id="conf-prazo-wrap" style="margin-bottom:16px;display:none;">
           <div style="font-size:12px;color:var(--ink-soft);margin-bottom:4px;font-weight:600;text-transform:uppercase;">⏱️ Prazo</div>
           <div style="font-size:16px;font-weight:700;color:var(--ink);" id="conf-prazo"></div>
         </div>
@@ -1074,15 +1074,22 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
           <div style="font-size:13px;color:var(--amber-dark);font-weight:600;" id="conf-pagamento"></div>
         </div>
 
-        <div style="background:var(--orange-bg);border-left:4px solid var(--orange);padding:12px;border-radius:6px;font-size:12px;line-height:1.6;">
+        <div id="conf-aviso-confirmar" style="background:var(--orange-bg);border-left:4px solid var(--orange);padding:12px;border-radius:6px;font-size:12px;line-height:1.6;">
           <span style="color:var(--orange-dark);font-weight:700;">⚠️ Importante:</span><br/>
-          <span style="color:var(--ink-mid);">Apenas você pode retirar este item. Você tem até <b id="conf-prazo-dias"></b> para retirar.</span>
+          <span style="color:var(--ink-mid);">Ao confirmar, você terá <b>3 dias</b> para retirar o item. Apenas você pode fazer a retirada.</span>
+        </div>
+        <div id="conf-aviso-prazo" style="display:none;background:var(--orange-bg);border-left:4px solid var(--orange);padding:12px;border-radius:6px;font-size:12px;line-height:1.6;">
+          <span style="color:var(--orange-dark);font-weight:700;">⚠️ Prazo em andamento:</span><br/>
+          <span style="color:var(--ink-mid);">Você tem até <b id="conf-prazo-dias"></b> dias para retirar. Dirija-se ao local e o admin confirmará a retirada.</span>
         </div>
       </div>
     </div>
-    <div class="mfoot">
+    <div class="mfoot" id="conf-foot-confirmar">
       <button class="btn btn-outline" onclick="closeModal('m-confirmar-retirada')">Mais tarde</button>
-      <button class="btn btn-primary" id="btn-conf-ret" onclick="confirmarRetiradaFinal()">Confirmar Retirada</button>
+      <button class="btn btn-primary" id="btn-conf-ret" onclick="confirmarCienciaRetirada()">Confirmar — iniciar prazo de 3 dias</button>
+    </div>
+    <div class="mfoot" id="conf-foot-aguardando" style="display:none;">
+      <button class="btn btn-outline" onclick="closeModal('m-confirmar-retirada')">Fechar</button>
     </div>
   </div>
 </div>
