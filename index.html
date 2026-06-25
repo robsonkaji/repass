@@ -2927,14 +2927,27 @@ async function mostrarBannerAprovacao(screenId){
   openModal('m-confirmar-retirada');
 }
 
+function addBusinessDays(date,days){
+  const d=new Date(date);let added=0;
+  while(added<days){d.setDate(d.getDate()+1);const dw=d.getDay();if(dw!==0&&dw!==6)added++;}
+  return d;
+}
+function businessDaysRemaining(deadline){
+  const now=new Date();now.setHours(0,0,0,0);
+  const end=new Date(deadline);end.setHours(0,0,0,0);
+  if(end<=now)return 0;
+  let count=0;const cur=new Date(now);
+  while(cur<end){cur.setDate(cur.getDate()+1);const dw=cur.getDay();if(dw!==0&&dw!==6)count++;}
+  return count;
+}
 async function confirmarCienciaRetirada(){
   if(!resAprovadaAtual)return showToast('Erro: informações inválidas');
   const btn=document.getElementById('btn-conf-ret');
   btn.disabled=true;btn.textContent='Confirmando...';
-  const prazo=new Date();prazo.setDate(prazo.getDate()+3);
+  const prazo=addBusinessDays(new Date(),3);
   const{error}=await sb.from('reservas').update({prazo_retirada:prazo.toISOString()}).eq('id',resAprovadaAtual.resId);
   if(error){showToast('Erro: '+error.message);btn.disabled=false;btn.textContent='Confirmar — iniciar prazo de 3 dias';return;}
-  showToast('✅ Prazo iniciado! Você tem 3 dias para retirar o item.');
+  showToast('✅ Prazo iniciado! Você tem 3 dias úteis para retirar o item.');
   closeModal('m-confirmar-retirada');
   bloqueiaModalAprovacao=true;
   setTimeout(()=>{bloqueiaModalAprovacao=false;},500);
