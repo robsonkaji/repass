@@ -2227,6 +2227,7 @@ function abrirDocumentoVenda(idx){
             <td style="padding:8px;font-weight:bold;color:#666;">Tipo:</td>
             <td style="padding:8px;">${item?.tipo==='venda'?'Venda':'Doação'}</td>
           </tr>
+          ${item?.codigo?`<tr style="border-bottom:1px solid #ddd;"><td style="padding:8px;font-weight:bold;color:#666;width:120px;">Código / Patrimônio:</td><td style="padding:8px;font-family:monospace;font-weight:700;">${item.codigo}</td></tr>`:''}
           <tr style="border-bottom:1px solid #ddd;">
             <td style="padding:8px;font-weight:bold;color:#666;">Condição:</td>
             <td style="padding:8px;">${item?.condicao||'—'}</td>
