@@ -2893,7 +2893,7 @@ async function mostrarBannerAprovacao(screenId){
   const itemId=item?.id||res.item_id;
   const jaConfirmou=!!res.prazo_retirada;
   const prazoRetirada=jaConfirmou?new Date(res.prazo_retirada):null;
-  const diasRestantes=prazoRetirada?Math.ceil((prazoRetirada-new Date())/(1000*60*60*24)):null;
+  const diasRestantes=prazoRetirada?businessDaysRemaining(prazoRetirada):null;
 
   resAprovadaAtual={resId:res.id,itemId:itemId};
 
