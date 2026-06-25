@@ -2254,11 +2254,11 @@ async function criarNovoUsuario(){
   try{
     showToast('⏳ Criando usuário...');
 
-    // Verifica duplicidade de email
     const{data:existente}=await sb.from('users').select('id').eq('email',email).maybeSingle();
     if(existente)return showToast('❌ Email já cadastrado no sistema!');
 
-    // Cria o perfil na tabela users (o login será criado quando o usuário acessar o link do email)
+    // Cria apenas o perfil — sem envio de email, sem mexer na sessão atual
+    // O usuário vai se cadastrar pela tela de cadastro do site usando esse mesmo email
     const userId=crypto.randomUUID();
     const{error:errDb}=await sb.from('users').insert({
       id:userId,nome,email,slack_name:slack,escritorio,role,
@@ -2266,22 +2266,11 @@ async function criarNovoUsuario(){
     });
     if(errDb)throw new Error('Erro no banco: '+errDb.message);
 
-    // Envia magic link para o email do novo usuário — cria conta no Auth sem afetar a sessão do admin
-    const{error:otpError}=await sb.auth.signInWithOtp({
-      email,
-      options:{shouldCreateUser:true,data:{nome,slack_name:slack,escritorio,role}}
-    });
-    if(otpError)console.warn('Magic link não enviado:',otpError.message);
+    await logAction('Usuário pré-cadastrado pelo admin',{user_id:userId,nome,email,role});
 
-    await logAction('Usuário criado manualmente',{user_id:userId,nome,email});
+    alert(`✅ USUÁRIO PRÉ-CADASTRADO!\n\n👤 Nome: ${nome}\n📧 Email: ${email}\n🏢 Escritório: ${escritorio}\n🔑 Role: ${role}\n\nOriente o usuário a acessar o site e clicar em "Solicitar cadastro" usando esse email.\nO perfil já estará configurado com as permissões corretas.`);
 
-    const avisoOtp=otpError
-      ? '\n\n⚠️ Não foi possível enviar o email de acesso. Peça ao usuário para usar "Esqueci minha senha" no primeiro acesso.'
-      : '\n\n📧 Um email com link de acesso foi enviado para o usuário.';
-
-    alert(`✅ USUÁRIO CRIADO!\n\n👤 Nome: ${nome}\n📧 Email: ${email}\n🏢 Escritório: ${escritorio}\n🔑 Role: ${role}${avisoOtp}`);
-
-    showToast('✅ Usuário criado com sucesso!');
+    showToast('✅ Usuário pré-cadastrado!');
     closeModal('m-novo-usr');
     loadAdmUsr();
   }catch(e){
