@@ -2785,7 +2785,12 @@ async function confirmarRetiradaFinal(){
     // Atualizar status da reserva
     const{error}=await sb.from('reservas').update({status:'retirada',retirada_em:new Date().toISOString()}).eq('id',resAprovadaAtual.resId);
     if(error)throw new Error(error.message);
-    
+
+    // Remover item do catálogo
+    if(resAprovadaAtual.itemId){
+      await sb.from('items').update({status:'retirado'}).eq('id',resAprovadaAtual.itemId);
+    }
+
     // Tentar promover próximo da fila (continua mesmo se falhar)
     try{
       await promoverProximoDaFila(resAprovadaAtual.itemId);
