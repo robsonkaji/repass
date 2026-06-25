@@ -2927,6 +2927,20 @@ async function mostrarBannerAprovacao(screenId){
   openModal('m-confirmar-retirada');
 }
 
+async function confirmarCienciaRetirada(){
+  if(!resAprovadaAtual)return showToast('Erro: informações inválidas');
+  const btn=document.getElementById('btn-conf-ret');
+  btn.disabled=true;btn.textContent='Confirmando...';
+  const prazo=new Date();prazo.setDate(prazo.getDate()+3);
+  const{error}=await sb.from('reservas').update({prazo_retirada:prazo.toISOString()}).eq('id',resAprovadaAtual.resId);
+  if(error){showToast('Erro: '+error.message);btn.disabled=false;btn.textContent='Confirmar — iniciar prazo de 3 dias';return;}
+  showToast('✅ Prazo iniciado! Você tem 3 dias para retirar o item.');
+  closeModal('m-confirmar-retirada');
+  bloqueiaModalAprovacao=true;
+  setTimeout(()=>{bloqueiaModalAprovacao=false;},500);
+  if(typeof loadPerfil==='function')loadPerfil();
+}
+
 async function confirmarRetiradaFinal(){
   if(!resAprovadaAtual)return showToast('Erro: informações inválidas');
   
