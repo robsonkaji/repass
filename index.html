@@ -1901,7 +1901,7 @@ function gerarPDFVenda(){
   showToast('PDF gerado com sucesso!');
 }
 
-async function loadAdmLogs(){const{data}=await sb.from('logs').select('*,users(nome)').order('created_at',{ascending:false}).limit(50);const el=document.getElementById('adm-log');if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-icon">🔒</div><div>Nenhuma ação registrada.</div></div>';return;}var html='<div class="loglist">';data.forEach(function(l){html+='<div class="logitem"><div class="logdot"></div><div><div class="logtext"><b>'+(l.users&&l.users.nome||'Sistema')+'</b> — '+l.acao+'</div><div class="logtime">'+new Date(l.created_at).toLocaleString('pt-BR')+'</div></div></div>';});html+='</div>';el.innerHTML=html;}
+async function loadAdmLogs(){const{data}=await sb.from('logs').select('*,users(nome)').order('created_at',{ascending:false}).limit(50);const el=document.getElementById('adm-log');if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-icon">🔒</div><div>Nenhuma ação registrada.</div></div>';return;}var html='<div class="loglist">';data.forEach(function(l){html+='<div class="logitem"><div class="logdot"></div><div><div class="logtext"><b>'+esc(l.users&&l.users.nome||'Sistema')+'</b> — '+esc(l.acao)+'</div><div class="logtime">'+new Date(l.created_at).toLocaleString('pt-BR')+'</div></div></div>';});html+='</div>';el.innerHTML=html;}
 
 async function logAction(acao,det){if(CU)await sb.from('logs').insert({admin_id:CU.id,acao:acao,detalhes:det});}
 
