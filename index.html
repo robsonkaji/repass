@@ -1595,14 +1595,36 @@ async function loadPerfil(){
   set('#st-favs',favs.length);
   set('#st-hist',hist.length);
 
+  // Busca posição na fila para cada reserva ativa
+  let filaPosMap={};
+  if(myRes.length){
+    const itemIds=myRes.map(r=>r.item_id).filter(Boolean);
+    const{data:todasReservas}=await sb.from('reservas').select('id,item_id,user_id,created_at,status').in('item_id',itemIds).in('status',['fila','aprovada']).order('created_at',{ascending:true});
+    if(todasReservas){
+      itemIds.forEach(itemId=>{
+        const fila=todasReservas.filter(r=>r.item_id===itemId);
+        fila.forEach((r,i)=>{filaPosMap[r.id]=i+1;});
+      });
+    }
+  }
+
   // Reservas ativas
   const resEl=document.getElementById('perfil-reservas');resEl.innerHTML='';
   if(!myRes.length){resEl.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div>Nenhuma reserva ativa.</div></div>';}
   else myRes.forEach(r=>{
     const it=r.items;
     const th=it?.fotos?.length?`<img src="${esc(it.fotos[0])}" style="width:100%;height:100%;object-fit:cover;" alt="${esc(it?.nome||'')}"/>`:catEmoji(it?.categoria);
+    const pos=filaPosMap[r.id];
+    let posLabel='';
+    if(r.status==='aprovada'){
+      posLabel='<span style="display:inline-flex;align-items:center;gap:4px;background:var(--green-bg);color:var(--green-dark);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;">✅ Aprovada</span>';
+    } else if(pos===1){
+      posLabel='<span style="display:inline-flex;align-items:center;gap:4px;background:#fff7e6;color:#b45309;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;">🥇 1º na fila</span>';
+    } else if(pos){
+      posLabel=`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--surface2);color:var(--ink-soft);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;">⏳ ${pos}º na fila</span>`;
+    }
     const div=document.createElement('div');div.className='ritem';
-    div.innerHTML=`<div class="rthumb">${th}</div><div class="rinfo"><div class="rname">${esc(it?.nome||'Item')}</div><div class="rmeta">${r.status==='aprovada'?'✅ Aprovada':'⏳ Aguardando'} · ${esc(it?.escritorio||'')}</div></div><div style="display:flex;gap:8px;align-items:center;"><span class="badge badge-${it?.tipo==='doacao'?'doacao':'venda'}">${it?.tipo==='doacao'?'Doação':'Venda'}</span><button class="btn btn-sm btn-red" onclick="cancelarReserva('${r.id}')">Desistir</button></div>`;
+    div.innerHTML=`<div class="rthumb">${th}</div><div class="rinfo"><div class="rname">${esc(it?.nome||'Item')}</div><div style="display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap;">${posLabel}<span style="font-size:11px;color:var(--ink-soft);">📍 ${esc(it?.escritorio||'')}</span></div></div><div style="display:flex;gap:8px;align-items:center;flex-shrink:0;"><span class="badge badge-${it?.tipo==='doacao'?'doacao':'venda'}">${it?.tipo==='doacao'?'Doação':'Venda'}</span><button class="btn btn-sm btn-red" onclick="cancelarReserva('${r.id}')">Desistir</button></div>`;
     resEl.appendChild(div);
   });
 
