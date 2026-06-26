@@ -1565,16 +1565,28 @@ function renderItems(items){
     const corner=`${item.fixado?'<span class="badge badge-fixado" style="font-size:10px;">📌</span>':''}${isNew?'<span class="badge badge-novo" style="font-size:10px;">Novo</span>':''}`;
     const isReservado=item.status==='reservado';
     const card=document.createElement('div');
-    card.className='icard'+(item.fixado?' fixado':'')+(isReservado?' reservado':'');
+    const isLeilao=item.tipo==='leilao';
+    card.className='icard'+(item.fixado?' fixado':'')+(isReservado?' reservado':'')+(isLeilao?' leilao-card':'');
     const codigoTag=item.codigo?`<span style="font-size:10px;font-family:monospace;color:var(--ink-soft);background:var(--surface3);padding:1px 6px;border-radius:4px;">${esc(item.codigo)}</span>`:'';
     const resOverlay=isReservado?`<div class="icard-res-overlay">🔒 Reservado</div>`:'';
     const prazoSlot=isReservado?`<div class="icard-prazo" id="prazo-card-${item.id}">⏳ Verificando prazo...</div>`:'';
-    card.innerHTML=`<div class="ithumb">${thumb}<div style="position:absolute;top:10px;left:10px;display:flex;gap:4px;">${corner}</div><div style="position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer;" onclick="event.stopPropagation();favClick(this,'${item.id}')" class="fav-btn" style="color:${isFav?'#e74c3c':'#aaa'};font-size:16px;">${isFav?'♥':'♡'}</div>${resOverlay}</div><div class="ibody"><div class="iname">${esc(item.nome)}</div><div class="imeta">📍 ${esc(item.escritorio)} · ${esc(item.categoria)}</div><div class="ifoot">${bt}${condBadge(item.condicao)}${codigoTag}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">${pr}<span style="font-size:11px;color:var(--ink-soft);" id="fc-${item.id}">👥 ...</span></div>${prazoSlot}</div>`;
+    const leilaoSlot=isLeilao?`<div class="leilao-lance-box" style="margin-top:10px;padding:10px 12px;"><div style="font-size:10px;font-weight:700;color:#7e22ce;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;">Lance atual</div><div class="leilao-lance-val" id="lv-${item.id}">R$ —</div><div class="leilao-countdown" id="lc-${item.id}">⏳ carregando...</div></div>`:'';
+    const btLeilao=isLeilao?'<span class="badge badge-leilao">🔨 Leilão</span>':bt;
+    card.innerHTML=`<div class="ithumb">${thumb}<div style="position:absolute;top:10px;left:10px;display:flex;gap:4px;">${corner}</div><div style="position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer;" onclick="event.stopPropagation();favClick(this,'${item.id}')" class="fav-btn" style="color:${isFav?'#e74c3c':'#aaa'};font-size:16px;">${isFav?'♥':'♡'}</div>${resOverlay}</div><div class="ibody"><div class="iname">${esc(item.nome)}</div><div class="imeta">📍 ${esc(item.escritorio)} · ${esc(item.categoria)}</div><div class="ifoot">${btLeilao}${condBadge(item.condicao)}${codigoTag}</div>${leilaoSlot}<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">${isLeilao?'':''+pr}<span style="font-size:11px;color:var(--ink-soft);" id="fc-${item.id}">${isLeilao?'':'👥 ...'}</span></div>${prazoSlot}</div>`;
     card.onclick=()=>abrirItem(item);grid.appendChild(card);
     const row=document.createElement('div');row.className='irow';
-    row.innerHTML=`<div class="irow-thumb">${thumbSm}</div><div class="irow-info"><div class="irow-name">${esc(item.nome)}${isNew?'<span class="badge badge-novo" style="font-size:10px;margin-left:6px;">Novo</span>':''} ${codigoTag}</div><div class="irow-meta">📍 ${esc(item.escritorio)} · ${esc(item.categoria)} · ${esc(item.condicao)}</div></div><div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">${bt}${isReservado?'<span class="badge" style="background:var(--amber-bg);color:var(--amber-dark);">🔒 Reservado</span>':''}${pr}</div>`;
+    row.innerHTML=`<div class="irow-thumb">${thumbSm}</div><div class="irow-info"><div class="irow-name">${esc(item.nome)}${isNew?'<span class="badge badge-novo" style="font-size:10px;margin-left:6px;">Novo</span>':''} ${codigoTag}</div><div class="irow-meta">📍 ${esc(item.escritorio)} · ${esc(item.categoria)} · ${esc(item.condicao)}</div></div><div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">${isLeilao?'<span class="badge badge-leilao">🔨 Leilão</span>':bt}${isReservado?'<span class="badge" style="background:var(--amber-bg);color:var(--amber-dark);">🔒 Reservado</span>':''}${isLeilao?'<span id="lv-row-'+item.id+'" style="font-weight:700;color:#7e22ce;">R$ —</span>':pr}</div>`;
     row.onclick=()=>abrirItem(item);list.appendChild(row);
-    sb.from('reservas').select('*',{count:'exact',head:true}).eq('item_id',item.id).in('status',['fila','aprovada']).then(({count})=>{const el=document.getElementById('fc-'+item.id);if(el)el.textContent='👥 '+(count||0)+' na fila';});
+    if(!isLeilao)sb.from('reservas').select('*',{count:'exact',head:true}).eq('item_id',item.id).in('status',['fila','aprovada']).then(({count})=>{const el=document.getElementById('fc-'+item.id);if(el)el.textContent='👥 '+(count||0)+' na fila';});
+    if(isLeilao){
+      sb.from('lances').select('valor').eq('item_id',item.id).order('valor',{ascending:false}).limit(1).maybeSingle().then(({data:l})=>{
+        const valEl=document.getElementById('lv-'+item.id);const valRowEl=document.getElementById('lv-row-'+item.id);
+        const val=l?'R$ '+parseFloat(l.valor).toLocaleString('pt-BR',{minimumFractionDigits:2}):'R$ '+parseFloat(item.lance_minimo||10).toLocaleString('pt-BR',{minimumFractionDigits:2})+' (mín)';
+        if(valEl)valEl.textContent=val;if(valRowEl)valRowEl.textContent=val;
+      });
+      const cdEl=document.getElementById('lc-'+item.id);
+      if(cdEl&&item.prazo_leilao){const diff=Math.ceil((new Date(item.prazo_leilao)-new Date())/864e5);cdEl.textContent=diff>0?`⏳ ${diff} dia(s) restantes`:'🔴 Encerrado';if(diff<=3)cdEl.classList.add('urgente');}
+    }
     if(isReservado){
       sb.from('reservas').select('prazo_retirada').eq('item_id',item.id).eq('status','aprovada').maybeSingle().then(({data:rv})=>{
         const el=document.getElementById('prazo-card-'+item.id);if(!el)return;
