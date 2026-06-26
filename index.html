@@ -3010,7 +3010,7 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 document.addEventListener('keydown',function(e){if(e.key==='Enter'){const ls=document.getElementById('screen-login');if(ls&&ls.classList.contains('active')&&document.getElementById('vw-login').style.display!=='none')doLogin();}});
 
 async function cancelarReserva(reservaId,btnEl){
-  if(!confirm('Tem certeza que deseja desistir desta reserva? Esta ação não pode ser desfeita.'))return;
+  if(!confirm('Tem certeza que deseja desistir do leilão? Esta ação não pode ser desfeita.'))return;
   const btn=btnEl||event?.target;if(btn){btn.disabled=true;}const btnText=btn?.textContent;if(btn)btn.textContent='Cancelando...';
   
   // Buscar dados da reserva
