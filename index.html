@@ -1856,7 +1856,10 @@ async function loadPerfil(){
     const it=r.items;
     const th=it?.fotos?.length?`<img src="${esc(it.fotos[0])}" style="width:100%;height:100%;object-fit:cover;" alt="${esc(it?.nome||'')}"/>`:catEmoji(it?.categoria);
     const div=document.createElement('div');div.className='ritem';
-    div.innerHTML=`<div class="rthumb">${th}</div><div class="rinfo"><div class="rname">${esc(it?.nome||'Item')}</div><div class="rmeta">${r.status==='retirada'?'✅ Retirado':'❌ '+r.status} · ${new Date(r.updated_at).toLocaleDateString('pt-BR')}</div></div><span class="badge badge-${r.status==='retirada'?'retirado':'bloqueado'}">${r.status}</span>`;
+    const hLabel={retirada:'✅ Retirado',cancelada:'❌ Desistiu',recusada:'❌ Não contemplado'}[r.status]||r.status;
+    const hBadge=r.status==='retirada'?'retirado':'bloqueado';
+    const hBadgeTxt={retirada:'Retirado',cancelada:'Desistiu',recusada:'Não contemplado'}[r.status]||r.status;
+    div.innerHTML=`<div class="rthumb">${th}</div><div class="rinfo"><div class="rname">${esc(it?.nome||'Item')}</div><div class="rmeta">${hLabel} · ${new Date(r.updated_at).toLocaleDateString('pt-BR')}</div></div><span class="badge badge-${hBadge}">${hBadgeTxt}</span>`;
     hEl.appendChild(div);
   });
 
