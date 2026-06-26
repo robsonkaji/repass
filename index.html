@@ -1916,7 +1916,7 @@ async function loadPerfil(){
   await mostrarBannerAprovacao('aprovacao-perfil');
 }
 
-async function switchPanel(p,el){document.querySelectorAll('.apanel').forEach(x=>x.classList.remove('act'));document.querySelectorAll('.aside-item').forEach(x=>x.classList.remove('act'));document.getElementById('p-'+p).classList.add('act');if(el)el.classList.add('act');const loaders={reservas:loadAdmRes,banners:loadAdmBan,usuarios:loadAdmUsr,compliance:loadAdmComp,itens:loadAdmItens,relatorio:loadAdmRel,logs:loadAdmLogs};if(loaders[p])await loaders[p]();}
+async function switchPanel(p,el){document.querySelectorAll('.apanel').forEach(x=>x.classList.remove('act'));document.querySelectorAll('.aside-item').forEach(x=>x.classList.remove('act'));document.getElementById('p-'+p).classList.add('act');if(el)el.classList.add('act');const loaders={reservas:loadAdmRes,banners:loadAdmBan,usuarios:loadAdmUsr,compliance:loadAdmComp,itens:loadAdmItens,leiloes:loadAdmLeiloes,relatorio:loadAdmRel,logs:loadAdmLogs};if(loaders[p])await loaders[p]();}
 
 let allReservas=[];
 async function loadAdmRes(){
