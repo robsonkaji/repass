@@ -2540,7 +2540,7 @@ async function salvarItem(){
   for(var fi=0;fi<fotosFiles.length;fi++){const file=fotosFiles[fi];if(typeof file==='string'){fotos.push(file);}else{const ext=file.name.split('.').pop();const path='items/'+Date.now()+'_'+Math.random().toString(36).substr(2,6)+'.'+ext;const{error:e}=await sb.storage.from('item-fotos').upload(path,file,{contentType:file.type});if(!e){const{data:u}=sb.storage.from('item-fotos').getPublicUrl(path);fotos.push(u.publicUrl);}}}
   const capaIdx=parseInt(document.getElementById('mi-foto-capa').value||0);if(capaIdx>0&&capaIdx<fotos.length){const capaFoto=fotos[capaIdx];fotos.splice(capaIdx,1);fotos.unshift(capaFoto);}
   const codigo=val('#mi-codigo').trim()||null;
-  const payload={nome,codigo,categoria:val('#mi-cat'),condicao:val('#mi-cond'),tipo,escritorio:val('#mi-loc'),quantidade:parseInt(val('#mi-qtd'))||1,quantidade_disponivel:parseInt(val('#mi-qtd'))||1,preco,descricao:val('#mi-desc').trim(),motivo_descarte:val('#mi-motivo')||null,fixado:val('#mi-fix')==='true'};
+  const payload={nome,codigo,categoria:val('#mi-cat'),condicao:val('#mi-cond'),tipo,escritorio:val('#mi-loc'),quantidade:parseInt(val('#mi-qtd'))||1,quantidade_disponivel:parseInt(val('#mi-qtd'))||1,preco,lance_minimo:lanceMinimo,prazo_leilao:prazoLeilao,descricao:val('#mi-desc').trim(),motivo_descarte:val('#mi-motivo')||null,fixado:val('#mi-fix')==='true'};
   if(fotos.length)payload.fotos=fotos;
   var error;
   if(editId){const res=await sb.from('items').update(payload).eq('id',editId);error=res.error;}
