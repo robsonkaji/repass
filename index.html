@@ -1803,17 +1803,7 @@ async function loadPerfil(){
   set('#st-favs',favs.length);
   set('#st-hist',hist.length);
 
-  // Busca posição na fila para cada reserva ativa
-  let filaPosMap={};
   if(myRes.length){
-    const itemIds=myRes.map(r=>r.item_id).filter(Boolean);
-    const{data:todasReservas}=await sb.from('reservas').select('id,item_id,user_id,created_at,status').in('item_id',itemIds).in('status',['fila','aprovada']).order('created_at',{ascending:true});
-    if(todasReservas){
-      itemIds.forEach(itemId=>{
-        const fila=todasReservas.filter(r=>r.item_id===itemId);
-        fila.forEach((r,i)=>{filaPosMap[r.id]=i+1;});
-      });
-    }
   }
 
   // Reservas ativas
