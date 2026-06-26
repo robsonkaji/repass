@@ -1660,9 +1660,6 @@ async function abrirItem(item){
 async function favClick(btn,itemId){const isFav=myFavs.includes(itemId);if(isFav){await sb.from('favoritos').delete().eq('user_id',CU.id).eq('item_id',itemId);myFavs=myFavs.filter(x=>x!==itemId);btn.textContent='♡';btn.style.color='#aaa';}else{await sb.from('favoritos').insert({user_id:CU.id,item_id:itemId});myFavs.push(itemId);btn.textContent='♥';btn.style.color='#e74c3c';}}
 async function toggleFav(){if(!CI||!CU)return;const isFav=myFavs.includes(CI.id);if(isFav){await sb.from('favoritos').delete().eq('user_id',CU.id).eq('item_id',CI.id);myFavs=myFavs.filter(x=>x!==CI.id);set('#btn-fav','♡ Favoritar');showToast('Removido dos favoritos.');}else{await sb.from('favoritos').insert({user_id:CU.id,item_id:CI.id});myFavs.push(CI.id);set('#btn-fav','♥ Favoritado');showToast('Adicionado!');}}
 
-function entrarFila(){if(!CI||!CU)return;if(myRes.find(r=>r.item_id===CI.id))return showToast('Você já está na fila deste item.');if(myRes.length>=2)return showToast('Limite de 2 reservas ativas atingido.');set('#mf-nome',CI.nome);set('#mf-lim',`Você possui ${myRes.length} reserva(s) ativa(s) de 2 permitidas.`);openModal('m-fila');}
-
-async function confirmarFila(){if(!CI||!CU)return;const btn=document.getElementById('btn-conf-fila');btn.disabled=true;btn.textContent='Aguarde...';const{count}=await sb.from('reservas').select('*',{count:'exact',head:true}).eq('item_id',CI.id).in('status',['fila','aprovada']);const{error}=await sb.from('reservas').insert({item_id:CI.id,user_id:CU.id,posicao_fila:(count||0)+1,status:'fila'});btn.disabled=false;btn.textContent='Confirmar entrada na fila';closeModal('m-fila');if(error)return showToast('Erro: '+error.message);showToast('Você entrou na fila!');const{data:r}=await sb.from('reservas').select('*').eq('user_id',CU.id).in('status',['fila','aprovada']);myRes=r||[];await abrirItem(CI);}
 
 async function darLance(minValor){
   if(!CI||!CU)return showToast('Faça login para dar um lance.');
