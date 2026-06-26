@@ -1308,6 +1308,21 @@ function abrirTermos(){openModal('m-termos');}
 let resAprovadaAtual=null;
 let vendaAtualPDF=null;
 let allItemsData=[];
+let cardCountdownIntervals=[];
+function anonName(n){if(!n)return '—';n=n.trim();if(n.length<=3)return n[0]+'**';return n[0]+'*'.repeat(Math.min(5,n.length-3))+n.slice(-2);}
+function startCardCountdown(id,prazo){
+  const update=()=>{
+    const diff=new Date(prazo)-new Date();
+    const dEl=document.getElementById('cd-d-'+id),hEl=document.getElementById('cd-h-'+id),mEl=document.getElementById('cd-m-'+id),sEl=document.getElementById('cd-s-'+id),grid=document.getElementById('lc-'+id);
+    if(!dEl)return;
+    if(diff<=0){dEl.textContent='0';hEl.textContent='0';mEl.textContent='0';sEl.textContent='0';if(grid)grid.classList.add('cd-enc');return;}
+    const d=Math.floor(diff/864e5),h=Math.floor((diff%864e5)/36e5),m=Math.floor((diff%36e5)/6e4),s=Math.floor((diff%6e4)/1e3);
+    dEl.textContent=d;hEl.textContent=String(h).padStart(2,'0');mEl.textContent=String(m).padStart(2,'0');sEl.textContent=String(s).padStart(2,'0');
+  };
+  update();
+  const t=setInterval(update,1000);
+  cardCountdownIntervals.push(t);
+}
 let bloqueiaModalAprovacao=false; // Flag para evitar reabertura do modal
 
 
