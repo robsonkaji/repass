@@ -1780,7 +1780,7 @@ async function loadPerfil(){
 
   // Busca dados em paralelo
   const[resData,favsData,histData]=await Promise.all([
-    sb.from('reservas').select('*,items(*)').eq('user_id',CU.id).in('status',['fila','aprovada']).order('created_at',{ascending:false}),
+    sb.from('reservas').select('*,items(*)').eq('user_id',CU.id).in('status',['aprovada']).order('created_at',{ascending:false}),
     sb.from('favoritos').select('*,items(*)').eq('user_id',CU.id),
     sb.from('reservas').select('*,items(*)').eq('user_id',CU.id).in('status',['retirada','cancelada','recusada']).order('updated_at',{ascending:false}).limit(20)
   ]);
