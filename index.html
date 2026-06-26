@@ -2297,6 +2297,51 @@ async function loadAdmBan(){const{data}=await sb.from('banners').select('*').ord
 async function salvarBanner(){const tipo=val('#bn-tipo'),titulo=val('#bn-titulo').trim(),sub=val('#bn-sub').trim(),validade=val('#bn-val'),loc=val('#bn-loc');if(!titulo)return showToast('Digite um título.');const{error}=await sb.from('banners').insert({tipo,titulo,subtitulo:sub||null,valido_ate:validade||null,escritorio:loc,ativo:true,criado_por:CU&&CU.id});if(error)return showToast('Erro: '+error.message);await logAction('Banner criado',{tipo,titulo});closeModal('m-banner');showToast('Banner publicado!');loadAdmBan();loadBanners();}
 async function desatBanner(id){await sb.from('banners').update({ativo:false}).eq('id',id);showToast('Desativado!');loadAdmBan();loadBanners();}
 
+async function loadAdmLeiloes(){
+  const container=document.getElementById('leiloes-list');
+  container.innerHTML='<div style="color:var(--ink-soft);font-size:13px;">Carregando...</div>';
+  const{data:items}=await sb.from('items').select('*').eq('tipo','leilao').order('prazo_leilao',{ascending:true});
+  if(!items||!items.length){container.innerHTML='<div style="color:var(--ink-soft);font-size:13px;">Nenhum leilão cadastrado.</div>';return;}
+  const lancesPorItem=await Promise.all(items.map(it=>sb.from('lances').select('valor,user_id,created_at,users(nome)').eq('item_id',it.id).order('valor',{ascending:false})));
+  container.innerHTML='';
+  items.forEach((it,idx)=>{
+    const lances=lancesPorItem[idx]?.data||[];
+    const maior=lances[0];const prazo=it.prazo_leilao?new Date(it.prazo_leilao):null;
+    const encerrado=prazo&&prazo<=new Date();const dias=prazo?Math.ceil((prazo-new Date())/864e5):null;
+    const card=document.createElement('div');
+    card.style.cssText='background:white;border:1.5px solid var(--border);border-radius:var(--rxl);padding:20px;box-shadow:var(--shadow);';
+    card.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+        <div>
+          <div style="font-weight:700;font-size:15px;">${esc(it.nome)}</div>
+          <div style="font-size:12px;color:var(--ink-soft);">📍 ${esc(it.escritorio)} · Lance mín: R$ ${parseFloat(it.lance_minimo||10).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+        </div>
+        <div style="text-align:right;">
+          <span style="font-size:12px;font-weight:700;color:${encerrado?'var(--red)':dias!==null&&dias<=3?'var(--red)':'#7e22ce'};">${encerrado?'🔴 Encerrado':dias!==null?`⏳ ${dias} dia(s)`:'—'}</span>
+          ${prazo?`<div style="font-size:10px;color:var(--ink-soft);">Prazo: ${prazo.toLocaleDateString('pt-BR')}</div>`:''}
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;margin-bottom:8px;">Lances (${lances.length})</div>
+        ${!lances.length?'<div style="font-size:12px;color:var(--ink-soft);">Nenhum lance recebido.</div>':lances.slice(0,5).map((l,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);"><span style="font-size:13px;font-weight:700;color:${i===0?'#7e22ce':'var(--ink)'};">${i===0?'🥇 ':''}R$ ${parseFloat(l.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})}</span><span style="flex:1;font-size:12px;color:var(--ink-mid);">${l.users?.nome||'—'}</span><span style="font-size:11px;color:var(--ink-soft);">${new Date(l.created_at).toLocaleDateString('pt-BR')}</span></div>`).join('')}
+      </div>
+      ${maior&&!it.ganhador_id?`<button class="btn btn-primary" style="font-size:13px;" onclick="encerrarLeilao('${it.id}','${maior.user_id}',${parseFloat(maior.valor)})">🏆 Encerrar e declarar ganhador (R$ ${parseFloat(maior.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})} — ${maior.users?.nome||'—'})</button>`:''}
+      ${it.ganhador_id?`<div style="padding:8px 12px;background:var(--green-bg);color:var(--green-dark);border-radius:var(--r);font-size:13px;font-weight:700;">✅ Ganhador declarado</div>`:''}`;
+    container.appendChild(card);
+  });
+}
+
+async function encerrarLeilao(itemId,userId,valor){
+  if(!confirm(`Declarar ganhador com lance de R$ ${valor.toLocaleString('pt-BR',{minimumFractionDigits:2})}?`))return;
+  const{error:e1}=await sb.from('items').update({status:'reservado',ganhador_id:userId}).eq('id',itemId);
+  if(e1)return showToast('Erro: '+e1.message);
+  const{count}=await sb.from('reservas').select('*',{count:'exact',head:true}).eq('item_id',itemId).in('status',['fila','aprovada']);
+  const{error:e2}=await sb.from('reservas').insert({item_id:itemId,user_id:userId,posicao_fila:(count||0)+1,status:'aprovada',prazo_retirada:null});
+  if(e2)return showToast('Erro ao criar reserva: '+e2.message);
+  showToast('✅ Ganhador declarado! Reserva aprovada criada.');
+  await loadAdmLeiloes();
+}
+
 async function loadAdmRel(){
   const periodo=document.getElementById('rel-filtro-periodo').value;
   const categoria=document.getElementById('rel-filtro-categoria').value;
