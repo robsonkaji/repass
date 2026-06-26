@@ -2203,7 +2203,7 @@ function renderizarItensFiltrados(filtro=''){
   
   var rows='';
   itensFiltrados.forEach(function(i){
-    var tipoBadge=i.tipo==='doacao'?'<span class="badge badge-doacao">Doação</span>':'<span class="badge badge-venda">Venda R$'+parseFloat(i.preco||0).toFixed(2)+'</span>';
+    var tipoBadge='<span class="badge badge-leilao">🔨 Leilão</span>';
     var statusBadge='<span class="badge badge-'+(i.status==='ativo'?'ativo':i.status==='retirado'?'retirado':'pendente')+'">'+i.status+'</span>';
     var fixPin=i.fixado?'<span class="badge badge-fixado" style="font-size:10px;margin-left:4px;">📌</span>':'';
     var acoes='';
