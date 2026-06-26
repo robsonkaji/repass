@@ -3025,7 +3025,7 @@ async function cancelarReserva(reservaId,btnEl){
     await promoverProximoDaFila(res.item_id);
     showToast('Desistência registrada com sucesso.');
   } else {
-    showToast('Reserva cancelada com sucesso!');
+    showToast('Desistência registrada com sucesso.');
   }
   
   await logAction('Reserva cancelada',{reserva_id:reservaId,item_id:res?.item_id});
