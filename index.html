@@ -2192,31 +2192,7 @@ async function marcarRetirado(id){await sb.from('items').update({status:'retirad
 async function arquivarItem(id){await sb.from('items').update({status:'arquivado'}).eq('id',id);await logAction('Item arquivado',{item_id:id});showToast('Arquivado.');loadAdmItens();}
 async function desfazerStatus(id){if(!confirm('Reativar este item?'))return;await sb.from('items').update({status:'ativo'}).eq('id',id);await logAction('Item reativado',{item_id:id});showToast('Reativado!');loadAdmItens();loadItems();}
 
-async function promoverProximoDaFila(itemId){
-  try{
-    // Buscar próximo da fila (menor posicao_fila com status='fila')
-    const{data:proximaRes,error}=await sb.from('reservas').select('id,user_id').eq('item_id',itemId).eq('status','fila').order('posicao_fila',{ascending:true}).limit(1);
-    
-    if(error||!proximaRes||proximaRes.length===0)return; // Nenhum na fila
-    
-    const res=proximaRes[0];
-    
-    // Promover para aprovada
-    const prazo=new Date();
-    prazo.setDate(prazo.getDate()+3);
-    
-    const{error:updateError}=await sb.from('reservas').update({status:'aprovada',prazo_retirada:prazo.toISOString()}).eq('id',res.id);
-    
-    if(updateError)throw new Error(updateError.message);
-    
-    await logAction('Próximo da fila promovido',{item_id:itemId,reserva_id:res.id});
-    
-    console.log('Promoção automática: usuário',res.user_id,'aprovado para item',itemId);
-  }catch(e){
-    console.error('Erro ao promover próximo da fila:',e);
-    throw e;
-  }
-}
+async function promoverProximoDaFila(itemId){}
 
 async function desfazerRetirada(id){
   if(!confirm('Devolver este item? Ele voltará para disponível e próximo da fila será aprovado.'))return;
