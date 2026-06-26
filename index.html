@@ -679,29 +679,6 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
       <div class="aside-item" onclick="switchPanel('logs',this)"><span class="aside-icon">🔒</span>Logs</div>
     </div>
     <div class="amain">
-      <div id="p-reservas" class="apanel act">
-        <div class="atitle">Gestão de reservas</div>
-        <div class="asub">Visão completa de todas as reservas e filas</div>
-        <div id="res-stats" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;"></div>
-        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
-          <div class="sbox" style="max-width:260px;"><span class="sicon">🔍</span><input type="text" id="res-search" placeholder="Buscar item ou usuário..." oninput="filterReservas()"/></div>
-          <select class="fsel" id="res-loc" onchange="filterReservas()"><option value="">📍 Todos os locais</option><option value="São Paulo">São Paulo</option><option value="Joinville">Joinville</option></select>
-          <select class="fsel" id="res-status-filter" onchange="filterReservas()"><option value="">Todos os status</option><option value="fila">Na fila</option><option value="aprovada">Aprovada</option><option value="retirada">Retirada</option><option value="cancelada">Cancelada</option><option value="recusada">Recusada</option></select>
-          <select class="fsel" id="res-ord" onchange="filterReservas()"><option value="new">Mais recentes</option><option value="prazo">Por prazo</option><option value="user">Por usuário</option></select>
-        </div>
-        <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;overflow-x:auto;">
-          <button class="res-tab act" onclick="switchResTab('pendentes',this)" style="padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--teal-dark);border-bottom:2px solid var(--teal);margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Pendentes <span id="tab-cnt-pendentes" style="background:var(--teal);color:white;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">0</span></button>
-          <button class="res-tab" onclick="switchResTab('aprovadas',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Aprovadas <span id="tab-cnt-aprovadas" style="background:var(--surface3);color:var(--ink-soft);border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">0</span></button>
-          <button class="res-tab" onclick="switchResTab('prazo',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">⚠️ Prazo <span id="tab-cnt-prazo" style="background:var(--surface3);color:var(--ink-soft);border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">0</span></button>
-          <button class="res-tab" onclick="switchResTab('por-usuario',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Por usuário</button>
-          <button class="res-tab" onclick="switchResTab('historico',this)" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;white-space:nowrap;">Histórico</button>
-        </div>
-        <div id="res-pendentes"></div>
-        <div id="res-aprovadas" style="display:none;"></div>
-        <div id="res-prazo" style="display:none;"></div>
-        <div id="res-por-usuario" style="display:none;"></div>
-        <div id="res-historico" style="display:none;"></div>
-      </div>
       <div id="p-banners" class="apanel"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div><div class="atitle">Banners</div><div class="asub">Avisos no catálogo</div></div><button class="btn btn-primary" onclick="openModal('m-banner')">+ Novo</button></div><div id="adm-ban"></div></div>
       <div id="p-capa" class="apanel">
         <div class="atitle">Capa do catálogo</div><div class="asub">Personalize a imagem e textos do hero</div>
