@@ -1578,7 +1578,7 @@ function renderItems(items){
         <div class="cd-box"><div class="cd-num" id="cd-s-${item.id}">—</div><div class="cd-lbl">Segs</div></div>
       </div>
     </div>
-    <button class="icard-ver-btn" onclick="event.stopPropagation();abrirItemById('${item.id}')">Ver Detalhes</button>`;
+    `;
     card.innerHTML=`<div class="ithumb">${thumb}<div style="position:absolute;top:10px;left:10px;display:flex;gap:4px;">${loteTag}${corner}</div><div style="position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer;" onclick="event.stopPropagation();favClick(this,'${item.id}')" class="fav-btn" style="color:${isFav?'#e74c3c':'#aaa'};font-size:16px;">${isFav?'♥':'♡'}</div>${resOverlay}</div><div class="ibody"><div class="iname">${esc(item.nome)}</div><div class="imeta">📍 ${esc(item.escritorio)} · ${esc(item.categoria)}</div><div class="ifoot">${condBadge(item.condicao)}</div>${leilaoSlot}</div>`;
     card.onclick=()=>abrirItem(item);grid.appendChild(card);
     const row=document.createElement('div');row.className='irow';
