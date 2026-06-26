@@ -1791,15 +1791,17 @@ async function loadPerfil(){
   const hist=histData.data||[];
 
   // Stats
-  const max=2,at=myRes.length;
-  document.getElementById('p-lbar').style.width=(at/max*100)+'%';
-  set('#p-lim',at+'/'+max+' reservas');
-  set('#st-ativas',at);
+  set('#st-ativas',myRes.length);
   set('#st-recebidos',hist.filter(r=>r.status==='retirada').length);
   set('#st-favs',favs.length);
   set('#st-hist',hist.length);
 
+  // Busca valor do lance vencedor para cada item arrematado
+  const lanceMap={};
   if(myRes.length){
+    const itemIds=myRes.map(r=>r.item_id);
+    const{data:lancesWin}=await sb.from('lances').select('item_id,valor').in('item_id',itemIds).order('valor',{ascending:false});
+    if(lancesWin)lancesWin.forEach(l=>{if(!lanceMap[l.item_id])lanceMap[l.item_id]=l.valor;});
   }
 
   // Reservas ativas
