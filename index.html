@@ -1842,11 +1842,7 @@ async function loadPerfil(){
     const pos=filaPosMap[r.id];
     let posLabel='';
     if(r.status==='aprovada'){
-      posLabel='<span style="display:inline-flex;align-items:center;gap:4px;background:var(--green-bg);color:var(--green-dark);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;">✅ Aprovada</span>';
-    } else if(pos===1){
-      posLabel='<span style="display:inline-flex;align-items:center;gap:4px;background:#fff7e6;color:#b45309;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;">🥇 1º na fila</span>';
-    } else if(pos){
-      posLabel=`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--surface2);color:var(--ink-soft);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;">⏳ ${pos}º na fila</span>`;
+      posLabel='<span style="display:inline-flex;align-items:center;gap:4px;background:var(--green-bg);color:var(--green-dark);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;">🏆 Ganhador do leilão</span>';
     }
     let prazoTag='';
     if(r.status==='aprovada'){
