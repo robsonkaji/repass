@@ -1740,8 +1740,7 @@ async function loadPerfil(){
   ]);
   myRes=resData.data||[];
   // Aplica prazo confirmado localmente caso o DB ainda não refletiu
-  if(pendingPrazoLocal){const r=myRes.find(r=>r.id===pendingPrazoLocal.resId);console.log('[prazo] pending',pendingPrazoLocal,'match',r?.id,r?.prazo_retirada);if(r)r.prazo_retirada=pendingPrazoLocal.prazo;pendingPrazoLocal=null;}
-  console.log('[prazo] myRes após patch:',myRes.map(r=>({id:r.id,status:r.status,prazo:r.prazo_retirada})));
+  if(pendingPrazoLocal){const r=myRes.find(r=>r.id===pendingPrazoLocal.resId);if(r)r.prazo_retirada=pendingPrazoLocal.prazo;pendingPrazoLocal=null;}
   const favs=favsData.data||[];
   const hist=histData.data||[];
 
