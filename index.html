@@ -1557,7 +1557,7 @@ async function loadItems(){
 function updateStats(items){set('#s-total',items.filter(i=>i.status==='ativo').length);set('#s-res',items.filter(i=>i.status==='reservado').length);set('#s-enc',items.filter(i=>i.status==='encerrado').length);set('#s-ret',items.filter(i=>i.status==='retirado').length);}
 function catEmoji(c){return{Mobiliário:'🪑',Eletrônicos:'🖥️',Informática:'💻',Eletrodomésticos:'🔌',Outros:'📦'}[c]||'📦';}
 function condBadge(c){const m={Ótimo:'otimo',Bom:'bom',Regular:'regular','Com defeito':'defeito'};return`<span class="badge badge-${m[c]||'bom'}">${c}</span>`;}
-function fmtPreco(item){return item.tipo==='venda'&&item.preco?'R$ '+parseFloat(item.preco).toFixed(2).replace('.',','):'';}
+function fmtPreco(item){return '';}
 
 function renderItems(items){
   const grid=document.getElementById('vw-grid'),list=document.getElementById('vw-list');
