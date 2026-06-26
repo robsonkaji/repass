@@ -1687,6 +1687,21 @@ function entrarFila(){if(!CI||!CU)return;if(myRes.find(r=>r.item_id===CI.id))ret
 
 async function confirmarFila(){if(!CI||!CU)return;const btn=document.getElementById('btn-conf-fila');btn.disabled=true;btn.textContent='Aguarde...';const{count}=await sb.from('reservas').select('*',{count:'exact',head:true}).eq('item_id',CI.id).in('status',['fila','aprovada']);const{error}=await sb.from('reservas').insert({item_id:CI.id,user_id:CU.id,posicao_fila:(count||0)+1,status:'fila'});btn.disabled=false;btn.textContent='Confirmar entrada na fila';closeModal('m-fila');if(error)return showToast('Erro: '+error.message);showToast('Você entrou na fila!');const{data:r}=await sb.from('reservas').select('*').eq('user_id',CU.id).in('status',['fila','aprovada']);myRes=r||[];await abrirItem(CI);}
 
+async function darLance(minValor){
+  if(!CI||!CU)return showToast('Faça login para dar um lance.');
+  const inp=document.getElementById('inp-lance');
+  const valor=parseFloat(inp.value);
+  if(!valor||isNaN(valor))return showToast('Digite um valor para o lance.');
+  if(valor%10!==0)return showToast('O lance deve ser múltiplo de R$ 10.');
+  if(valor<minValor)return showToast('Lance mínimo é R$ '+minValor.toFixed(2).replace('.',',')+'.');
+  const btn=inp.nextElementSibling;btn.disabled=true;btn.textContent='Enviando...';
+  const{error}=await sb.from('lances').insert({item_id:CI.id,user_id:CU.id,valor});
+  btn.disabled=false;btn.textContent='Dar lance';
+  if(error)return showToast('Erro: '+error.message);
+  showToast('✅ Lance de R$ '+valor.toLocaleString('pt-BR',{minimumFractionDigits:2})+' registrado!');
+  await abrirItem(CI);
+}
+
 async function loadBanners(){const today=new Date().toISOString().split('T')[0];const{data}=await sb.from('banners').select('*').eq('ativo',true).or(`valido_ate.is.null,valido_ate.gte.${today}`);const stack=document.getElementById('banners-stack');stack.innerHTML='';if(!data?.length)return;const dismissed=JSON.parse(localStorage.getItem('rp_dismissed')||'[]');const esc=CP?.escritorio;data.filter(b=>!dismissed.includes(b.id)&&(b.escritorio==='todos'||b.escritorio===esc)).forEach(b=>{const div=document.createElement('div');div.className='banner banner-'+b.tipo;div.id='bn-'+b.id;div.innerHTML=`<span style="font-size:16px;flex-shrink:0;">${b.tipo==='info'?'📋':b.tipo==='urgencia'?'⚠️':'🌟'}</span><div class="banner-content"><div class="banner-title">${b.titulo}</div>${b.subtitulo?`<div class="banner-sub">${b.subtitulo}</div>`:''}</div><button class="banner-close" onclick="dismissBanner('${b.id}')">✕</button>`;stack.appendChild(div);});}
 
 function dismissBanner(id){const d=JSON.parse(localStorage.getItem('rp_dismissed')||'[]');d.push(id);localStorage.setItem('rp_dismissed',JSON.stringify(d));const el=document.getElementById('bn-'+id);if(el){el.style.maxHeight=el.offsetHeight+'px';el.style.overflow='hidden';requestAnimationFrame(()=>{el.style.transition='max-height .3s,opacity .2s';el.style.maxHeight='0';el.style.opacity='0';setTimeout(()=>el.remove(),320);});}}
