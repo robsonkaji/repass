@@ -1630,7 +1630,7 @@ async function abrirItem(item){
             ${prazo?`<div style="font-size:10px;color:var(--ink-soft);">${prazo.toLocaleDateString('pt-BR')}</div>`:''}
           </div>
         </div>
-        ${!encerrado&&CU?`<div class="lance-input-row"><input type="number" id="inp-lance" placeholder="R$ ${minValor.toFixed(2).replace('.',',')}" step="10" min="${minValor}"/><button class="btn btn-primary" onclick="darLance(${minValor})">Dar lance</button></div><div style="font-size:11px;color:var(--ink-soft);margin-top:6px;">Lance mínimo: R$ ${minValor.toFixed(2).replace('.',',')} · múltiplos de R$ 10</div>`:encerrado?`<div style="font-size:13px;font-weight:600;color:var(--ink-mid);margin-top:12px;">Este leilão foi encerrado.</div>`:`<div style="font-size:13px;color:var(--ink-soft);margin-top:12px;">Faça login para participar.</div>`}
+        ${!encerrado&&CU?`<div class="lance-input-row"><input type="number" id="inp-lance" value="${minValor}" step="10" min="${minValor}"/><button class="btn btn-primary" onclick="darLance(${minValor})">Dar lance</button></div><div style="font-size:11px;color:var(--ink-soft);margin-top:6px;">Lance mínimo: R$ ${minValor.toFixed(2).replace('.',',')} · múltiplos de R$ 10</div>`:encerrado?`<div style="font-size:13px;font-weight:600;color:var(--ink-mid);margin-top:12px;">Este leilão foi encerrado.</div>`:`<div style="font-size:13px;color:var(--ink-soft);margin-top:12px;">Faça login para participar.</div>`}
       </div>
       <div class="fila-box">
         <div class="fila-hdr"><span>Histórico de lances</span><span style="font-size:12px;color:var(--ink-soft);">${lances?lances.length:0} lance(s)</span></div>
