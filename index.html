@@ -3054,10 +3054,7 @@ async function mostrarBannerAprovacao(screenId){
 
   set('#conf-item-nome',item?.nome||'Item');
   set('#conf-local',item?.escritorio||'Não informado');
-  const pagText=item?.tipo==='venda'
-    ?'💳 <b>Venda</b> - Entre em contato com o departamento financeiro para definir o pagamento'
-    :'✅ <b>Doação</b> - Sem custos';
-  document.getElementById('conf-pagamento').innerHTML=pagText;
+  document.getElementById('conf-pagamento').innerHTML='🔨 <b>Leilão</b> - Entre em contato com o financeiro para acertar o pagamento';
 
   if(jaConfirmou){
     set('#conf-titulo','⏳ Aguardando retirada');
