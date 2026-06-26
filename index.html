@@ -1582,23 +1582,14 @@ function renderItems(items){
     row.innerHTML=`<div class="irow-thumb">${thumbSm}</div><div class="irow-info"><div class="irow-name">${esc(item.nome)}${isNew?'<span class="badge badge-novo" style="font-size:10px;margin-left:6px;">Novo</span>':''} ${codigoTag}</div><div class="irow-meta">📍 ${esc(item.escritorio)} · ${esc(item.categoria)} · ${esc(item.condicao)}</div></div><div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">${isReservado?'<span class="badge" style="background:var(--amber-bg);color:var(--amber-dark);">🏆 Arrematado</span>':''}<span id="lv-row-${item.id}" style="font-weight:700;color:#7e22ce;">R$ —</span></div>`;
     row.onclick=()=>abrirItem(item);list.appendChild(row);
     if(isLeilao){
-      sb.from('lances').select('valor').eq('item_id',item.id).order('valor',{ascending:false}).limit(1).maybeSingle().then(({data:l})=>{
-        const valEl=document.getElementById('lv-'+item.id);const valRowEl=document.getElementById('lv-row-'+item.id);
-        const val=l?'R$ '+parseFloat(l.valor).toLocaleString('pt-BR',{minimumFractionDigits:2}):'R$ '+parseFloat(item.lance_minimo||10).toLocaleString('pt-BR',{minimumFractionDigits:2})+' (mín)';
-        if(valEl)valEl.textContent=val;if(valRowEl)valRowEl.textContent=val;
-      });
-      const cdEl=document.getElementById('lc-'+item.id);
-      if(cdEl&&item.prazo_leilao){const diff=Math.ceil((new Date(item.prazo_leilao)-new Date())/864e5);cdEl.textContent=diff>0?`⏳ ${diff} dia(s) restantes`:'🔴 Encerrado';if(diff<=3)cdEl.classList.add('urgente');}
-    }
-    if(isReservado){
-      sb.from('reservas').select('prazo_retirada').eq('item_id',item.id).eq('status','aprovada').maybeSingle().then(({data:rv})=>{
-        const el=document.getElementById('prazo-card-'+item.id);if(!el)return;
-        if(!rv||!rv.prazo_retirada){el.textContent='⏳ Aguardando ganhador confirmar retirada';return;}
-        const dias=businessDaysRemaining(rv.prazo_retirada);
-        if(dias<=0){el.innerHTML='⚠️ Prazo vencido — próximo da fila será notificado em breve';el.style.color='var(--red)';el.style.background='var(--red-bg)';}
-        else{el.textContent=`⏳ Ganhador tem ${dias} dia${dias>1?'s':''} útil${dias>1?'s':''} para retirar`;}
-      });
-    }
+    sb.from('lances').select('valor').eq('item_id',item.id).order('valor',{ascending:false}).limit(1).maybeSingle().then(({data:l})=>{
+      const valEl=document.getElementById('lv-'+item.id);const valRowEl=document.getElementById('lv-row-'+item.id);
+      const val=l?'R$ '+parseFloat(l.valor).toLocaleString('pt-BR',{minimumFractionDigits:2}):'R$ '+parseFloat(item.lance_minimo||10).toLocaleString('pt-BR',{minimumFractionDigits:2})+' (mín)';
+      if(valEl)valEl.textContent=val;if(valRowEl)valRowEl.textContent=val;
+    });
+    const cdEl=document.getElementById('lc-'+item.id);
+    if(cdEl&&item.prazo_leilao){const diff=Math.ceil((new Date(item.prazo_leilao)-new Date())/864e5);cdEl.textContent=diff>0?`⏳ ${diff} dia(s) restantes`:'🔴 Encerrado';if(diff<=3)cdEl.classList.add('urgente');}
+    else if(cdEl){cdEl.textContent='⏳ Prazo não definido';}
   });
 }
 
