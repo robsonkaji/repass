@@ -771,6 +771,11 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
         <div id="adm-comp"></div>
       </div>
       <div id="p-itens" class="apanel"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div><div class="atitle">Itens</div><div class="asub">Cadastrar e gerenciar</div></div><button class="btn btn-primary" onclick="openItemModal()">+ Novo item</button></div><div style="display:flex;gap:12px;margin-bottom:16px;align-items:center;"><label style="font-size:13px;font-weight:600;color:var(--ink-mid);">Filtrar por status:</label><select id="itens-filtro-status" class="fi" style="max-width:200px;" onchange="filtrarItensPorStatus()"><option value="">Todos</option><option value="ativo">Ativos</option><option value="retirado">Retirados</option><option value="arquivado">Arquivados</option><option value="reservado">Reservados</option></select></div><div id="adm-itens"></div></div>
+      <div id="p-leiloes" class="apanel">
+        <div class="atitle">Gestão de Leilões</div>
+        <div class="asub">Acompanhe lances e encerre leilões</div>
+        <div id="leiloes-list" style="display:flex;flex-direction:column;gap:16px;margin-top:16px;"></div>
+      </div>
       <div id="p-relatorio" class="apanel">
         <div class="atitle">📊 Relatório de Vendas</div>
         
