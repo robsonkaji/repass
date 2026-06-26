@@ -1577,7 +1577,6 @@ function renderItems(items){
     if(cdEl&&item.prazo_leilao){const diff=Math.ceil((new Date(item.prazo_leilao)-new Date())/864e5);cdEl.textContent=diff>0?`⏳ ${diff} dia(s) restantes`:'🔴 Encerrado';if(diff<=3)cdEl.classList.add('urgente');}
     else if(cdEl){cdEl.textContent='⏳ Prazo não definido';}
   });
-  });
 }
 
 function filterItems(){
