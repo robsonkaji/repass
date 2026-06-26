@@ -2195,7 +2195,7 @@ async function desfazerStatus(id){if(!confirm('Reativar este item?'))return;awai
 async function promoverProximoDaFila(itemId){}
 
 async function desfazerRetirada(id){
-  if(!confirm('Devolver este item? Ele voltará para disponível e próximo da fila será aprovado.'))return;
+  if(!confirm('Devolver este item? Ele voltará para disponível.'))return;
   
   // Atualizar item para disponível
   await sb.from('items').update({status:'ativo'}).eq('id',id);
