@@ -485,10 +485,9 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
     </div>
     <div class="toolbar">
       <div class="sbox"><span class="sicon">🔍</span><input type="text" id="q-search" placeholder="Buscar itens..." oninput="filterItems()"/></div>
-      <select class="fsel" id="q-tipo" onchange="filterItems()"><option value="">Todos os tipos</option><option value="doacao">Doação</option><option value="venda">Venda</option></select>
       <select class="fsel" id="q-cat" onchange="filterItems()"><option value="">Todas as categorias</option><option>Mobiliário</option><option>Eletrônicos</option><option>Informática</option><option>Eletrodomésticos</option><option>Outros</option></select>
       <select class="fsel" id="q-loc" onchange="filterItems()"><option value="">Todos os locais</option><option value="São Paulo">São Paulo</option><option value="Joinville">Joinville</option></select>
-      <select class="fsel" id="q-ord" onchange="filterItems()"><option value="new">Mais recentes</option><option value="pa">Menor preço</option><option value="pd">Maior preço</option></select>
+      <select class="fsel" id="q-ord" onchange="filterItems()"><option value="new">Mais recentes</option><option value="pa">Menor lance</option><option value="pd">Maior lance</option></select>
       <div class="vt">
         <button class="vi act" id="vbg" onclick="setView('grid')" title="Grade">⊞</button>
         <button class="vi" id="vbl" onclick="setView('list')" title="Lista">☰</button>
