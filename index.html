@@ -1781,16 +1781,31 @@ async function loadPerfil(){
   if(document.getElementById('p-admin'))document.getElementById('p-admin').style.display=CP.role==='admin'?'':'none';
 
   // Busca dados em paralelo
-  const[resData,favsData,histData]=await Promise.all([
+  const[resData,favsData,histData,myLancesData]=await Promise.all([
     sb.from('reservas').select('*,items(*)').eq('user_id',CU.id).in('status',['aprovada']).order('created_at',{ascending:false}),
     sb.from('favoritos').select('*,items(*)').eq('user_id',CU.id),
-    sb.from('reservas').select('*,items(*)').eq('user_id',CU.id).in('status',['retirada','cancelada','recusada']).order('updated_at',{ascending:false}).limit(20)
+    sb.from('reservas').select('*,items(*)').eq('user_id',CU.id).in('status',['retirada','cancelada','recusada']).order('updated_at',{ascending:false}).limit(20),
+    sb.from('lances').select('item_id,valor,items(id,nome,categoria,escritorio,fotos,status,prazo_leilao)').eq('user_id',CU.id).order('valor',{ascending:false})
   ]);
   myRes=resData.data||[];
   // Aplica prazo confirmado localmente caso o DB ainda não refletiu
   if(pendingPrazoLocal){const r=myRes.find(r=>r.id===pendingPrazoLocal.resId);if(r)r.prazo_retirada=pendingPrazoLocal.prazo;pendingPrazoLocal=null;}
   const favs=favsData.data||[];
   const hist=histData.data||[];
+
+  // Leilões que participo: pega o maior lance do usuário por item, apenas itens ativos
+  const myLances=myLancesData.data||[];
+  const myBestByItem={};
+  myLances.forEach(l=>{if(!myBestByItem[l.item_id]||l.valor>myBestByItem[l.item_id].valor)myBestByItem[l.item_id]=l;});
+  const participando=Object.values(myBestByItem).filter(l=>l.items?.status==='ativo');
+
+  // Busca todos os lances dos itens que participo para calcular posição
+  const partItemIds=participando.map(l=>l.item_id);
+  const allLancesMap={};
+  if(partItemIds.length){
+    const{data:allLances}=await sb.from('lances').select('item_id,valor').in('item_id',partItemIds).order('valor',{ascending:false});
+    if(allLances)allLances.forEach(l=>{if(!allLancesMap[l.item_id])allLancesMap[l.item_id]=[];allLancesMap[l.item_id].push(l.valor);});
+  }
 
   // Stats
   set('#st-ativas',myRes.length);
@@ -1805,6 +1820,27 @@ async function loadPerfil(){
     const{data:lancesWin}=await sb.from('lances').select('item_id,valor').in('item_id',itemIds).order('valor',{ascending:false});
     if(lancesWin)lancesWin.forEach(l=>{if(!lanceMap[l.item_id])lanceMap[l.item_id]=l.valor;});
   }
+
+  // Renderiza leilões que participo
+  const partEl=document.getElementById('perfil-participando');partEl.innerHTML='';
+  if(!participando.length){partEl.innerHTML='<div class="empty"><div class="empty-icon">🔨</div><div>Você não está participando de nenhum leilão.</div></div>';}
+  else participando.sort((a,b)=>(b.valor||0)-(a.valor||0)).forEach(l=>{
+    const it=l.items;
+    const th=it?.fotos?.length?`<img src="${esc(it.fotos[0])}" style="width:100%;height:100%;object-fit:cover;" alt="${esc(it?.nome||'')}"/>`:catEmoji(it?.categoria);
+    const todos=allLancesMap[l.item_id]||[];
+    const pos=todos.indexOf(l.valor)+1;
+    const total=todos.length;
+    const isLider=pos===1;
+    const posColor=isLider?'var(--green-dark)':'var(--amber-dark)';
+    const posBg=isLider?'var(--green-bg)':'var(--amber-bg)';
+    const posIcon=isLider?'🥇':'🥈';
+    const posLabel=isLider?'Liderando!':'#'+pos+' de '+total;
+    let prazoStr='';
+    if(it?.prazo_leilao){const d=new Date(it.prazo_leilao);const diff=Math.ceil((d-new Date())/(1000*60*60*24));prazoStr=diff>0?`<span style="font-size:11px;color:var(--ink-soft);">⏳ ${diff}d restante${diff!==1?'s':''}</span>`:`<span style="font-size:11px;color:var(--red);">Prazo encerrado</span>`;}
+    const div=document.createElement('div');div.className='ritem';
+    div.innerHTML=`<div class="rthumb">${th}</div><div class="rinfo"><div class="rname">${esc(it?.nome||'Item')}</div><div style="display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap;"><span style="background:#fdf4ff;color:#7e22ce;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;">Meu lance: R$ ${l.valor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span><span style="font-size:11px;font-weight:700;color:${posColor};background:${posBg};padding:2px 8px;border-radius:20px;">${posIcon} ${posLabel}</span></div><div style="margin-top:4px;">${prazoStr}</div></div><button class="btn btn-sm btn-outline" onclick="abrirItemById('${it?.id}')">Ver</button>`;
+    partEl.appendChild(div);
+  });
 
   // Reservas ativas
   const resEl=document.getElementById('perfil-reservas');resEl.innerHTML='';
