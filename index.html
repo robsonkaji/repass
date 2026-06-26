@@ -1627,6 +1627,40 @@ async function abrirItem(item){
   if(!fila?.length){fd.innerHTML='<div style="padding:14px 18px;font-size:13px;color:var(--ink-soft);">Nenhum interesse ainda. Seja o primeiro!</div>';}
   else fila.forEach((r,i)=>{const isMe=r.user_id===CU?.id;const div=document.createElement('div');div.className='fila-row'+(isMe?' me':'');div.innerHTML=`<div class="fpos ${i===0?'f1':''}">${i+1}</div><div style="flex:1;font-size:13px;">${r.users?.nome||'—'}</div>${isMe?'<span style="font-size:11px;color:var(--teal);font-weight:700;">← você</span>':''}<span class="badge badge-${r.status==='aprovada'?'aprovada':'fila'}" style="font-size:10px;">${r.status==='aprovada'?'Aprovada':'Na fila'}</span>`;fd.appendChild(div);});
   const isFav=myFavs.includes(item.id);set('#btn-fav',isFav?'♥ Favoritado':'♡ Favoritar');
+  const isLeilao=item.tipo==='leilao';
+  document.getElementById('det-fila-section').style.display=isLeilao?'none':'block';
+  document.getElementById('btn-fila').style.display=isLeilao?'none':'';
+  const leilaoBox=document.getElementById('det-leilao-box');
+  leilaoBox.style.display=isLeilao?'block':'none';
+  if(isLeilao){
+    const{data:lances}=await sb.from('lances').select('valor,created_at,user_id').eq('item_id',item.id).order('valor',{ascending:false});
+    const maiorLance=lances&&lances.length?lances[0]:null;
+    const meuLance=lances&&CU?lances.find(l=>l.user_id===CU.id):null;
+    const prazo=item.prazo_leilao?new Date(item.prazo_leilao):null;
+    const encerrado=prazo&&prazo<=new Date();
+    const diasRestantes=prazo?Math.ceil((prazo-new Date())/864e5):null;
+    const minValor=maiorLance?parseFloat(maiorLance.valor)+10:parseFloat(item.lance_minimo||10);
+    leilaoBox.innerHTML=`
+      <div class="leilao-lance-box" style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#7e22ce;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Lance atual</div>
+            <div class="leilao-lance-val">${maiorLance?'R$ '+parseFloat(maiorLance.valor).toLocaleString('pt-BR',{minimumFractionDigits:2}):'R$ '+parseFloat(item.lance_minimo||10).toLocaleString('pt-BR',{minimumFractionDigits:2})+' (lance mínimo)'}</div>
+            ${meuLance?`<div style="font-size:11px;color:#7e22ce;margin-top:4px;">✓ Seu lance: R$ ${parseFloat(meuLance.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>`:''}
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;margin-bottom:4px;">Encerra em</div>
+            <div class="leilao-countdown${diasRestantes!==null&&diasRestantes<=3?' urgente':''}">${encerrado?'🔴 Encerrado':diasRestantes!==null?`⏳ ${diasRestantes} dia(s)`:'—'}</div>
+            ${prazo?`<div style="font-size:10px;color:var(--ink-soft);">${prazo.toLocaleDateString('pt-BR')}</div>`:''}
+          </div>
+        </div>
+        ${!encerrado&&CU?`<div class="lance-input-row"><input type="number" id="inp-lance" placeholder="R$ ${minValor.toFixed(2).replace('.',',')}" step="10" min="${minValor}"/><button class="btn btn-primary" onclick="darLance(${minValor})">Dar lance</button></div><div style="font-size:11px;color:var(--ink-soft);margin-top:6px;">Lance mínimo: R$ ${minValor.toFixed(2).replace('.',',')} · múltiplos de R$ 10</div>`:encerrado?`<div style="font-size:13px;font-weight:600;color:var(--ink-mid);margin-top:12px;">Este leilão foi encerrado.</div>`:`<div style="font-size:13px;color:var(--ink-soft);margin-top:12px;">Faça login para participar.</div>`}
+      </div>
+      <div class="fila-box">
+        <div class="fila-hdr"><span>Histórico de lances</span><span style="font-size:12px;color:var(--ink-soft);">${lances?lances.length:0} lance(s)</span></div>
+        <div>${!lances||!lances.length?'<div style="padding:14px 18px;font-size:13px;color:var(--ink-soft);">Nenhum lance ainda.</div>':lances.map((l,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);${l.user_id===CU?.id?'background:var(--teal-light);':''}"><div style="font-size:13px;font-weight:700;color:${i===0?'#7e22ce':'var(--ink)'};">${i===0?'🥇 ':''}R$ ${parseFloat(l.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div><div style="flex:1;font-size:11px;color:var(--ink-soft);">${new Date(l.created_at).toLocaleDateString('pt-BR')}</div>${l.user_id===CU?.id?'<span style="font-size:10px;font-weight:700;color:var(--teal-dark);">seu lance</span>':''}</div>`).join('')}</div>
+      </div>`;
+  }
   const myR=myRes.find(r=>r.item_id===item.id&&r.status==='aprovada');
   document.getElementById('btn-comp').style.display=myR?'inline-flex':'none';
   if(myR){
