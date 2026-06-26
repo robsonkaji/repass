@@ -1663,8 +1663,7 @@ async function toggleFav(){if(!CI||!CU)return;const isFav=myFavs.includes(CI.id)
 async function darLance(minValor){
   if(!CI||!CU)return showToast('Faça login para dar um lance.');
   const inp=document.getElementById('inp-lance');
-  const valor=parseFloat(inp.value);
-  if(!valor||isNaN(valor))return showToast('Digite um valor para o lance.');
+  const valor=parseFloat(inp.value)||minValor;
   if(valor%10!==0)return showToast('O lance deve ser múltiplo de R$ 10.');
   if(valor<minValor)return showToast('Lance mínimo é R$ '+minValor.toFixed(2).replace('.',',')+'.');
   const btn=inp.nextElementSibling;btn.disabled=true;btn.textContent='Enviando...';
