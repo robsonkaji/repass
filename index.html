@@ -2204,7 +2204,7 @@ async function desfazerRetirada(id){
   await sb.from('reservas').update({status:'cancelada',cancelada_em:new Date().toISOString()}).eq('item_id',id).eq('status','retirada');
   
   await logAction('Item devolvido',{item_id:id});
-  showToast('✅ Item devolvido! Próximo da fila foi aprovado automaticamente.');
+  showToast('✅ Item devolvido e recolocado em leilão.');
   
   // Promover próximo da fila
   await promoverProximoDaFila(id);
