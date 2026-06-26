@@ -1662,7 +1662,7 @@ async function abrirItem(item){
     const prazoEl=document.getElementById('det-prazo');
     if(myR.prazo_retirada){
       const p=new Date(myR.prazo_retirada);const dias=businessDaysRemaining(p);
-      set('#det-prazo',`⏱ <b>Reserva aprovada!</b> Retire até ${p.toLocaleDateString('pt-BR')}. <b>${dias} dia(s) útil(is).</b>`);
+      set('#det-prazo',`⏱ <b>Lance vencedor!</b> Retire até ${p.toLocaleDateString('pt-BR')}. <b>${dias} dia(s) útil(is).</b>`);
       set('#cp-prazo','até '+p.toLocaleDateString('pt-BR'));
     }else{
       set('#det-prazo','⏱ <b>Reserva aprovada!</b> Confirme no seu perfil para iniciar o prazo de retirada.');
