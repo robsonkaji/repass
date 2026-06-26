@@ -1594,13 +1594,13 @@ function renderItems(items){
 }
 
 function filterItems(){
-  const q=val('#q-search').toLowerCase(),tipo=val('#q-tipo'),cat=val('#q-cat'),loc=val('#q-loc'),ord=val('#q-ord');
+  const q=val('#q-search').toLowerCase(),cat=val('#q-cat'),loc=val('#q-loc'),ord=val('#q-ord');
   let items=allItems.filter(i=>{
     if(q&&!i.nome.toLowerCase().includes(q)&&!(i.descricao||'').toLowerCase().includes(q))return false;
-    if(tipo&&i.tipo!==tipo)return false;if(cat&&i.categoria!==cat)return false;if(loc&&i.escritorio!==loc)return false;return true;
+    if(cat&&i.categoria!==cat)return false;if(loc&&i.escritorio!==loc)return false;return true;
   });
-  if(ord==='pa')items.sort((a,b)=>(a.preco||0)-(b.preco||0));
-  if(ord==='pd')items.sort((a,b)=>(b.preco||0)-(a.preco||0));
+  if(ord==='pa')items.sort((a,b)=>(a.lance_minimo||0)-(b.lance_minimo||0));
+  if(ord==='pd')items.sort((a,b)=>(b.lance_minimo||0)-(a.lance_minimo||0));
   renderItems(items);
 }
 
