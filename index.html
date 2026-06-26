@@ -2532,6 +2532,9 @@ function marcarFotoCapa(idx){document.querySelectorAll('.btn-capa-foto').forEach
 async function salvarItem(){
   const editId=document.getElementById('mi-id').value;const nome=val('#mi-nome').trim();if(!nome)return showToast('Digite o nome do item.');
   const tipo=val('#mi-tipo'),preco=tipo==='venda'?parseFloat(val('#mi-preco'))||null:null;
+  const lanceMinimo=tipo==='leilao'?parseFloat(val('#mi-lance-min'))||10:null;
+  const prazoDias=tipo==='leilao'?parseInt(val('#mi-prazo-dias'))||20:null;
+  const prazoLeilao=tipo==='leilao'?new Date(Date.now()+prazoDias*864e5).toISOString():null;
   const btn=document.getElementById('btn-sv-item');btn.disabled=true;btn.textContent='Salvando...';
   var fotos=[];
   for(var fi=0;fi<fotosFiles.length;fi++){const file=fotosFiles[fi];if(typeof file==='string'){fotos.push(file);}else{const ext=file.name.split('.').pop();const path='items/'+Date.now()+'_'+Math.random().toString(36).substr(2,6)+'.'+ext;const{error:e}=await sb.storage.from('item-fotos').upload(path,file,{contentType:file.type});if(!e){const{data:u}=sb.storage.from('item-fotos').getPublicUrl(path);fotos.push(u.publicUrl);}}}
