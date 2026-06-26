@@ -1924,7 +1924,7 @@ function renderResTab(elId,items,tipo){
     var statusBadge='badge-'+(r.status==='fila'?'fila':r.status==='aprovada'?'aprovada':r.status==='retirada'?'retirado':'bloqueado');
     var urgTag=isUrgent?'<span style="background:var(--amber-bg);color:var(--amber-dark);font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;">⚠️ '+diffH+'h</span>':'';
     var expTag=isExpired?'<span style="background:var(--red-bg);color:var(--red);font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;">❌ Expirado</span>':'';
-    var priceStr=it.tipo==='doacao'?'Doação':'Venda — R$ '+parseFloat(it.preco||0).toFixed(2).replace('.',',');
+    var priceStr='🔨 Leilão'+(it.lance_minimo?' — Lance mín: R$ '+parseFloat(it.lance_minimo).toFixed(2).replace('.',','):'');
     var motivoStr=r.motivo_recusa?'<span style="color:var(--red);">Motivo: '+esc(r.motivo_recusa)+'</span>':'';
     var prazoRow=r.prazo_retirada?'<span>⏱ Prazo: <b style="color:'+(isUrgent||isExpired?'var(--red)':'var(--ink)')+';">'+prazoStr+'</b></span>':'';
     var acoes='';
