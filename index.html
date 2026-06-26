@@ -1606,8 +1606,7 @@ async function abrirItem(item){
   else fila.forEach((r,i)=>{const isMe=r.user_id===CU?.id;const div=document.createElement('div');div.className='fila-row'+(isMe?' me':'');div.innerHTML=`<div class="fpos ${i===0?'f1':''}">${i+1}</div><div style="flex:1;font-size:13px;">${r.users?.nome||'—'}</div>${isMe?'<span style="font-size:11px;color:var(--teal);font-weight:700;">← você</span>':''}<span class="badge badge-${r.status==='aprovada'?'aprovada':'fila'}" style="font-size:10px;">${r.status==='aprovada'?'Aprovada':'Na fila'}</span>`;fd.appendChild(div);});
   const isFav=myFavs.includes(item.id);set('#btn-fav',isFav?'♥ Favoritado':'♡ Favoritar');
   const isLeilao=item.tipo==='leilao';
-  document.getElementById('det-fila-section').style.display=isLeilao?'none':'block';
-  document.getElementById('btn-fila').style.display=isLeilao?'none':'';
+  document.getElementById('det-fila-section').style.display='none';
   const leilaoBox=document.getElementById('det-leilao-box');
   leilaoBox.style.display=isLeilao?'block':'none';
   if(isLeilao){
