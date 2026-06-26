@@ -2952,7 +2952,7 @@ async function criarNovoUsuario(){
 
 function bnPreview(){const t=val('#bn-tipo'),ti=val('#bn-titulo')||'Título',s=val('#bn-sub')||'Subtítulo';const icons={info:'📋',urgencia:'⚠️',destaque:'🌟'};document.getElementById('bn-prev').className='bprev banner-'+t;document.getElementById('bn-icon').textContent=icons[t];document.getElementById('bn-pt').textContent=ti;document.getElementById('bn-ps').textContent=s;}
 
-function showScreen(s){if(s==='admin'&&(!CP||CP.role!=='admin')){showToast('❌ Acesso negado! Apenas admins.');return;}document.querySelectorAll('.screen').forEach(function(x){x.classList.remove('active');});document.getElementById('screen-'+s).classList.add('active');window.scrollTo(0,0);if(s==='perfil')loadPerfil();if(s==='admin')switchPanel('reservas',document.querySelector('.aside-item'));if(s==='catalogo')loadItems();}
+function showScreen(s){if(s==='admin'&&(!CP||CP.role!=='admin')){showToast('❌ Acesso negado! Apenas admins.');return;}document.querySelectorAll('.screen').forEach(function(x){x.classList.remove('active');});document.getElementById('screen-'+s).classList.add('active');window.scrollTo(0,0);if(s==='perfil')loadPerfil();if(s==='admin')switchPanel('leiloes',document.querySelector('.aside-item'));if(s==='catalogo')loadItems();}
 function setView(v){document.getElementById('vw-grid').style.display=v==='grid'?'grid':'none';document.getElementById('vw-list').style.display=v==='list'?'flex':'none';document.getElementById('vbg').classList.toggle('act',v==='grid');document.getElementById('vbl').classList.toggle('act',v==='list');}
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
