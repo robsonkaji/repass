@@ -2265,7 +2265,7 @@ async function encerrarLeilao(itemId,userId,valor){
   const{error:e1}=await sb.from('items').update({status:'reservado',ganhador_id:userId}).eq('id',itemId);
   if(e1)return showToast('Erro: '+e1.message);
   const{count}=await sb.from('reservas').select('*',{count:'exact',head:true}).eq('item_id',itemId).in('status',['fila','aprovada']);
-  const{error:e2}=await sb.from('reservas').insert({item_id:itemId,user_id:userId,posicao_fila:(count||0)+1,status:'aprovada',prazo_retirada:null});
+  const{error:e2}=await sb.from('reservas').insert({item_id:itemId,user_id:userId,status:'aprovada',prazo_retirada:null});
   if(e2)return showToast('Erro ao criar reserva: '+e2.message);
   showToast('✅ Ganhador declarado! Reserva aprovada criada.');
   await loadAdmLeiloes();
