@@ -69,6 +69,16 @@ nav{background:var(--ink);border-bottom:none;padding:0 28px;height:64px;display:
 .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.02em;}
 .badge-doacao{background:var(--green-bg);color:var(--green-dark);}
 .badge-venda{background:var(--teal-light);color:var(--teal-dark);}
+.badge-leilao{background:#fdf4ff;color:#7e22ce;}
+.leilao-card{background:linear-gradient(135deg,#fdf4ff 0%,#f5f3ff 100%);border-color:#d8b4fe !important;}
+.leilao-card .ithumb::after{content:'🔨 Leilão';position:absolute;top:10px;left:10px;background:#7e22ce;color:white;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:.04em;}
+.leilao-lance-box{background:#fdf4ff;border:1.5px solid #d8b4fe;border-radius:var(--rl);padding:16px;margin-top:16px;}
+.leilao-lance-val{font-family:"DM Serif Display",serif;font-size:32px;font-weight:700;color:#7e22ce;line-height:1;}
+.leilao-countdown{font-size:12px;font-weight:700;color:var(--ink-soft);margin-top:4px;}
+.leilao-countdown.urgente{color:var(--red);}
+.lance-input-row{display:flex;gap:8px;align-items:center;margin-top:12px;}
+.lance-input-row input{flex:1;padding:10px 14px;border:1.5px solid #d8b4fe;border-radius:8px;font-size:15px;font-weight:600;font-family:"DM Sans",sans-serif;outline:none;}
+.lance-input-row input:focus{border-color:#7e22ce;box-shadow:0 0 0 3px rgba(126,34,206,.12);}
 .badge-ativo{background:var(--green-bg);color:var(--green-dark);}
 .badge-pendente{background:var(--amber-bg);color:var(--amber-dark);}
 .badge-bloqueado{background:var(--red-bg);color:var(--red);}
