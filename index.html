@@ -1546,6 +1546,7 @@ function condBadge(c){const m={Ótimo:'otimo',Bom:'bom',Regular:'regular','Com d
 function fmtPreco(item){return '';}
 
 function renderItems(items){
+  cardCountdownIntervals.forEach(clearInterval);cardCountdownIntervals=[];
   const grid=document.getElementById('vw-grid'),list=document.getElementById('vw-list');
   grid.innerHTML='';list.innerHTML='';
   document.getElementById('items-empty').style.display=items.length?'none':'block';
