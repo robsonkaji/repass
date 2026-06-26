@@ -3023,7 +3023,7 @@ async function cancelarReserva(reservaId,btnEl){
   if(res && res.status==='aprovada'){
     await sb.from('items').update({status:'ativo'}).eq('id',res.item_id);
     await promoverProximoDaFila(res.item_id);
-    showToast('Cancelado! Próximo da fila foi aprovado automaticamente.');
+    showToast('Desistência registrada com sucesso.');
   } else {
     showToast('Reserva cancelada com sucesso!');
   }
